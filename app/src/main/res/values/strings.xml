@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Book at Me Now</string>
+    <string name="default_title">Title</string>
+
+    <!-- defaults for book rows -->
+    <string name="default_author">Author</string>
+    <string name="default_status">Status</string>
+    <string name="default_isbn">ISBN</string>
+    <string name="default_owner">Owner</string>
 </resources>
