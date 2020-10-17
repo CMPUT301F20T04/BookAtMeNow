@@ -31,6 +31,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
+
+    // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+    static final Pattern EMAIL_REGEX  = Pattern.compile(
+            "^[\\w+&*-]+" +
+            "(?:\\.[\\w+&*-]+)*" +
+            "@(?:[\\p{Alnum}-]+\\.)+" +
+            "[a-zA-Z]{2,7}$"
+    );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,19 +163,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+     *
      * @param email
      * @return true if email is valid, false if it is not
      */
     public static boolean validEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
-                "[a-zA-Z0-9_+&*-]+)*@" +
-                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
-                "A-Z]{2,7}$";
-
-        Pattern pat = Pattern.compile(emailRegex);
         if (email == null)
             return false;
-        return pat.matcher(email).matches();
+        return EMAIL_REGEX.matcher(email).matches();
     }
 }
