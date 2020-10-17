@@ -66,17 +66,6 @@ public abstract class BookList extends BaseAdapter {
 
     /**
      *
-     * @param position
-     * @param convertView
-     * @param parent
-     * @return
-     */
-    @Override
-    @NonNull
-    public abstract View getView(int position, View convertView, ViewGroup parent);
-
-    /**
-     *
      * @param convertView
      * @param parent
      * @param xml
@@ -122,7 +111,9 @@ public abstract class BookList extends BaseAdapter {
         public int compare(@NonNull Book b1, @NonNull Book b2) {
             if (status == null) { return 0; }
 
-            if (b1.getStatus() == status && b2.getStatus() != status) {
+            if (Book.Status.valueOf(b1.getStatus()) == status &&
+                    Book.Status.valueOf(b2.getStatus()) != status)
+            {
                 return 1;
             } else {
                 return 0;
@@ -141,7 +132,7 @@ public abstract class BookList extends BaseAdapter {
             filteredBooks = (ArrayList<Book>) books;
         } else {
             for (Book book : books) {
-                if (book.getStatus() == status) {
+                if (Book.Status.valueOf(book.getStatus()) == status) {
                     filteredBooks.add(book);
                 }
             }

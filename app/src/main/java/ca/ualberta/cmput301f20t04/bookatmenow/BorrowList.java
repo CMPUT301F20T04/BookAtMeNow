@@ -43,7 +43,7 @@ public class BorrowList extends BookList {
         title.setText(book.getTitle());
         author.setText(book.getAuthor());
         isbn.setText(book.getIsbn());
-        status.setText(book.getStatus().toString());
+        status.setText(book.getStatus());
         owner.setText(book.getOwner());
 
         return convertView;

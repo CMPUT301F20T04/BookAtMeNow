@@ -4,19 +4,20 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
  * A temporary book class to be used for testing until Corbin can finish the real one
  */
 public class Book {
-    Status status;
+    String status;
     String isbn;
     String title;
     String author;
     String owner;
 
+    // Labelled as it would appear from the toString() method for easier conversion
     public enum Status {
-        BORROWED,
-        AVAILABLE,
-        PENDING,
+        Borrowed,
+        Available,
+        Pending,
     }
 
-    Status getStatus() { return status; }
+    String getStatus() { return status; }
     String getIsbn() { return isbn; }
     String getTitle() { return title; }
     String getAuthor() { return author; }
