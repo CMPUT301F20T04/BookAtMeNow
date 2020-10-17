@@ -5,7 +5,7 @@ import android.media.Image;
 import java.util.List;
 
 public class Book {
-    public enum Status {
+    public enum StatusEnum {
         BORROWED,
         AVAILABLE,
         PENDING,

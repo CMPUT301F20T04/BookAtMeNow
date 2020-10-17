@@ -80,10 +80,10 @@ public abstract class BookList extends BaseAdapter {
 
     /**
      *
-     * @param status
+     * @param statusEnum
      */
-    public void sort(Book.Status status) {
-        Collections.sort(filteredBooks, new CompareByStatus(status));
+    public void sort(Book.StatusEnum statusEnum) {
+        Collections.sort(filteredBooks, new CompareByStatus(statusEnum));
         notifyDataSetChanged();
     }
 
@@ -91,14 +91,14 @@ public abstract class BookList extends BaseAdapter {
      *
      */
     private static class CompareByStatus implements Comparator<Book> {
-        private Book.Status status;
+        private Book.StatusEnum statusEnum;
 
         /**
          *
-         * @param status
+         * @param statusEnum
          */
-        CompareByStatus(@Nullable Book.Status status) {
-            this.status = status;
+        CompareByStatus(@Nullable Book.StatusEnum statusEnum) {
+            this.statusEnum = statusEnum;
         }
 
         /**
@@ -109,10 +109,10 @@ public abstract class BookList extends BaseAdapter {
          */
         @Override
         public int compare(@NonNull Book b1, @NonNull Book b2) {
-            if (status == null) { return 0; }
+            if (statusEnum == null) { return 0; }
 
-            if (Book.Status.valueOf(b1.getStatus()) == status &&
-                    Book.Status.valueOf(b2.getStatus()) != status)
+            if (Book.StatusEnum.valueOf(b1.getStatus()) == statusEnum &&
+                    Book.StatusEnum.valueOf(b2.getStatus()) != statusEnum)
             {
                 return 1;
             } else {
@@ -123,16 +123,16 @@ public abstract class BookList extends BaseAdapter {
 
     /**
      *
-     * @param status
+     * @param statusEnum
      */
-    public void filter(@Nullable Book.Status status) {
+    public void filter(@Nullable Book.StatusEnum statusEnum) {
         filteredBooks.clear();
 
-        if (status == null) {
+        if (statusEnum == null) {
             filteredBooks = (ArrayList<Book>) books;
         } else {
             for (Book book : books) {
-                if (Book.Status.valueOf(book.getStatus()) == status) {
+                if (Book.StatusEnum.valueOf(book.getStatus()) == statusEnum) {
                     filteredBooks.add(book);
                 }
             }
