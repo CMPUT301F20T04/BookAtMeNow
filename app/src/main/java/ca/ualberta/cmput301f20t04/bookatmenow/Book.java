@@ -14,7 +14,7 @@ public class Book {
     public enum Status {
         Borrowed,
         Available,
-        Pending,
+        Pending;
     }
 
     String getStatus() { return status; }
