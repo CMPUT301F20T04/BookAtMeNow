@@ -8,7 +8,7 @@ public class Book {
 
     private String title;
     private String author;
-    private String ISBN;
+    private String isbn;
     private String status;
     private String borrower;
     private String owner;
@@ -19,25 +19,25 @@ public class Book {
      * constructs basic Book
      * @param title
      * @param author
-     * @param ISBN
+     * @param isbn
      */
-    public Book(String title, String author, String ISBN) {
+    public Book(String title, String author, String isbn) {
         this.title = title;
         this.author = author;
-        this.ISBN = ISBN;
+        this.isbn = isbn;
     }
 
     /**
      * constructs Book with optional borrower
      * @param title
      * @param author
-     * @param ISBN
+     * @param isbn
      * @param borrower
      */
-    public Book(String title, String author, String ISBN, String borrower) {
+    public Book(String title, String author, String isbn, String borrower) {
         this.title = title;
         this.author = author;
-        this.ISBN = ISBN;
+        this.isbn = isbn;
         this.borrower = borrower;
     }
 
@@ -57,12 +57,12 @@ public class Book {
         this.author = author;
     }
 
-    public String getISBN() {
-        return ISBN;
+    public String getIsbn() {
+        return isbn;
     }
 
-    public void setISBN(String ISBN) {
-        this.ISBN = ISBN;
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
 
     public String getStatus() {
