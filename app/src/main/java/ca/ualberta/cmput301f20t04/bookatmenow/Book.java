@@ -5,6 +5,11 @@ import android.media.Image;
 import java.util.List;
 
 public class Book {
+    public enum Status {
+        BORROWED,
+        AVAILABLE,
+        PENDING,
+    }
 
     private String title;
     private String author;
