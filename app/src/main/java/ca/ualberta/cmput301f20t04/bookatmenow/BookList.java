@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,12 +14,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class BookList extends BaseAdapter {
+/**
+ *
+ */
+public abstract class BookList extends BaseAdapter {
     private Collection<Book> books;
-    private Context context;
+    protected Context context;
 
-    private ArrayList<Book> filteredBooks;
+    protected ArrayList<Book> filteredBooks;
 
+    /**
+     *
+     * @param context
+     * @param books
+     */
     public BookList(Context context, Collection<Book> books) {
         this.books = books;
         this.context = context;
@@ -28,59 +35,93 @@ public class BookList extends BaseAdapter {
         filteredBooks = (ArrayList<Book>) books;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public int getCount() {
         return filteredBooks.size();
     }
 
+    /**
+     *
+     * @param position
+     * @return
+     */
     @Override
     public Object getItem(int position) {
         return filteredBooks.get(position);
     }
 
+    /**
+     *
+     * @param position
+     * @return
+     */
     @Override
     public long getItemId(int position) {
         return Long.parseLong(filteredBooks.get(position).getIsbn());
     }
 
+    /**
+     *
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return
+     */
     @Override
     @NonNull
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView == null){
-            convertView = LayoutInflater.from(context).inflate(R.layout.book_row, parent,false);
+    public abstract View getView(int position, View convertView, ViewGroup parent);
+
+    /**
+     *
+     * @param convertView
+     * @param parent
+     * @param xml
+     * @return
+     */
+    protected View inflate_helper(View convertView, ViewGroup parent, int xml) {
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(xml, parent, false);
         }
-
-        Book book = filteredBooks.get(position);
-
-        TextView title = convertView.findViewById(R.id.title_text);
-        TextView author = convertView.findViewById(R.id.author_text);
-        TextView isbn = convertView.findViewById(R.id.isbn_text);
-        TextView status = convertView.findViewById(R.id.status_text);
-        TextView owner =  convertView.findViewById(R.id.owner_text);
-
-        title.setText(book.getTitle());
-        author.setText(book.getAuthor());
-        isbn.setText(book.getIsbn());
-        status.setText(book.getStatus().toString());
-        owner.setText(book.getOwner());
-
         return convertView;
     }
 
-    public void sort(Book.Status status) throws NoSuchFieldException {
+    /**
+     *
+     * @param status
+     */
+    public void sort(Book.Status status) {
         Collections.sort(filteredBooks, new CompareByStatus(status));
         notifyDataSetChanged();
     }
 
+    /**
+     *
+     */
     private static class CompareByStatus implements Comparator<Book> {
         private Book.Status status;
 
-        CompareByStatus(Book.Status status) {
+        /**
+         *
+         * @param status
+         */
+        CompareByStatus(@Nullable Book.Status status) {
             this.status = status;
         }
 
+        /**
+         *
+         * @param b1
+         * @param b2
+         * @return
+         */
         @Override
         public int compare(@NonNull Book b1, @NonNull Book b2) {
+            if (status == null) { return 0; }
+
             if (b1.getStatus() == status && b2.getStatus() != status) {
                 return 1;
             } else {
@@ -89,6 +130,10 @@ public class BookList extends BaseAdapter {
         }
     }
 
+    /**
+     *
+     * @param status
+     */
     public void filter(@Nullable Book.Status status) {
         filteredBooks.clear();
 
@@ -105,6 +150,11 @@ public class BookList extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    /**
+     *
+     * @param position
+     * @throws ArrayIndexOutOfBoundsException
+     */
     public void deleteItem(int position) throws ArrayIndexOutOfBoundsException {
         if (position < 0 || position >= filteredBooks.size()) {
             throw new ArrayIndexOutOfBoundsException();
