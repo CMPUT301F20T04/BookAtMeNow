@@ -5,10 +5,11 @@ import android.media.Image;
 import java.util.List;
 
 public class Book {
+    // In normal case for easier conversion to and from String
     public enum StatusEnum {
-        BORROWED,
-        AVAILABLE,
-        PENDING,
+        Borrowed,
+        Available,
+        Pending,
     }
 
     private String title;

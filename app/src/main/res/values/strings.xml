@@ -7,4 +7,7 @@
     <string name="default_status">Status</string>
     <string name="default_isbn">ISBN</string>
     <string name="default_owner">Owner</string>
+    <string name="default_username">Username</string>
+    <string name="confirm_description">confirm</string>
+    <string name="reject_description">reject</string>
 </resources>
