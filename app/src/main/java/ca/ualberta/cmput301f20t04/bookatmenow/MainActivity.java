@@ -169,6 +169,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // menu buttons
+        Button editProfileButton = findViewById(R.id.edit_profile);
+        Button myBooksButton = findViewById(R.id.my_books);
+        Button borrowedButton = findViewById(R.id.borrowed);
+        Button requestedButton = findViewById(R.id.requested);
+
+        editProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // change to profile activity later
+                startActivity(new Intent(MainActivity.this, MainActivity.class));
+            }
+        });
+
         userRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
