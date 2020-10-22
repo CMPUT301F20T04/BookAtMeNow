@@ -11,19 +11,44 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
+ * A BaseAdapter class specialized for a database of {@link Book}s to be owned, borrowed, requested,
+ * or simply displayed.
+ * <p>
+ * Until the implementation of the database handler is complete, the list of books in the database
+ * is being emulated with {@link this#books}.
  *
+ * @author Warren Stix
+ * @see BookList
+ * @see android.widget.BaseAdapter
+ * @version 0.3
  */
 public class BorrowList extends BookList {
     /**
-     * An enum to identify the "View Mode" this adapter is launched in - if all books are being
-     * viewed, this will be null.
+     * Identify the "View Mode" this adapter is launched in.
+     *
+     * @author Warren Stix
+     * @see Book.StatusEnum
+     * @version 0.1
      */
     enum ViewMode {
+        /**
+         * Display all {@link Book}s in the system
+         */
         ALL,
+        /**
+         * Display the {@link Book}s owned by the {@link User} with a given username
+         */
         OWNED,
+        /**
+         * Display the {@link Book}s being borrowed by the {@link User} with a given username
+         */
         BORROWED,
+        /**
+         * Display the {@link Book}s being requested by the {@link User} with a given username
+         */
         REQUESTED;
     }
 
@@ -31,19 +56,20 @@ public class BorrowList extends BookList {
     @Nullable private User user;
 
     /**
-     * Construct a view of all books in the system
+     * Construct a view of all books in the system.
      *
      * @param context
      *      The context of the calling activity, used to display objects on the screen
      * @param books
      *      A temporary parameter representing the books in the database
      */
-    public BorrowList(Context context, ArrayList<Book> books) {
+    public BorrowList(Context context, List<Book> books) {
         super(context, books);
+        filteredBooks = new ArrayList<>();
 
         viewMode = ViewMode.ALL;
         user = null;
-        filteredBooks = books;
+        filteredBooks.addAll(books);
     }
 
     /**
@@ -63,6 +89,7 @@ public class BorrowList extends BookList {
                       @Nullable User user)
     {
         super(context, books);
+        filteredBooks = new ArrayList<>();
 
         this.viewMode = viewMode;
         this.user = user;
@@ -75,8 +102,8 @@ public class BorrowList extends BookList {
     }
 
     /**
-     * Checks the given book to ensure that it should be displayed in the adapter's current view
-     * mode
+     * A helper method checking the given book to ensure that it should be displayed in the
+     * adapter's current view mode.
      *
      * @param book
      * @return
@@ -105,11 +132,17 @@ public class BorrowList extends BookList {
     }
 
     /**
+     * A required method from {@link android.widget.BaseAdapter} for displaying an element of the
+     * internal list at a given position.
      *
      * @param position
+     *      The position of the element to display from the internal list
      * @param convertView
+     *      The external {@link View} in which to display the element's data
      * @param parent
+     *      The {@link ViewGroup} containing the elements of the {@link android.widget.ListView}
      * @return
+     *      The original given {@link View}, converted into a row of the internal list
      */
     @Override
     @NonNull
@@ -134,8 +167,28 @@ public class BorrowList extends BookList {
     }
 
     /**
+     * A required method from {@link android.widget.BaseAdapter} for getting a unique identifying
+     * long value from an element of the internal list at a given position. In this case, the ISBN
+     * of a book can be used, as a 64-bit long can represent up to 19 digits, while an ISBN has at
+     * most 13 digits.
+     *
+     * @param position
+     *      The position in the internal filtered list from which to get a unique feature of the
+     *      element
+     * @return
+     *      The book's unique identifying ISBN at this position
+     */
+    @Override
+    public long getItemId(int position) {
+        return Long.parseLong(filteredBooks.get(position).getIsbn());
+    }
+
+    /**
+     * Sort the internal list based on a given {@link Book.StatusEnum}.
      *
      * @param statusEnum
+     *      The status of books to come first in the internal list
+     * @see CompareByStatus
      */
     public void sort(Book.StatusEnum statusEnum) {
         Collections.sort(filteredBooks, new CompareByStatus(statusEnum));
@@ -143,7 +196,10 @@ public class BorrowList extends BookList {
     }
 
     /**
-     *
+     * A class used to compare two books by their current status.
+     * @author Warren Stix
+     * @version 0.2
+     * @see Comparator
      */
     private static class CompareByStatus implements Comparator<Book> {
         private Book.StatusEnum statusEnum;
@@ -157,17 +213,29 @@ public class BorrowList extends BookList {
         }
 
         /**
+         * A required method from the {@link Comparator} interface used to compare two elements of
+         * the same class. In this case, a {@link Book} with the {@link Book.StatusEnum} that this
+         * instance of this class was constructed with will have a lower value than a {@link Book}
+         * with a different {@link Book.StatusEnum}. All other {@link Book}s will be considered
+         * equal.
          *
-         * @param b1
-         * @param b2
+         * @param book1
+         *      The first {@link Book} to compare
+         * @param book2
+         *      The second {@link Book} to compare
          * @return
+         *      The comparative value of book1 to book2
          */
         @Override
-        public int compare(@NonNull Book b1, @NonNull Book b2) {
+        public int compare(@NonNull Book book1, @NonNull Book book2) {
             if (statusEnum == null) { return 0; }
 
-            if (Book.StatusEnum.valueOf(b1.getStatus()) == statusEnum &&
-                    Book.StatusEnum.valueOf(b2.getStatus()) != statusEnum)
+            if (Book.StatusEnum.valueOf(book1.getStatus()) == statusEnum &&
+                    Book.StatusEnum.valueOf(book2.getStatus()) != statusEnum)
+            {
+                return -1;
+            } else if (Book.StatusEnum.valueOf(book1.getStatus()) != statusEnum &&
+                        Book.StatusEnum.valueOf(book2.getStatus()) == statusEnum)
             {
                 return 1;
             } else {
@@ -177,8 +245,10 @@ public class BorrowList extends BookList {
     }
 
     /**
+     * Change the internal filtered list to only show books with a given status.
      *
      * @param statusEnum
+     *      The status to filter by
      */
     public void filter(@Nullable Book.StatusEnum statusEnum) {
         filteredBooks.clear();

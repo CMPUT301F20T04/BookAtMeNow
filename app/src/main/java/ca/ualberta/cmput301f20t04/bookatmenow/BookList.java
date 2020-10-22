@@ -6,32 +6,46 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * An abstract definition of an adapter for a {@link android.widget.ListView} that displays a
+ * filtered {@link List} of books. The specific form this list takes is up to the derived class to
+ * implement.
+ * <p>
+ * Until the implementation of the database handler is complete, the list of books in the database
+ * is being emulated with {@link this#books}.
  *
+ * @author Warren Stix
+ * @see BaseAdapter
+ * @see BorrowList
+ * @see RequestList
+ * @version 0.4
  */
 public abstract class BookList extends BaseAdapter {
-    protected ArrayList<Book> books;
+    protected List<Book> books;
     private Context context;
 
-    protected ArrayList<Book> filteredBooks;
+    protected List<Book> filteredBooks;
 
     /**
+     * Construct a filtered list of books from an emulated database.
      *
      * @param context
+     *      The context of the containing {@link android.app.Activity}
      * @param books
+     *      A {@link List<Book>} representing the database
      */
-    public BookList(Context context, ArrayList<Book> books) {
+    public BookList(Context context, List<Book> books) {
         this.books = books;
         this.context = context;
-
-        filteredBooks = new ArrayList<>();
     }
 
     /**
+     * A required method from {@link BaseAdapter} for getting the length of the internal list.
      *
      * @return
+     *      The length of the internal filtered list
      */
     @Override
     public int getCount() {
@@ -39,9 +53,13 @@ public abstract class BookList extends BaseAdapter {
     }
 
     /**
+     * A required method from {@link BaseAdapter} for getting an element of the internal list at a
+     * given position.
      *
      * @param position
+     *      The position in the internal filtered list from which to retrieve the element
      * @return
+     *      The element in the internal filtered list at the given position
      */
     @Override
     public Object getItem(int position) {
@@ -49,41 +67,23 @@ public abstract class BookList extends BaseAdapter {
     }
 
     /**
-     *
-     * @param position
-     * @return
-     */
-    @Override
-    public long getItemId(int position) {
-        return Long.parseLong(filteredBooks.get(position).getIsbn());
-    }
-
-    /**
+     * A helper method that helps a subclass to inflate a row of a {@link android.widget.ListView}.
      *
      * @param convertView
+     *      The {@link BaseAdapter}'s given {@link View} at this position to convert into a row of
+     *      the internal list
      * @param parent
+     *      The {@link ViewGroup} containing the elements of the {@link android.widget.ListView}
      * @param xml
+     *      A unique identifying integer referring to the ID of the XML layout resource file that
+     *      contains the {@link View} each row will be built on
      * @return
+     *      The original given {@link View}, converted into a row of the internal list
      */
     protected View inflate_helper(View convertView, ViewGroup parent, int xml) {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(xml, parent, false);
         }
         return convertView;
-    }
-
-    /**
-     *
-     * @param position
-     * @throws ArrayIndexOutOfBoundsException
-     */
-    public void deleteItem(int position) throws ArrayIndexOutOfBoundsException {
-        if (position < 0 || position >= filteredBooks.size()) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-
-        books.remove(position);
-        filteredBooks.remove(position);
-        notifyDataSetChanged();
     }
 }
