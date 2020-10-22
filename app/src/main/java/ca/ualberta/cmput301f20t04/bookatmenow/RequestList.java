@@ -25,7 +25,7 @@ public class RequestList extends BookList {
 
         for (Book book : books) {
             if (book.getOwner().equals(owner) &&
-                Book.StatusEnum.valueOf(book.getStatus()) == Book.StatusEnum.PENDING)
+                Book.StatusEnum.valueOf(book.getStatus()) == Book.StatusEnum.Pending)
             {
                 for (String requester : book.getRequests()) {
                     filteredBooks.add(book);
