@@ -26,7 +26,7 @@ public abstract class BookList extends BaseAdapter {
         this.books = books;
         this.context = context;
 
-        filteredBooks = books;
+        filteredBooks = new ArrayList<>();
     }
 
     /**

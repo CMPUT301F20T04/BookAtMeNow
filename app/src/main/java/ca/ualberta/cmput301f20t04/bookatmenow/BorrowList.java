@@ -17,13 +17,92 @@ import java.util.Comparator;
  */
 public class BorrowList extends BookList {
     /**
+     * An enum to identify the "View Mode" this adapter is launched in - if all books are being
+     * viewed, this will be null.
+     */
+    enum ViewMode {
+        ALL,
+        OWNED,
+        BORROWED,
+        REQUESTED;
+    }
+
+    @NonNull private ViewMode viewMode;
+    @Nullable private User user;
+
+    /**
+     * Construct a view of all books in the system
      *
      * @param context
      *      The context of the calling activity, used to display objects on the screen
      * @param books
      *      A temporary parameter representing the books in the database
      */
-    public BorrowList(Context context, ArrayList<Book> books) { super(context, books); }
+    public BorrowList(Context context, ArrayList<Book> books) {
+        super(context, books);
+
+        viewMode = ViewMode.ALL;
+        user = null;
+        filteredBooks = books;
+    }
+
+    /**
+     *  Construct a view of books that a user owns, has borrowed, or has requested to borrow.
+     *
+     * @param context
+     *      The context of the calling activity, used to display objects on the screen
+     * @param books
+     *      A temporary parameter representing the books in the database
+     * @param viewMode
+     *      The "view mode" of this list of books - indicates how many books in the system need to
+     *      be displayed and re-displayed after filtering
+     * @param user
+     *      The user whose books are being displayed
+     */
+    public BorrowList(Context context, ArrayList<Book> books, @NonNull ViewMode viewMode,
+                      @Nullable User user)
+    {
+        super(context, books);
+
+        this.viewMode = viewMode;
+        this.user = user;
+
+        for (Book book : books) {
+            if (checkUser(book)) {
+                filteredBooks.add(book);
+            }
+        }
+    }
+
+    /**
+     * Checks the given book to ensure that it should be displayed in the adapter's current view
+     * mode
+     *
+     * @param book
+     * @return
+     *      a boolean representing whether or not the current book should be displayed
+     */
+    private boolean checkUser(Book book) {
+        if (user == null) {
+            return true;
+        }
+
+        switch (viewMode) {
+            case OWNED:
+                return user.getUsername().equals(book.getOwner());
+            case BORROWED:
+                return user.getUsername().equals(book.getBorrower());
+            case REQUESTED:
+                for (String requester : book.getRequests()) {
+                    if (user.getUsername().equals(requester)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                return true;
+        }
+    }
 
     /**
      *
@@ -104,13 +183,11 @@ public class BorrowList extends BookList {
     public void filter(@Nullable Book.StatusEnum statusEnum) {
         filteredBooks.clear();
 
-        if (statusEnum == null) {
-            filteredBooks = books;
-        } else {
-            for (Book book : books) {
-                if (Book.StatusEnum.valueOf(book.getStatus()) == statusEnum) {
-                    filteredBooks.add(book);
-                }
+        for (Book book : books) {
+            if (checkUser(book) &&
+                (statusEnum == null || Book.StatusEnum.valueOf(book.getStatus()) == statusEnum))
+            {
+                filteredBooks.add(book);
             }
         }
 

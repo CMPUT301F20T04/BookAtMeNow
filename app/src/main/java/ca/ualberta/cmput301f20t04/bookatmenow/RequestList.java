@@ -18,13 +18,13 @@ public class RequestList extends BookList {
      * @param books
      * @param owner
      */
-    public RequestList(Context context, ArrayList<Book> books, String owner) {
+    public RequestList(Context context, ArrayList<Book> books, User owner) {
         super(context, books);
 
         requesters = new ArrayList<>();
 
         for (Book book : books) {
-            if (book.getOwner().equals(owner) &&
+            if (book.getOwner().equals(owner.getUsername()) &&
                 Book.StatusEnum.valueOf(book.getStatus()) == Book.StatusEnum.Pending)
             {
                 for (String requester : book.getRequests()) {
@@ -35,6 +35,13 @@ public class RequestList extends BookList {
         }
     }
 
+    /**
+     *
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return
+     */
     @Override
     @NonNull
     public View getView(int position, View convertView, ViewGroup parent) {
