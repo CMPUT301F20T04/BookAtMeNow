@@ -4,14 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,6 +43,25 @@ public class MainActivity extends AppCompatActivity {
             "[a-zA-Z]{2,7}$"
     );
 
+    public void goGEO(View view) {
+        Intent intent = new Intent(this, GeoLocation.class);
+        intent.putExtra("purpose", "set");//"set" for selecting location. "view" for viewing location
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK){//location was selected
+            double lat = data.getDoubleExtra("lat", 300);
+            double lng = data.getDoubleExtra("lng", 300);
+            Log.i("AppInfo", "Lat and Lng are: " + String.valueOf(lat) + ", " + String.valueOf(lng));
+            //addressEditText.setText(String.valueOf(lat) + " " + String.valueOf(lng));
+            //commented out until TextViews are defined outside onCreate
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore testDB = FirebaseFirestore.getInstance();
 
         final String TAG = "Sample";
+
 
         // can move this to occur after login screen later
         final EditText usernameEditText = findViewById(R.id.username);

@@ -65,6 +65,7 @@
         android:layout_height="47dp"
         android:layout_marginTop="8dp"
         android:background="#D7E7FF"
+        android:onClick="goGEO"
         android:text="Select Address from Map"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.238"
