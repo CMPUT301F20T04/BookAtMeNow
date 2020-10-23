@@ -70,5 +70,28 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, ProfileActivity.class));
             }
         });
+
+        final Button addBookButton = findViewById(R.id.add);
+        addBookButton.setVisibility(View.GONE);
+        final Button homeButton = findViewById(R.id.home);
+        homeButton.setVisibility(View.GONE);
+
+        myBooksButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addBookButton.setVisibility(View.VISIBLE);
+                homeButton.setVisibility(View.VISIBLE);
+            }
+        });
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addBookButton.setVisibility(View.GONE);
+                homeButton.setVisibility(View.GONE);
+            }
+        });
+
+
     }
 }
