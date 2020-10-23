@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -92,6 +93,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        final Button filterButton = findViewById(R.id.filter);
+
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
+            }
+        });
 
     }
 }

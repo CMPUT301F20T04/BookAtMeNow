@@ -10,4 +10,11 @@
     <string name="default_username">Username</string>
     <string name="confirm_description">confirm</string>
     <string name="reject_description">reject</string>
+
+    <!-- filter sort drop down -->
+    <string-array name="sort_array">
+        <item>Title</item>
+        <item>Author</item>
+        <item>ISBN</item>
+    </string-array>
 </resources>
