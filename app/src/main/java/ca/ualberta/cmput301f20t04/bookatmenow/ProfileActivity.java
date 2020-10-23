@@ -34,6 +34,27 @@ public class ProfileActivity extends AppCompatActivity {
                     "[a-zA-Z]{2,7}$"
     );
 
+    /**
+     *
+     * @param email
+     * @return true if email is valid, false if it is not
+     */
+    public static boolean validEmail(String email) {
+        if (email == null)
+            return false;
+        return EMAIL_REGEX.matcher(email).matches();
+    }
+
+    static final Pattern PW_REGEX  = Pattern.compile(
+            "^[\\w+&*-]+"
+    );
+
+    public static boolean validPassword(String password) {
+        if (password == null)
+            return false;
+        return PW_REGEX.matcher(password).matches();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,11 +116,19 @@ public class ProfileActivity extends AppCompatActivity {
 
                 HashMap<String, String> data = new HashMap<>();
 
+                boolean test = validPassword("Java2blog@");
+                if (test) {
+                    confirmPwTextView.setText("true");
+                }
+
                 if (!password.equals(passwordConfirm)) {
                     confirmPwTextView.setText("Passwords don't match.");
+                } else if (!validPassword(password)) {
+                    confirmPwTextView.setText("Invalid Password.");
                 } else {
                     confirmPwTextView.setText("");
                 }
+
                 if (!validEmail(email)) {
                     invalidEmailTextView.setText("Invalid Email.");
                 } else {
@@ -108,7 +137,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 if (username.length() > 0 && password.length() > 0
                         && password.equals(passwordConfirm)
-                        && validEmail(email)) {
+                        && validEmail(email) && validPassword(password)) {
 
                     data.put("Password", password);
                     data.put("Email", email);
@@ -164,16 +193,5 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    /**
-     *
-     * @param email
-     * @return true if email is valid, false if it is not
-     */
-    public static boolean validEmail(String email) {
-        if (email == null)
-            return false;
-        return EMAIL_REGEX.matcher(email).matches();
     }
 }

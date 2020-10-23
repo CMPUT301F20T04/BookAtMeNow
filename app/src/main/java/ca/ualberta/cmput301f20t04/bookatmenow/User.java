@@ -1,11 +1,11 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
-import java.util.ArrayList;
+import java.util.regex.*;
 
 public class User {
     private String username; // can make unique w/ firebase once it's set up
     private String password;
-    private int phone;
+    private String phone;
     private String email;
     private String address;
 
@@ -25,28 +25,21 @@ public class User {
      * constructs user with optional phone #
      * @param username
      * @param password
-     * @param phone
+     * @param phoneOrAddress
      * @param email
      */
-    public User(String username, String password, int phone, String email) {
+    public User(String username, String password, String phoneOrAddress, String email) {
         this.username = username;
         this.password = password;
-        this.phone = phone;
-        this.email = email;
-    }
 
-    /**
-     * constructs user with optional address
-     * @param username
-     * @param password
-     * @param email
-     * @param address
-     */
-    public User(String username, String password, String email, String address) {
-        this.username = username;
-        this.password = password;
+        final Pattern p = Pattern.compile("[0-9]+");
+        if (p.matcher(phoneOrAddress).matches()) {
+            this.phone = phoneOrAddress;
+        } else {
+            this.address = phoneOrAddress;
+        }
+
         this.email = email;
-        this.address = address;
     }
 
     /**
@@ -57,7 +50,7 @@ public class User {
      * @param email
      * @param address
      */
-    public User(String username, String password, int phone, String email, String address) {
+    public User(String username, String password, String phone, String email, String address) {
         this.username = username;
         this.password = password;
         this.phone = phone;
@@ -101,7 +94,7 @@ public class User {
      *
      * @return phone
      */
-    public int getPhone() {
+    public String getPhone() {
         return phone;
     }
 
@@ -109,7 +102,7 @@ public class User {
      *
      * @param phone
      */
-    public void setPhone(int phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
