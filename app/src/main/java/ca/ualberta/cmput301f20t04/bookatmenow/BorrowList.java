@@ -23,7 +23,7 @@ import java.util.List;
  * @author Warren Stix
  * @see BookList
  * @see android.widget.BaseAdapter
- * @version 0.3
+ * @version 0.4
  */
 public class BorrowList extends BookList {
     /**
@@ -201,12 +201,15 @@ public class BorrowList extends BookList {
      * @version 0.2
      * @see Comparator
      */
-    private static class CompareByStatus implements Comparator<Book> {
+    public static class CompareByStatus implements Comparator<Book> {
+        // TODO: only temporarily public!
         private Book.StatusEnum statusEnum;
 
         /**
+         * Construct a comparator that prioritizes books with a given status
          *
          * @param statusEnum
+         *      The status to prioritize
          */
         CompareByStatus(@Nullable Book.StatusEnum statusEnum) {
             this.statusEnum = statusEnum;
