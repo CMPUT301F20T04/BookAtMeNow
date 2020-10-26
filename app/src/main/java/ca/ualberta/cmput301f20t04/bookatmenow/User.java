@@ -59,6 +59,11 @@ public class User {
     }
 
     /**
+     * Constructor for DB handler
+     */
+    public User() {}
+
+    /**
      *
      * @return username
      */

@@ -47,6 +47,11 @@ public class Book {
         this.borrower = borrower;
     }
 
+    /**
+     * Constructor for DB Handler
+     */
+    public Book() {}
+
     public String getTitle() {
         return title;
     }
