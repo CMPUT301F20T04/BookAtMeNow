@@ -30,77 +30,22 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
-    public void goGEO(View view) {
-        Intent intent = new Intent(this, GeoLocation.class);
-        intent.putExtra("purpose", "set");//"set" for selecting location. "view" for viewing location
-        startActivityForResult(intent, 1);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK){//location was selected
-            double lat = data.getDoubleExtra("lat", 300);
-            double lng = data.getDoubleExtra("lng", 300);
-            Log.i("AppInfo", "Lat and Lng are: " + String.valueOf(lat) + ", " + String.valueOf(lng));
-            //addressEditText.setText(String.valueOf(lat) + " " + String.valueOf(lng));
-            //commented out until TextViews are defined outside onCreate
-        }
-    }
+    User test2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // menu buttons
-        Button editProfileButton = findViewById(R.id.edit_profile);
-        Button myBooksButton = findViewById(R.id.my_books);
-        Button borrowedButton = findViewById(R.id.borrowed);
-        Button requestedButton = findViewById(R.id.requested);
 
-        editProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-            }
-        });
-
-        final Button addBookButton = findViewById(R.id.add);
-        addBookButton.setVisibility(View.GONE);
-        final Button homeButton = findViewById(R.id.home);
-        homeButton.setVisibility(View.GONE);
-
-        myBooksButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addBookButton.setVisibility(View.VISIBLE);
-                homeButton.setVisibility(View.VISIBLE);
-            }
-        });
-
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addBookButton.setVisibility(View.GONE);
-                homeButton.setVisibility(View.GONE);
-            }
-        });
-
-        final Button filterButton = findViewById(R.id.filter);
-
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
-            }
-        });
-
+        User testU = new User("Username", "Password", "email@email.net");
+        Book testB = new Book("A book", "An Author", "9086578998");
+        DBHandler db = new DBHandler();
     }
 }
