@@ -156,6 +156,43 @@ public class DBHandler {
     }
 
     /**
+     * Password checker, assumes user exists and has a password
+     * @param email
+     *      User's email. a string
+     * @param password
+     *      User's password, a string
+     * @param successListener
+     *      Listener to handle when data is pulled
+     * @param failureListener
+     *      Listener to handle the failure of data pulling
+     */
+    public void checkPassword(String email, final String password, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+        Task<DocumentSnapshot> userTask = db
+                .collection(FireStoreMapping.COLLECTIONS_USER)
+                .document(email)
+                .get();
+
+        userTask.continueWith(new Continuation<DocumentSnapshot, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<DocumentSnapshot> task) throws Exception {
+                DocumentSnapshot userData = task.getResult();
+
+                if (!userData.exists()) {
+                    throw new IllegalArgumentException("User does not exist, please verify user's existence prior to calling this method.");
+                }
+
+                if (userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD) == null) {
+                    throw new IllegalArgumentException("User does not have a password set. Is this a test account?");
+                }
+
+                return userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD).equals(password);
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
      * Rudimentary add book handler, does not do any checks and fills fields as empty when no data provided.
      * @param bookToAdd
      *      Book object containing complete or incomplete book data, handler will fill everything else with an empty string
