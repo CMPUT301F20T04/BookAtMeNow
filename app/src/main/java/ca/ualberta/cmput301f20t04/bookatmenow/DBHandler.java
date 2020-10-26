@@ -19,6 +19,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Document;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -258,6 +259,55 @@ public class DBHandler {
                 finalBook.setRequests(requests);
 
                 return finalBook;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Gives the provided success listener an array list of book objects
+     * @param successListener
+     *      Listener to act on the success of the query
+     * @param failureListener
+     *      Listener to act on the failure of a query
+     */
+    public void getAllBooks(OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        Task<QuerySnapshot> bookTask = db
+                .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                .get();
+
+        bookTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
+            @Override
+            public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> bookData = task.getResult().getDocuments();
+                List<Book> books = new ArrayList<Book>();
+
+                for (DocumentSnapshot doc: bookData) {
+                    if (doc.exists()) {
+                        Book finalBook = new Book();
+
+                        String title = doc.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
+                        String author = doc.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
+                        String status = doc.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
+                        String borrower = doc.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
+                        String owner = doc.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
+                        List<String> requests = doc.toObject(ListAssist.class).requests;
+                        String image = doc.getString(FireStoreMapping.BOOK_FIELDS_IMAGE);
+
+                        finalBook.setTitle(title);
+                        finalBook.setAuthor(author);
+                        finalBook.setIsbn(doc.getId());
+                        finalBook.setStatus(status);
+                        finalBook.setBorrower(borrower);
+                        finalBook.setOwner(owner);
+                        finalBook.setRequests(requests);
+
+                        books.add(finalBook);
+                    }
+                }
+
+                return books;
             }
         })
                 .addOnSuccessListener(successListener)
