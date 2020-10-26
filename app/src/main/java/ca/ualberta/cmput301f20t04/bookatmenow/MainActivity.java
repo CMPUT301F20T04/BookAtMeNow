@@ -9,6 +9,14 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Button editProfileButton;
+    private Button myBooksButton;
+    private Button borrowedButton;
+    private Button requestedButton;
+
+    private Button addBookButton;
+    private Button homeButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
