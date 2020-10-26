@@ -79,6 +79,14 @@ public class ProfileActivity extends AppCompatActivity {
         Button saveProfileButton = findViewById(R.id.profile_save);
         Button logoutButton = findViewById(R.id.logout);
         Button cancelButton = findViewById(R.id.profile_cancel);
+        Button addressButton = findViewById(R.id.address_button);
+
+        addressButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //startActivity(new Intent(ProfileActivity.this, GeoLocation.class));
+            }
+        });
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
