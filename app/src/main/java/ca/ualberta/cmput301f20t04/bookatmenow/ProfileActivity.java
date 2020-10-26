@@ -26,6 +26,14 @@ import java.util.regex.Pattern;
 
 public class ProfileActivity extends AppCompatActivity {
 
+    private EditText usernameEditText;
+    private EditText passwordEditText;
+    private EditText passwordConfirmEditText;
+    private EditText emailEditText;
+    // optional ones:
+    private EditText phoneEditText;
+    private EditText addressEditText;
+
     // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
     static final Pattern EMAIL_REGEX  = Pattern.compile(
             "^[\\w+&*-]+" +
@@ -66,7 +74,7 @@ public class ProfileActivity extends AppCompatActivity {
         final EditText emailEditText = findViewById(R.id.email);
         // optional ones:
         final EditText phoneEditText = findViewById(R.id.phone);
-        final EditText addressEditText = findViewById(R.id.phone);
+        final EditText addressEditText = findViewById(R.id.address);
 
         final DBHandler db = new DBHandler();
 
