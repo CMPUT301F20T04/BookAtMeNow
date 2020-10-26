@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,13 @@ public class FilterDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String selection = spinner.getSelectedItem().toString();
+                        if (selection.equals("Title")) {
+
+                        } else if (selection.equals("Author")) {
+
+                        } else if (selection.equals("ISBN")) {
+
+                        }
 
                         if (borrowed.isChecked()) {
                         }
