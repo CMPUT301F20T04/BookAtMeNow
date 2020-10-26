@@ -34,6 +34,12 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText phoneEditText;
     private EditText addressEditText;
 
+    // buttons
+    private Button saveProfileButton;
+    private Button logoutButton;
+    private Button cancelButton;
+    private Button addressButton;
+
     // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
     static final Pattern EMAIL_REGEX  = Pattern.compile(
             "^[\\w+&*-]+" +
@@ -76,18 +82,18 @@ public class ProfileActivity extends AppCompatActivity {
         final EditText phoneEditText = findViewById(R.id.phone);
         final EditText addressEditText = findViewById(R.id.address);
 
+        // buttons
+        Button saveProfileButton = findViewById(R.id.profile_save);
+        Button logoutButton = findViewById(R.id.logout);
+        Button cancelButton = findViewById(R.id.profile_cancel);
+        Button addressButton = findViewById(R.id.address_button);
+
         final DBHandler db = new DBHandler();
 
         // need login to enable profile editing
         // get user info to populate edit texts
 
         final User newUser = new User();
-
-        // buttons
-        Button saveProfileButton = findViewById(R.id.profile_save);
-        Button logoutButton = findViewById(R.id.logout);
-        Button cancelButton = findViewById(R.id.profile_cancel);
-        Button addressButton = findViewById(R.id.address_button);
 
         addressButton.setOnClickListener(new View.OnClickListener() {
             @Override
