@@ -72,6 +72,16 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK){//confirm button was pressed
+            String lat = data.getStringExtra("lat");
+            String lng = data.getStringExtra("lng");
+            Log.i("AppInfo", "they are: " + lat + " " + lng);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up_edit_profile);
@@ -98,7 +108,9 @@ public class ProfileActivity extends AppCompatActivity {
         addressButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent(ProfileActivity.this, GeoLocation.class));
+                Intent intent = new Intent(ProfileActivity.this, GeoLocation.class);
+                intent.putExtra("purpose", "select");
+                startActivityForResult(intent, 1);
             }
         });
 

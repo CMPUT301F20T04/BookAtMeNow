@@ -4,15 +4,22 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
@@ -25,7 +32,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -58,8 +75,8 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
         } else {//location was selected. Return values
             Log.i("AppInfo", "Before intent send: " + String.valueOf(selectedLocation.latitude) + ", " + String.valueOf(selectedLocation.longitude));
             Intent returnData = new Intent();
-            returnData.putExtra("lat", selectedLocation.latitude);
-            returnData.putExtra("lng", selectedLocation.longitude);
+            returnData.putExtra("lat", String.valueOf(selectedLocation.latitude));
+            returnData.putExtra("lng", String.valueOf(selectedLocation.longitude));
             setResult(Activity.RESULT_OK, returnData);
             this.finish();//close activity
         }
@@ -80,7 +97,6 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
 
         setContentView(R.layout.activity_geo_location);
 
-        //mapView = findViewById(R.id.pickupLocationMapView);
         setGeoLocPickup = findViewById(R.id.GeoLocation_button_setPickupLoc);
         cancelPickupLocSet = findViewById(R.id.GeoLocation_button_cancel);
 
@@ -105,12 +121,6 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
         // Prompt the user for permission.
         getLocationPermission();
 
-        // Turn on the My Location layer and the related control on the map.
-        updateLocationUI();
-
-        // Get the current location of the device and set the position of the map.
-        getDeviceLocation();
-
 
     }//onCreate end
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,15 +140,24 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     locationPermissionGranted = true;
+                    updateLocationUI();
+                    getDeviceLocation();
+                } else {
+                    Toast toast = Toast.makeText(this, "Location permissions are needed to access your location", Toast.LENGTH_LONG);
+                    toast.show();
                 }
             }
         }
-        updateLocationUI();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {//after map loads
         this.map = googleMap;
+        
+        if(locationPermissionGranted){
+            updateLocationUI();
+            getDeviceLocation();
+        }
 
         if (viewingMap == false){//we are wanting to select a location
             this.map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {//user clicks on map
@@ -200,6 +219,8 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
+            updateLocationUI();
+            getDeviceLocation();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
