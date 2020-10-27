@@ -166,25 +166,29 @@ public class DBHandler {
 
     /**
      * Username checker method, checks if a given username exists in the DB; usernames ARE case
-     * sensitive
+     * sensitive, returns UUID or null
      * @param username
      *      User's username, a string
      * @param onSuccessListener
-     *      Listener for the query succeeding, returns a bool
+     *      Listener for the query succeeding, returns a string
      * @param onFailureListener
      *      Listener for the query failing
      */
-    public void usernameExists(String username, OnSuccessListener<Boolean> onSuccessListener, OnFailureListener onFailureListener) {
+    public void usernameExists(String username, OnSuccessListener<String> onSuccessListener, OnFailureListener onFailureListener) {
         Task<QuerySnapshot> userTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
                 .whereEqualTo(FireStoreMapping.USER_FIELDS_USERNAME, username)
                 .get();
 
-        userTask.continueWith(new Continuation<QuerySnapshot, Boolean>() {
+        userTask.continueWith(new Continuation<QuerySnapshot, String>() {
             @Override
-            public Boolean then(@NonNull Task<QuerySnapshot> task) throws Exception {
+            public String then(@NonNull Task<QuerySnapshot> task) throws Exception {
                 List<DocumentSnapshot> userData = task.getResult().getDocuments();
-                return userData.size() > 0;
+                if (userData.size() > 0) {
+                    return userData.get(0).getString(FireStoreMapping.USER_FIELDS_ID);
+                } else {
+                    return null;
+                }
             }
         })
                 .addOnSuccessListener(onSuccessListener)
@@ -192,25 +196,30 @@ public class DBHandler {
     }
 
     /**
-     * Works identical to usernameExists, but checks for email; NOT case sensitive
+     * Works identical to usernameExists, but checks for email; NOT case sensitive, returns UUID or
+     * Null
      * @param email
      *      Email to check, a string
      * @param onSuccessListener
-     *      Listener for success, returns Boolean
+     *      Listener for success, returns string
      * @param onFailureListener
      *      Listener for failure
      */
-    public void emailExists(String email, OnSuccessListener<Boolean> onSuccessListener, OnFailureListener onFailureListener) {
+    public void emailExists(String email, OnSuccessListener<String> onSuccessListener, OnFailureListener onFailureListener) {
         Task<QuerySnapshot> userTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
                 .whereEqualTo(FireStoreMapping.USER_FIELDS_USERNAME, email.toLowerCase())
                 .get();
 
-        userTask.continueWith(new Continuation<QuerySnapshot, Boolean>() {
+        userTask.continueWith(new Continuation<QuerySnapshot, String>() {
             @Override
-            public Boolean then(@NonNull Task<QuerySnapshot> task) throws Exception {
+            public String then(@NonNull Task<QuerySnapshot> task) throws Exception {
                 List<DocumentSnapshot> userData = task.getResult().getDocuments();
-                return userData.size() > 0;
+                if (userData.size() > 0) {
+                    return userData.get(0).getString(FireStoreMapping.USER_FIELDS_ID);
+                } else {
+                    return null;
+                }
             }
         })
                 .addOnSuccessListener(onSuccessListener)
