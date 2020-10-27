@@ -82,25 +82,25 @@
             android:id="@+id/radioButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Available" />
+            android:text="@string/book_status_available" />
 
         <RadioButton
             android:id="@+id/radioButton2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Requested" />
+            android:text="@string/book_status_requested" />
 
         <RadioButton
             android:id="@+id/radioButton3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Accepted" />
+            android:text="@string/book_status_accepted" />
 
         <RadioButton
             android:id="@+id/radioButton4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Borrowed" />
+            android:text="@string/book_status_borrowed" />
     </RadioGroup>
 
     <Button
