@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Document;
@@ -156,7 +157,35 @@ public class DBHandler {
     }
 
     /**
-     * Password checker, assumes user exists and has a password
+     * Username checker method, checks if a given username exists in the DB; usernames are NOT case
+     * sensitive
+     * @param username
+     *      User's username, a string
+     * @param onSuccessListener
+     *      Listener for the query succeeding, returns a bool
+     * @param onFailureListener
+     *      Listener for the query failing
+     */
+    public void usernameExists(String username, OnSuccessListener<Boolean> onSuccessListener, OnFailureListener onFailureListener) {
+        Task<QuerySnapshot> userTask = db
+                .collection(FireStoreMapping.COLLECTIONS_USER)
+                .whereEqualTo(FireStoreMapping.USER_FIELDS_USERNAME, username)
+                .get();
+
+        userTask.continueWith(new Continuation<QuerySnapshot, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> userData = task.getResult().getDocuments();
+                return userData.size() > 0;
+            }
+        })
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
+
+    /**
+     * Password checker, assumes user exists and has a password, returns null if account does not
+     * exist or account has no password
      * @param email
      *      User's email. a string
      * @param password
@@ -178,11 +207,13 @@ public class DBHandler {
                 DocumentSnapshot userData = task.getResult();
 
                 if (!userData.exists()) {
-                    throw new IllegalArgumentException("User does not exist, please verify user's existence prior to calling this method.");
+                    Log.d(ProgramTags.DB_ERROR, "User does not exist, please verify user's existence prior to calling this method.");
+                    return null;
                 }
 
                 if (userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD) == null) {
-                    throw new IllegalArgumentException("User does not have a password set. Is this a test account?");
+                    Log.d(ProgramTags.DB_ERROR, "User does not have a password set. Is this a test account?");
+                    return null;
                 }
 
                 return userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD).equals(password);
