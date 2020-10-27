@@ -36,19 +36,23 @@ import java.util.Objects;
 public class DBHandler {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    String TAG = "DBCoreHandler";
-
     /**
      * Basic handler to create a DB instance
      */
     public DBHandler() {}
 
     /**
-     * Adds a user to the database, is not currently implemented with proper handlers, use at risk
+     * Adds a user to the database, expects user to not exist in DB, going forward with this will
+     * override ALL previous user data, use carefully
+     * DATA IS NOT MERGED
      * @param userToAdd
      *      User object, can come in any flavour and will simply autofill data as null
+     * @param successListener
+     *      Listener for success, returns True bool
+     * @param failureListener
+     *      Listener for failure
      */
-    public void addUser(final User userToAdd) {
+    public void addUser(final User userToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
         // <Field, data>
         HashMap<String, String> userData = new HashMap<String, String>();
 
@@ -82,10 +86,44 @@ public class DBHandler {
             userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, "");
         }
 
-        db.collection(FireStoreMapping.COLLECTIONS_USER)
+        Task<Void> uploadTask = db.collection(FireStoreMapping.COLLECTIONS_USER)
                 .document(userToAdd.getEmail())
                 .set(userData);
 
+        uploadTask.continueWith(new Continuation<Void, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<Void> task) throws Exception {
+                return true;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Removes a given user
+     * @param email
+     *      User's email, a string
+     * @param successListener
+     *      Listener that simply returns a True boolean when the task succeeds, a way for you to
+     *      know when/if the task succeeded
+     * @param failureListener
+     *      Listener for when task fails
+     */
+    public void removeUser(String email, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+        Task<Void> removeTask = db
+                .collection(FireStoreMapping.COLLECTIONS_USER)
+                .document(email)
+                .delete();
+
+        removeTask.continueWith(new Continuation<Void, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<Void> task) throws Exception {
+                return true;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
     }
 
     /**
