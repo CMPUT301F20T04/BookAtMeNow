@@ -43,11 +43,23 @@ public class MainActivity extends AppCompatActivity {
         final Button homeButton = findViewById(R.id.home);
         homeButton.setVisibility(View.GONE);
 
+        // temporary for access to the MyBook activity
+        final Button myBookButton = findViewById(R.id.temp_book);
+        myBookButton.setVisibility(View.GONE);
+
         myBooksButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addBookButton.setVisibility(View.VISIBLE);
                 homeButton.setVisibility(View.VISIBLE);
+                myBookButton.setVisibility(View.VISIBLE);
+            }
+        });
+
+        myBookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, MyBookActivity.class));
             }
         });
 
