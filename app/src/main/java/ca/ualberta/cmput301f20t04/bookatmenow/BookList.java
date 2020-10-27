@@ -20,25 +20,24 @@ import java.util.List;
  * @see BaseAdapter
  * @see BorrowList
  * @see RequestList
- * @version 0.4
+ * @version 0.5
  */
 public abstract class BookList extends BaseAdapter {
-    protected List<Book> books;
     private Context context;
 
+    protected DBHandler db;
     protected List<Book> filteredBooks;
 
     /**
-     * Construct a filtered list of books from an emulated database.
+     * Construct a filtered list of books from a FireStore database.
      *
      * @param context
      *      The context of the containing {@link android.app.Activity}
-     * @param books
-     *      A {@link List<Book>} representing the database
      */
-    public BookList(Context context, List<Book> books) {
-        this.books = books;
+    public BookList(Context context) {
         this.context = context;
+
+        db = new DBHandler();
     }
 
     /**

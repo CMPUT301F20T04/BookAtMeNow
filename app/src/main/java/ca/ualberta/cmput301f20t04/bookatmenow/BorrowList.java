@@ -1,12 +1,16 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,14 +20,11 @@ import java.util.List;
 /**
  * A BaseAdapter class specialized for a database of {@link Book}s to be owned, borrowed, requested,
  * or simply displayed.
- * <p>
- * Until the implementation of the database handler is complete, the list of books in the database
- * is being emulated with {@link this#books}.
  *
  * @author Warren Stix
  * @see BookList
  * @see android.widget.BaseAdapter
- * @version 0.4
+ * @version 0.5
  */
 public class BorrowList extends BookList {
     /**
@@ -60,16 +61,26 @@ public class BorrowList extends BookList {
      *
      * @param context
      *      The context of the calling activity, used to display objects on the screen
-     * @param books
-     *      A temporary parameter representing the books in the database
      */
-    public BorrowList(Context context, List<Book> books) {
-        super(context, books);
-        filteredBooks = new ArrayList<>();
+    public BorrowList(Context context) {
+        super(context);
+//        filteredBooks = new ArrayList<>();
 
         viewMode = ViewMode.ALL;
         user = null;
-        filteredBooks.addAll(books);
+        db.getAllBooks(new OnSuccessListener<List<Book>>() {
+                @Override
+                public void onSuccess(List<Book> books) {
+                    filteredBooks.addAll(books);
+                    Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+                }
+            },
+            new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+                }
+        });
     }
 
     /**
@@ -77,28 +88,40 @@ public class BorrowList extends BookList {
      *
      * @param context
      *      The context of the calling activity, used to display objects on the screen
-     * @param books
-     *      A temporary parameter representing the books in the database
      * @param viewMode
      *      The "view mode" of this list of books - indicates how many books in the system need to
      *      be displayed and re-displayed after filtering
      * @param user
      *      The user whose books are being displayed
      */
-    public BorrowList(Context context, ArrayList<Book> books, @NonNull ViewMode viewMode,
+    public BorrowList(Context context, @NonNull ViewMode viewMode,
                       @Nullable User user)
     {
-        super(context, books);
+        super(context);
         filteredBooks = new ArrayList<>();
 
         this.viewMode = viewMode;
         this.user = user;
 
-        for (Book book : books) {
-            if (checkUser(book)) {
-                filteredBooks.add(book);
-            }
-        }
+        db.getAllBooks(new OnSuccessListener<List<Book>>() {
+                    @Override
+                    public void onSuccess(List<Book> books) {
+
+                        for (Book book : books) {
+                            if (checkUser(book)) {
+                                filteredBooks.add(book);
+                            }
+                        }
+
+                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+                    }
+                });
     }
 
     /**
@@ -253,16 +276,29 @@ public class BorrowList extends BookList {
      * @param statusEnum
      *      The status to filter by
      */
-    public void filter(@Nullable Book.StatusEnum statusEnum) {
+    public void filter(@Nullable final Book.StatusEnum statusEnum) {
+        db.getAllBooks(new OnSuccessListener<List<Book>>() {
+                    @Override
+                    public void onSuccess(List<Book> books) {
+                        for (Book book : books) {
+                            if (checkUser(book) &&
+                                (statusEnum == null ||
+                                 Book.StatusEnum.valueOf(book.getStatus()) == statusEnum))
+                            {
+                                filteredBooks.add(book);
+                            }
+                        }
+                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+                    }
+                });
         filteredBooks.clear();
 
-        for (Book book : books) {
-            if (checkUser(book) &&
-                (statusEnum == null || Book.StatusEnum.valueOf(book.getStatus()) == statusEnum))
-            {
-                filteredBooks.add(book);
-            }
-        }
 
         notifyDataSetChanged();
     }
