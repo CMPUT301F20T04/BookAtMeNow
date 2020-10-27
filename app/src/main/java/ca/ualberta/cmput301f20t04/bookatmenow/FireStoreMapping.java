@@ -4,6 +4,7 @@ public class FireStoreMapping {
     static final String COLLECTIONS_USER = "Users";
     static final String COLLECTIONS_BOOK = "Books";
 
+    static final String USER_FIELDS_ID = "User ID";
     static final String USER_FIELDS_USERNAME = "Username";
     static final String USER_FIELDS_PASSWORD = "Password";
     static final String USER_FIELDS_PHONE = "Phone";

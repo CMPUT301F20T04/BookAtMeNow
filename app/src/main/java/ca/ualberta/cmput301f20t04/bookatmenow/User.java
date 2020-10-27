@@ -6,6 +6,7 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
  * @version 0.3
  */
 public class User {
+    private String userId;
     private String username; // can make unique w/ firebase once it's set up
     private String password;
     private String phone;
@@ -16,6 +17,14 @@ public class User {
      * Constructor for DB handler
      */
     public User() {}
+
+    public String getUserId() {
+        return this.userId;
+    }
+
+    public void setUserID(String id) {
+        this.userId = id;
+    }
 
     /**
      *

@@ -5,27 +5,18 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.w3c.dom.Document;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Handler class
@@ -56,6 +47,10 @@ public class DBHandler {
         // <Field, data>
         HashMap<String, String> userData = new HashMap<String, String>();
 
+        String randomID = String.valueOf(UUID.randomUUID());
+
+        userData.put(FireStoreMapping.USER_FIELDS_ID, randomID);
+
         if(userToAdd.getUsername() != null) {
             userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
         } else {
@@ -75,7 +70,7 @@ public class DBHandler {
         }
 
         if(userToAdd.getEmail() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail());
+            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
         } else {
             userData.put(FireStoreMapping.USER_FIELDS_EMAIL, "");
         }
@@ -87,7 +82,7 @@ public class DBHandler {
         }
 
         Task<Void> uploadTask = db.collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(userToAdd.getEmail())
+                .document(randomID)
                 .set(userData);
 
         uploadTask.continueWith(new Continuation<Void, Boolean>() {
@@ -102,18 +97,18 @@ public class DBHandler {
 
     /**
      * Removes a given user
-     * @param email
-     *      User's email, a string
+     * @param uuid
+     *      User's uuid, a string
      * @param successListener
      *      Listener that simply returns a True boolean when the task succeeds, a way for you to
      *      know when/if the task succeeded
      * @param failureListener
      *      Listener for when task fails
      */
-    public void removeUser(String email, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+    public void removeUser(String uuid, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
         Task<Void> removeTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(email)
+                .document(uuid)
                 .delete();
 
         removeTask.continueWith(new Continuation<Void, Boolean>() {
@@ -128,17 +123,17 @@ public class DBHandler {
 
     /**
      * Getter for user data, returns user object minus password
-     * @param email
-     *      User's email
+     * @param uuid
+     *      User's uuid
      * @param successListener
      *      Listener to act on retrieved data
      * @param failureListener
      *      Listener to act when data not retrieved
      */
-    public void getUser(String email, OnSuccessListener<User> successListener, OnFailureListener failureListener) {
+    public void getUser(String uuid, OnSuccessListener<User> successListener, OnFailureListener failureListener) {
         Task<DocumentSnapshot> userTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(email)
+                .document(uuid)
                 .get();
 
         userTask.continueWith(new Continuation<DocumentSnapshot, User>() {
@@ -153,11 +148,13 @@ public class DBHandler {
 
                 String username = userData.getString(FireStoreMapping.USER_FIELDS_USERNAME);
                 String phone = userData.getString(FireStoreMapping.USER_FIELDS_PHONE);
+                String email = userData.getString(FireStoreMapping.USER_FIELDS_EMAIL);
                 String address = userData.getString(FireStoreMapping.USER_FIELDS_ADDRESS);
 
+                finalUser.setUserID(userData.getId());
                 finalUser.setUsername(username);
                 finalUser.setPhone(phone);
-                finalUser.setEmail(userData.getId());
+                finalUser.setEmail(email);
                 finalUser.setAddress(address);
 
                 return finalUser;
@@ -167,35 +164,8 @@ public class DBHandler {
                 .addOnFailureListener(failureListener);
     }
 
-
     /**
-     * User existence checker, takes in a user and assumes success.fail activities
-     * @param email
-     *      User's email to be checked on DB
-     * @param successListener
-     *      Listener to handle if search succeeds
-     * @param failureListener
-     *      Listener to handle if search fails
-     */
-    public void userExist(String email, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
-        Task<DocumentSnapshot> userTask = db
-                .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(email)
-                .get();
-
-        userTask.continueWith(new Continuation<DocumentSnapshot, Boolean>() {
-            @Override
-            public Boolean then(@NonNull Task<DocumentSnapshot> task) throws Exception {
-                DocumentSnapshot userData = task.getResult();
-                return userData.exists();
-            }
-        })
-                .addOnSuccessListener(successListener)
-                .addOnFailureListener(failureListener);
-    }
-
-    /**
-     * Username checker method, checks if a given username exists in the DB; usernames are NOT case
+     * Username checker method, checks if a given username exists in the DB; usernames ARE case
      * sensitive
      * @param username
      *      User's username, a string
@@ -222,9 +192,35 @@ public class DBHandler {
     }
 
     /**
+     * Works identical to usernameExists, but checks for email; NOT case sensitive
+     * @param email
+     *      Email to check, a string
+     * @param onSuccessListener
+     *      Listener for success, returns Boolean
+     * @param onFailureListener
+     *      Listener for failure
+     */
+    public void emailExists(String email, OnSuccessListener<Boolean> onSuccessListener, OnFailureListener onFailureListener) {
+        Task<QuerySnapshot> userTask = db
+                .collection(FireStoreMapping.COLLECTIONS_USER)
+                .whereEqualTo(FireStoreMapping.USER_FIELDS_USERNAME, email.toLowerCase())
+                .get();
+
+        userTask.continueWith(new Continuation<QuerySnapshot, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> userData = task.getResult().getDocuments();
+                return userData.size() > 0;
+            }
+        })
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
+
+    /**
      * Password checker, assumes user exists and has a password, returns null if account does not
      * exist or account has no password
-     * @param email
+     * @param uuid
      *      User's email. a string
      * @param password
      *      User's password, a string
@@ -233,10 +229,10 @@ public class DBHandler {
      * @param failureListener
      *      Listener to handle the failure of data pulling
      */
-    public void checkPassword(String email, final String password, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+    public void checkPassword(String uuid, final String password, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
         Task<DocumentSnapshot> userTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(email)
+                .document(uuid)
                 .get();
 
         userTask.continueWith(new Continuation<DocumentSnapshot, Boolean>() {
