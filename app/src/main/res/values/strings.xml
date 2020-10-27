@@ -17,4 +17,23 @@
         <item>Author</item>
         <item>ISBN</item>
     </string-array>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+
+    <string name="action_scan_isbn">Scan In</string>
+    <string name="action_mark_as_borrowed">Mark as Borrowed</string>
+    <string name="action_pending_requests">Pending Requests</string>
+    <string name="default_current_borrower">Current Borrower</string>
+    
+    <string name="book_status_available">Available</string>
+    <string name="book_status_requested">Requested</string>
+    <string name="book_status_accepted">Accepted</string>
+    <string name="book_status_borrowed">Borrowed</string>
 </resources>

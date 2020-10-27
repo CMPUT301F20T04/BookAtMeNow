@@ -3,6 +3,7 @@
     package="ca.ualberta.cmput301f20t04.bookatmenow">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -11,6 +12,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".MyBookActivity"></activity>
+        <activity android:name=".MyBook" />
+        <activity android:name=".LoginActivity" />
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:label="@string/title_activity_login" />
         <activity android:name=".ProfileActivity" />
 
         <meta-data
@@ -28,6 +35,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".GeoLocation" />
+        <activity android:name=".ScanBook" />
     </application>
 
 </manifest>
