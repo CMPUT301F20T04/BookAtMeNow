@@ -1,29 +1,33 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
- * @version 0.3
+ * @version 0.4
  */
 public class RequestList extends BookList {
     private ArrayList<String> requesters;
 
     /**
      * @param context
-     * @param books
      * @param owner
      */
-    public RequestList(Context context, ArrayList<Book> books, User owner) {
-        super(context, books);
+    public RequestList(Context context, final User owner) {
+        super(context);
 
         // In the case of the request list, filteredBooks is represented as a LinkedList because it
         // is frequently added to and deleted from, and is never sorted, therefore not needing
@@ -31,16 +35,29 @@ public class RequestList extends BookList {
         filteredBooks = new LinkedList<>();
         requesters = new ArrayList<>();
 
-        for (Book book : books) {
-            if (book.getOwner().equals(owner.getUsername()) &&
-                Book.StatusEnum.valueOf(book.getStatus()) == Book.StatusEnum.Pending)
-            {
-                for (String requester : book.getRequests()) {
-                    filteredBooks.add(book);
-                    requesters.add(requester);
-                }
-            }
-        }
+        db.getAllBooks(new OnSuccessListener<List<Book>>() {
+                    @Override
+                    public void onSuccess(List<Book> books) {
+                        for (Book book : books) {
+                            if (book.getOwner().equals(owner.getUsername()) &&
+                                    Book.StatusEnum.valueOf(book.getStatus()) ==
+                                            Book.StatusEnum.Pending)
+                            {
+                                for (String requester : book.getRequests()) {
+                                    filteredBooks.add(book);
+                                    requesters.add(requester);
+                                }
+                            }
+                        }
+                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+                    }
+                });
     }
 
     /**
