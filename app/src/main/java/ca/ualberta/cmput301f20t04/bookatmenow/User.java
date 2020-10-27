@@ -7,7 +7,7 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
  */
 public class User {
     private String userId;
-    private String username; // can make unique w/ firebase once it's set up
+    private String username;
     private String password;
     private String phone;
     private String email;

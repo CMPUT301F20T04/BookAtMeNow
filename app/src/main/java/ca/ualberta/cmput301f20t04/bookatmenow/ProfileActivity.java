@@ -40,6 +40,8 @@ public class ProfileActivity extends AppCompatActivity {
     private Button cancelButton;
     private Button addressButton;
 
+    private User newUser;
+
     // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
     static final Pattern EMAIL_REGEX  = Pattern.compile(
             "^[\\w+&*-]+" +
@@ -93,8 +95,6 @@ public class ProfileActivity extends AppCompatActivity {
         // need login to enable profile editing
         // get user info to populate edit texts
 
-        final User newUser = new User();
-
         addressButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,13 +119,13 @@ public class ProfileActivity extends AppCompatActivity {
         saveProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String username = usernameEditText.getText().toString();
-                final String password = passwordEditText.getText().toString();
-                final String passwordConfirm = passwordConfirmEditText.getText().toString();
-                final String email = emailEditText.getText().toString();
+                String username = usernameEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+                String passwordConfirm = passwordConfirmEditText.getText().toString();
+                String email = emailEditText.getText().toString();
                 // optional
-                final String phone = phoneEditText.getText().toString();
-                final String address = addressEditText.getText().toString();
+                String phone = phoneEditText.getText().toString();
+                String address = addressEditText.getText().toString();
 
                 // error messages
                 TextView confirmPwTextView = findViewById(R.id.confirm_pw);
@@ -157,9 +157,18 @@ public class ProfileActivity extends AppCompatActivity {
                     newUser.setEmail(email);
                     newUser.setPhone(phone);
                     newUser.setAddress(address);
-                    db.addUser(newUser);
-
-                    startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                    db.addUser(newUser, new OnSuccessListener<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean aBoolean) {
+                                    startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                                }
+                            }, new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d("switcherTest", e.toString());
+                                    startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+                                }
+                            });
                 }
             }
         });
