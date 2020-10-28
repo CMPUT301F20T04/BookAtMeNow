@@ -36,4 +36,7 @@
     <string name="book_status_requested">Requested</string>
     <string name="book_status_accepted">Accepted</string>
     <string name="book_status_borrowed">Borrowed</string>
+
+    <string name="action_save_pic">SAVE PIC</string>
+    <string name="action_take_picture">TAKE PICTURE</string>
 </resources>
