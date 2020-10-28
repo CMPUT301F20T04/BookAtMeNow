@@ -38,75 +38,48 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String usernameOrEmail = logInUser.getText().toString();
-                // if email login exists
-                db.emailExists(usernameOrEmail, new OnSuccessListener<String>() {
-                            @Override
-                            public void onSuccess(String s) {
-                                final String uuid = s;
-                                db.getUser(uuid, new OnSuccessListener<User>() {
-                                    @Override
-                                    public void onSuccess(User user) {
-                                        db.checkPassword(uuid, logInPW.getText().toString(), new OnSuccessListener<Boolean>() {
-                                            @Override
-                                            public void onSuccess(Boolean aBoolean) {
-                                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                            }
-                                        }, new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.d("password fail", e.toString());
-                                            }
-                                        });
-                                    }
-                                }, new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d("user fail", e.toString());
-                                        startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
-                                    }
-                                });
-                            }
-                        }, new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("email fail", e.toString());
-                                // if username login exists
-//                                db.usernameExists(usernameOrEmail, new OnSuccessListener<String>() {
+                //loginError.setText(usernameOrEmail);
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//                // if email login exists
+//                Log.v("usernameOrEamil",usernameOrEmail);
+//                db.emailExists(usernameOrEmail, new OnSuccessListener<String>() {
+//                            @Override
+//                            public void onSuccess(String s) {
+//                                final String uuid = s;
+//                                Log.v("uuid",s);
+//                                db.getUser(uuid, new OnSuccessListener<User>() {
 //                                    @Override
-//                                    public void onSuccess(String s) {
-//                                        final String uuid = s;
-//                                        db.getUser(uuid, new OnSuccessListener<User>() {
+//                                    public void onSuccess(User user) {
+//                                        Log.v("uuid user",user.getUserId());
+//                                        Log.v("password",logInPW.getText().toString());
+//                                        db.checkPassword(user.getUserId(), logInPW.getText().toString(), new OnSuccessListener<Boolean>() {
 //                                            @Override
-//                                            public void onSuccess(User user) {
-//                                                db.checkPassword(uuid, logInPW.getText().toString(), new OnSuccessListener<Boolean>() {
-//                                                    @Override
-//                                                    public void onSuccess(Boolean aBoolean) {
-//                                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                                                    }
-//                                                }, new OnFailureListener() {
-//                                                    @Override
-//                                                    public void onFailure(@NonNull Exception e) {
-//                                                        Log.d("password fail", e.toString());
-//                                                        startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
-//                                                    }
-//                                                });
+//                                            public void onSuccess(Boolean aBoolean) {
+//                                                if (aBoolean) {
+//                                                    Log.v("no error","password match");
+//                                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//                                                } else {
+//                                                    Log.v("error","password fail");
+//                                                }
 //                                            }
 //                                        }, new OnFailureListener() {
 //                                            @Override
 //                                            public void onFailure(@NonNull Exception e) {
-//                                                Log.d("user fail", e.toString());
 //                                            }
 //                                        });
 //                                    }
 //                                }, new OnFailureListener() {
 //                                    @Override
 //                                    public void onFailure(@NonNull Exception e) {
-//                                        Log.d("username fail", e.toString());
 //                                    }
 //                                });
-                            }
-                        });
-
+//                            }
+//                        }, new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//
+//                    }
+//                });
             }
         });
 

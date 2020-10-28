@@ -1,5 +1,7 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
+import java.util.regex.Pattern;
+
 /**
  * User class
  * @author Jeanne Coleongco
@@ -12,6 +14,55 @@ public class User {
     private String phone;
     private String email;
     private String address;
+
+    /**
+     * constructs basic User
+     * @param username
+     * @param password
+     * @param email
+     */
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+
+    /**
+     * constructs user with optional phone #
+     * @param username
+     * @param password
+     * @param phoneOrAddress
+     * @param email
+     */
+    public User(String username, String password, String phoneOrAddress, String email) {
+        this.username = username;
+        this.password = password;
+
+        final Pattern p = Pattern.compile("[0-9]+");
+        if (p.matcher(phoneOrAddress).matches()) {
+            this.phone = phoneOrAddress;
+        } else {
+            this.address = phoneOrAddress;
+        }
+
+        this.email = email;
+    }
+
+    /**
+     * constructs user with everything
+     * @param username
+     * @param password
+     * @param phone
+     * @param email
+     * @param address
+     */
+    public User(String username, String password, String phone, String email, String address) {
+        this.username = username;
+        this.password = password;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+    }
 
     /**
      * Constructor for DB handler

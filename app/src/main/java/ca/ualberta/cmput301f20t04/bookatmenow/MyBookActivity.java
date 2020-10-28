@@ -35,6 +35,7 @@ public class MyBookActivity extends AppCompatActivity {
 
     private Button takePic;
     private Button save;
+    private Button to_scan_btn;
     private ImageView myImg;
     private int REQUEST_IMAGE_CAPTURE = 1;
     private Uri myUri;
@@ -178,6 +179,13 @@ public class MyBookActivity extends AppCompatActivity {
         takePic = findViewById(R.id.MBA_button_takePic);
         myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
         save = findViewById(R.id.MBA_button_savePic);
+        to_scan_btn = findViewById(R.id.to_scan_btn);
+        to_scan_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MyBookActivity.this, ScanBook.class));
+            }
+        });
 
         storageReference = FirebaseStorage.getInstance().getReference();
 
