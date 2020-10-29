@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ import java.util.List;
  * @author Warren Stix
  * @see BookList
  * @see android.widget.BaseAdapter
- * @version 0.5
+ * @version 0.6
  */
 public class BorrowList extends BookList {
     /**
@@ -225,7 +226,7 @@ public class BorrowList extends BookList {
      * @see Comparator
      */
     public static class CompareByStatus implements Comparator<Book> {
-        // TODO: only temporarily public!
+        // TODO: only temporarily public for testing purposes!
         private Book.StatusEnum statusEnum;
 
         /**
@@ -301,5 +302,18 @@ public class BorrowList extends BookList {
 
 
         notifyDataSetChanged();
+    }
+
+    /**
+     * Delete a book from the filtered list of books.
+     *
+     * This method is temporary until deletion of books from the database can be implemented.
+     *
+     * @param position
+     *      the position in the filtered list at which a book must be deleted
+     */
+    public void delete(int position) {
+        String isbn = filteredBooks.get(position).getIsbn();
+        filteredBooks.remove(position);
     }
 }
