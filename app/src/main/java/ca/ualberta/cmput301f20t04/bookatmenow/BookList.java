@@ -12,9 +12,6 @@ import java.util.List;
  * An abstract definition of an adapter for a {@link android.widget.ListView} that displays a
  * filtered {@link List} of books. The specific form this list takes is up to the derived class to
  * implement.
- * <p>
- * Until the implementation of the database handler is complete, the list of books in the database
- * is being emulated with {@link this#books}.
  *
  * @author Warren Stix
  * @see BaseAdapter

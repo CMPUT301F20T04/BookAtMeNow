@@ -12,19 +12,27 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * A BaseAdapter class specialized for a database of {@link Book}s that are currently being
+ * requested from a given owner. With this adapter, the owner will be able to accept or reject
+ * requests.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class RequestList extends BookList {
     private ArrayList<String> requesters;
 
     /**
+     * Construct a view of all a given owner's pending requests.
+     *
      * @param context
+     *      The context of the calling activity, used to display objects on the screen
      * @param owner
+     *      an instance of {@link User} whose requests are being managed
      */
     public RequestList(Context context, final User owner) {
         super(context);
@@ -61,26 +69,72 @@ public class RequestList extends BookList {
     }
 
     /**
+     * A required method from {@link android.widget.BaseAdapter} for displaying an element of the
+     * internal list at a given position.
      *
      * @param position
+     *      The position of the element to display from the internal list
      * @param convertView
+     *      The external {@link View} in which to display the element's data
      * @param parent
+     *      The {@link ViewGroup} containing the elements of the {@link android.widget.ListView}
      * @return
+     *      The original given {@link View}, converted into a row of the internal list
      */
     @Override
     @NonNull
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = inflate_helper(convertView, parent, R.layout.request_row);
 
-        Book book = filteredBooks.get(position);
+        final Book book = filteredBooks.get(position);
+        final String borrower = requesters.get(position);
 
-        TextView title = convertView.findViewById(R.id.req_title_text);
-        TextView username = convertView.findViewById(R.id.username_text);
+        final TextView title = convertView.findViewById(R.id.req_title_text);
+        final TextView username = convertView.findViewById(R.id.username_text);
 
         title.setText(book.getTitle());
-        username.setText(requesters.get(position));
+        username.setText(borrower);
+
+        convertView.findViewById(R.id.confirm_button)
+                .setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                book.setStatus(Book.StatusEnum.Borrowed.toString());
+                book.setBorrower(borrower);
+                db.addBook(book);
+
+                refreshRequests();
+            }
+        });
+
+        convertView.findViewById(R.id.reject_button)
+                .setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                book.setStatus(Book.StatusEnum.Available.toString());
+                db.addBook(book);
+
+                refreshRequests();
+            }
+        });
 
         return convertView;
+    }
+
+    /**
+     * A helper method to remove all books whose current status is not Pending from the request
+     * list.
+     */
+    private void refreshRequests() {
+        Iterator<Book> bookIterator = filteredBooks.iterator();
+        while (bookIterator.hasNext()) {
+            Book book = bookIterator.next();
+            if (Book.StatusEnum.valueOf(book.getStatus()) != Book.StatusEnum.Pending) {
+                bookIterator.remove();
+            }
+        }
     }
 
     /**
