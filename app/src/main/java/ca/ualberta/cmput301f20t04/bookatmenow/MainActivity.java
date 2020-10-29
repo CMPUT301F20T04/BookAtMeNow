@@ -17,12 +17,22 @@ public class MainActivity extends AppCompatActivity {
     private Button addBookButton;
     private Button homeButton;
 
+    private boolean loggedIn = false;
+    private String uuid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // should login first, then come back
+        // login info
+//        if (!loggedIn) {
+//            loggedIn = true;
+//            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+//            Bundle b = new Bundle();
+//            b = getIntent().getExtras();
+//            final String uuid = b.getString("uuid");
+//        }
 
         // menu buttons
         Button editProfileButton = findViewById(R.id.edit_profile);
@@ -33,8 +43,9 @@ public class MainActivity extends AppCompatActivity {
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                startActivity(intent);
+                Intent i = new Intent(MainActivity.this, ProfileActivity.class);
+//                i.putExtra("uuid", uuid);
+                startActivity(i);
             }
         });
 
@@ -59,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
         myBookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MyBookActivity.class));
+                Intent i = new Intent(MainActivity.this, MyBookActivity.class);
+//                i.putExtra("uuid", uuid);
+                startActivity(i);
             }
         });
 
@@ -74,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         addBookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent(MainActivity.this, AddBookActivity.class));
+                startActivity(new Intent(MainActivity.this, MyBookActivity.class));
             }
         });
 
