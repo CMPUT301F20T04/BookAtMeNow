@@ -81,7 +81,8 @@ public class DBHandler {
             userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, "");
         }
 
-        Task<Void> uploadTask = db.collection(FireStoreMapping.COLLECTIONS_USER)
+        Task<Void> uploadTask = db
+                .collection(FireStoreMapping.COLLECTIONS_USER)
                 .document(randomID)
                 .set(userData);
 
@@ -158,6 +159,73 @@ public class DBHandler {
                 finalUser.setAddress(address);
 
                 return finalUser;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Updates the data of a given user
+     * When updating user data DO NOT CHANGE UUID
+     * If UUID is missing, method will end without making changes and log the error
+     * If method does not return True, it failed, terminate immediately
+     * @param userToAdd
+     *      User object with all updated info
+     * @param successListener
+     *      Listener to act on successful update
+     * @param failureListener
+     *      Listener to act on failed update
+     */
+    public void updateUser(User userToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+        HashMap<String, Object> userData = new HashMap<>();
+
+        if (userToAdd.getUserId() == null) {
+            Log.d(ProgramTags.DB_ERROR, "Received empty UUID string, failed to add user, terminating operation.");
+            return;
+        }
+
+        userData.put(FireStoreMapping.USER_FIELDS_ID, userToAdd.getUserId());
+
+        if(userToAdd.getUsername() != null) {
+            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
+        } else {
+            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, "");
+        }
+
+        if(userToAdd.getPassword() != null) {
+            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
+        } else {
+            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, "");
+        }
+
+        if(userToAdd.getPhone() != null) {
+            userData.put(FireStoreMapping.USER_FIELDS_PHONE, userToAdd.getPhone());
+        } else {
+            userData.put(FireStoreMapping.USER_FIELDS_PHONE, "");
+        }
+
+        if(userToAdd.getEmail() != null) {
+            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
+        } else {
+            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, "");
+        }
+
+        if(userToAdd.getAddress() != null) {
+            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, userToAdd.getAddress());
+        } else {
+            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, "");
+        }
+
+        Task<Void> updateTask = db
+                .collection(FireStoreMapping.COLLECTIONS_USER)
+                .document(userToAdd.getUserId())
+                .set(userData);
+
+        updateTask.continueWith(new Continuation<Void, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<Void> task) throws Exception {
+                return true;
             }
         })
                 .addOnSuccessListener(successListener)
