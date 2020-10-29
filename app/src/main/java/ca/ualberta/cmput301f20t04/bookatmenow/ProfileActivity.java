@@ -169,7 +169,9 @@ public class ProfileActivity extends AppCompatActivity {
                     newUser.setEmail(email);
                     newUser.setPhone(phone);
                     newUser.setAddress(address);
-                    db.addUser(newUser, new OnSuccessListener<Boolean>() {
+                    User myUser = new User(username, password, phone, email, address);
+                    // also doesn't work for newUser
+                    db.addUser(myUser, new OnSuccessListener<Boolean>() {
                                 @Override
                                 public void onSuccess(Boolean aBoolean) {
                                     if (aBoolean) {
