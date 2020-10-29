@@ -52,29 +52,35 @@ public class LoginActivity extends AppCompatActivity {
 //                                                    i.putExtra("uuid", uuid);
                                                     startActivity(i);
                                                 } else {
-                                                    Log.v("error","password fail");
+                                                    // username and password don't match, try again
+                                                    startActivity(new Intent(LoginActivity.this, LoginActivity.class));
                                                 }
                                             }
                                         }, new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
+                                                // username and password don't match, try again
+                                                startActivity(new Intent(LoginActivity.this, LoginActivity.class));
                                             }
-                                        });
+                                        }); // end of checkPassword
                                     }
                                 }, new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
+                                        // can't get uuid, assume account doesn't exist
+                                        startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
                                     }
-                                });
+                                }); // end of getUser
                             }
                         }, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-
+                        // username doesn't exist, assume account doesn't exist
+                        startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
                     }
-                });
+                }); // end of usernameExists
             }
-        });
+        }); // end of setOnClickListener
 
         Button createAccBtn = findViewById(R.id.create_acc_btn);
         createAccBtn.setOnClickListener(new View.OnClickListener() {

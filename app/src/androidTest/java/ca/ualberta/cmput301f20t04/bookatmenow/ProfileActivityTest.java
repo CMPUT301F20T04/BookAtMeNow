@@ -1,7 +1,6 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
-import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
