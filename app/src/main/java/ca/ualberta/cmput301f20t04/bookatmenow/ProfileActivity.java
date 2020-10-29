@@ -172,13 +172,18 @@ public class ProfileActivity extends AppCompatActivity {
                     db.addUser(newUser, new OnSuccessListener<Boolean>() {
                                 @Override
                                 public void onSuccess(Boolean aBoolean) {
-                                    startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                                    if (aBoolean) {
+                                        startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                                    } else {
+                                        startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+                                    }
+
                                 }
                             }, new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Log.d("switcherTest", e.toString());
-                                    startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+
                                 }
                             });
                 }
