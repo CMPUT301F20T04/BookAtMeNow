@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
                        filteredBooks.addAll(books);
                        allBooksAdapter.notifyDataSetChanged();
                        Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
-
                        setUi();
                     }
                 },
@@ -59,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
                     }
                 });
+
+        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // A book
+            }
+        });
     }
 
     private void setUi() {
@@ -94,6 +101,10 @@ public class MainActivity extends AppCompatActivity {
                 addBookButton.setVisibility(View.VISIBLE);
                 homeButton.setVisibility(View.VISIBLE);
                 myBookButton.setVisibility(View.VISIBLE);
+
+                if (uuid != null) {
+                    // filter all books but only for one uuid
+                }
             }
         });
 
@@ -111,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 addBookButton.setVisibility(View.GONE);
                 homeButton.setVisibility(View.GONE);
+                myBookButton.setVisibility(View.GONE);
             }
         });
 

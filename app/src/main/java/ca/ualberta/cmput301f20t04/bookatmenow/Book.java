@@ -26,11 +26,13 @@ public class Book {
      * @param title
      * @param author
      * @param isbn
+     * @param owner
      */
-    public Book(String title, String author, String isbn) {
+    public Book(String title, String author, String isbn, String owner) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
+        this.owner = owner;
     }
 
     /**
@@ -38,12 +40,14 @@ public class Book {
      * @param title
      * @param author
      * @param isbn
+     * @param owner
      * @param borrower
      */
-    public Book(String title, String author, String isbn, String borrower) {
+    public Book(String title, String author, String isbn, String owner, String borrower) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
+        this.owner = owner;
         this.borrower = borrower;
     }
 
