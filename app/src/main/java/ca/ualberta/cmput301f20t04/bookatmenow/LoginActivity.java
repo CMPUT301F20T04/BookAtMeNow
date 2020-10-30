@@ -25,43 +25,57 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginBtn;
     private Button createAccBtn;
 
+    /**
+     * clears the fields of the login screen
+     */
+    private void clearField() {
+        logInUser.setText("");
+        logInPW.setText("");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
-        final EditText logInUser = findViewById(R.id.login_user);
-        final EditText logInPW = findViewById(R.id.login_pw);
+        logInUser = findViewById(R.id.login_user);
+        logInPW = findViewById(R.id.login_pw);
 
         final DBHandler db = new DBHandler();
 
+        // Dialog for username/password error
         final AlertDialog.Builder invalidLoginDialog = new AlertDialog.Builder(this)
                 .setTitle("Error!")
                 .setMessage("Invalid Username or Password")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        LoginActivity.this.recreate();
+                        loginBtn.setEnabled(true);
+                        createAccBtn.setEnabled(true);
                     }
                 });
 
+        // Dialog for database error
         final AlertDialog.Builder databaseErrorDialog = new AlertDialog.Builder(this)
                 .setTitle("Error!")
                 .setMessage("Invalid Username or Password")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        LoginActivity.this.recreate();
+                        loginBtn.setEnabled(true);
+                        createAccBtn.setEnabled(true);
                     }
                 });
 
-        final Button loginBtn = findViewById(R.id.login_btn);
+        // This needs to be reworked into one authentication method
+        loginBtn = findViewById(R.id.login_btn);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String usernameOrEmail = logInUser.getText().toString();
                 // if username exists
-                loginBtn.setVisibility(View.GONE);
+                loginBtn.setEnabled(false);
+                createAccBtn.setEnabled(false);
                 db.usernameExists(usernameOrEmail, new OnSuccessListener<String>() {
                             @Override
                             public void onSuccess(String s) {
@@ -78,13 +92,14 @@ public class LoginActivity extends AppCompatActivity {
                                                         i.putExtra("uuid", uuid);
                                                         startActivity(i);
                                                     } else {
+                                                        clearField();
                                                         invalidLoginDialog.show();
                                                     }
                                                 }
                                             }, new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
-                                                    // username and password don't match, try again
+                                                    // DB retrieval failed
                                                     databaseErrorDialog.show();
                                                 }
                                             }); // end of checkPassword
@@ -92,11 +107,12 @@ public class LoginActivity extends AppCompatActivity {
                                     }, new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-                                            // can't get uuid, assume account doesn't exist
+                                            // DB retrieval failed
                                             databaseErrorDialog.show();
                                         }
                                     }); // end of getUser
                                 } else { // end of not null
+                                    clearField();
                                     invalidLoginDialog.show();
                                 }
                             }
@@ -110,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }); // end of setOnClickListener
 
-        Button createAccBtn = findViewById(R.id.create_acc_btn);
+        createAccBtn = findViewById(R.id.create_acc_btn);
         createAccBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
