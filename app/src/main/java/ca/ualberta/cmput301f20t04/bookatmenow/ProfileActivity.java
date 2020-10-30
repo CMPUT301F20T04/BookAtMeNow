@@ -96,30 +96,26 @@ public class ProfileActivity extends AppCompatActivity {
 
         final DBHandler db = new DBHandler();
 
-        // need login to enable profile editing
-        // get user info to populate edit texts
         uuid = getIntent().getStringExtra("uuid");
+
 
         db.usernameExists(uuid, new OnSuccessListener<String>() {
             @Override
             public void onSuccess(String s) {
-                if (s != null) {
-                    db.getUser(s, new OnSuccessListener<User>() {
-                        @Override
-                        public void onSuccess(User user) {
-                            usernameEditText.setText(user.getUsername());
-                            passwordEditText.setText(user.getPassword());
-                            emailEditText.setText(user.getEmail());
-                            phoneEditText.setText(user.getPhone());
-                            addressEditText.setText(user.getAddress());
-                        }
-                    }, new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
+                db.getUser(uuid, new OnSuccessListener<User>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        usernameEditText.setText(user.getUsername());
+                        emailEditText.setText(user.getEmail());
+                        phoneEditText.setText(user.getPhone());
+                        addressEditText.setText(user.getAddress());
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
 
-                        }
-                    });
-                }
+                    }
+                });
             }
         }, new OnFailureListener() {
             @Override
@@ -201,7 +197,7 @@ public class ProfileActivity extends AppCompatActivity {
                                         if (aBoolean) {
                                             startActivity(new Intent(ProfileActivity.this, MainActivity.class));
                                         } else {
-                                            startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+                                            recreate();
                                         }
 
                                     }
