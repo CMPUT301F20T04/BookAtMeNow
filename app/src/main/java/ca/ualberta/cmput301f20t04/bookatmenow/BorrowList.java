@@ -72,8 +72,16 @@ public class BorrowList extends BookList {
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                 @Override
                 public void onSuccess(List<Book> books) {
+                    // TODO: remove the next three lines when done testing
+                    Log.d(ProgramTags.TEST_TAG, "Adding all books from the database...");
                     filteredBooks.addAll(books);
                     Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+
+                    // TODO: remove the next 4 lines when done testing
+                    Log.d(ProgramTags.TEST_TAG, "The database looks like:");
+                    for (Book b : filteredBooks) {
+                        Log.d(ProgramTags.TEST_TAG, b.getIsbn());
+                    }
                 }
             },
             new OnFailureListener() {
@@ -82,6 +90,12 @@ public class BorrowList extends BookList {
                     Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
                 }
         });
+
+        // TODO: remove the next 4 lines when done testing
+        Log.d(ProgramTags.TEST_TAG, "The database looks like:");
+        for (Book b : filteredBooks) {
+            Log.d(ProgramTags.TEST_TAG, b.getIsbn());
+        }
     }
 
     /**

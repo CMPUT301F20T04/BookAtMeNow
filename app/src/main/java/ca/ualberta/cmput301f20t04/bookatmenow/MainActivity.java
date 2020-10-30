@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -31,6 +32,13 @@ public class MainActivity extends AppCompatActivity {
         bookList = findViewById(R.id.book_list);
         allBooksAdapter = new BorrowList(this);
         bookList.setAdapter(allBooksAdapter);
+
+        // TODO: remove the following 6 lines when done testing
+        Log.d(ProgramTags.TEST_TAG, "There are " + allBooksAdapter.getCount() + " books in the database");
+        Log.d(ProgramTags.TEST_TAG, "These books' ISBNs are:");
+        for (int i = 0; i < allBooksAdapter.getCount(); ++i) {
+            Log.d(ProgramTags.TEST_TAG, ((Book) allBooksAdapter.getItem(i)).getIsbn());
+        }
 
         uuid = getIntent().getStringExtra("uuid");
 
