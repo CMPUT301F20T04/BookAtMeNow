@@ -30,9 +30,12 @@ public abstract class BookList extends BaseAdapter {
      *
      * @param context
      *      The context of the containing {@link android.app.Activity}
+     * @param filteredBooks
+     *      The list containing the corresponding books from the database
      */
-    public BookList(Context context) {
+    public BookList(Context context, List<Book> filteredBooks) {
         this.context = context;
+        this.filteredBooks = filteredBooks;
 
         db = new DBHandler();
     }

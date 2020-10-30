@@ -63,39 +63,11 @@ public class BorrowList extends BookList {
      * @param context
      *      The context of the calling activity, used to display objects on the screen
      */
-    public BorrowList(Context context) {
-        super(context);
-        filteredBooks = new ArrayList<>();
+    public BorrowList(Context context, ArrayList<Book> filteredBooks) {
+        super(context, filteredBooks);
 
         viewMode = ViewMode.ALL;
         uuid = null;
-        db.getAllBooks(new OnSuccessListener<List<Book>>() {
-                @Override
-                public void onSuccess(List<Book> books) {
-                    // TODO: remove the next three lines when done testing
-                    Log.d(ProgramTags.TEST_TAG, "Adding all books from the database...");
-                    filteredBooks.addAll(books);
-                    Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
-
-                    // TODO: remove the next 4 lines when done testing
-                    Log.d(ProgramTags.TEST_TAG, "The database looks like:");
-                    for (Book b : filteredBooks) {
-                        Log.d(ProgramTags.TEST_TAG, b.getIsbn());
-                    }
-                }
-            },
-            new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
-                }
-        });
-
-        // TODO: remove the next 4 lines when done testing
-        Log.d(ProgramTags.TEST_TAG, "The database looks like:");
-        for (Book b : filteredBooks) {
-            Log.d(ProgramTags.TEST_TAG, b.getIsbn());
-        }
     }
 
     /**
@@ -109,34 +81,33 @@ public class BorrowList extends BookList {
      * @param uuid
      *      The UUID of the user whose books are being displayed
      */
-    public BorrowList(Context context, @NonNull ViewMode viewMode,
+    public BorrowList(Context context, ArrayList<Book> filteredBooks, @NonNull ViewMode viewMode,
                       @Nullable String uuid)
     {
-        super(context);
-        filteredBooks = new ArrayList<>();
+        super(context, filteredBooks);
 
         this.viewMode = viewMode;
         this.uuid = uuid;
 
-        db.getAllBooks(new OnSuccessListener<List<Book>>() {
-                    @Override
-                    public void onSuccess(List<Book> books) {
-
-                        for (Book book : books) {
-                            if (checkUser(book)) {
-                                filteredBooks.add(book);
-                            }
-                        }
-
-                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
-                    }
-                },
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
-                    }
-                });
+//        db.getAllBooks(new OnSuccessListener<List<Book>>() {
+//                    @Override
+//                    public void onSuccess(List<Book> books) {
+//
+//                        for (Book book : books) {
+//                            if (checkUser(book)) {
+//                                filteredBooks.add(book);
+//                            }
+//                        }
+//
+//                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+//                    }
+//                },
+//                new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+//                    }
+//                });
     }
 
     /**
@@ -148,7 +119,7 @@ public class BorrowList extends BookList {
      * @return
      *      A boolean representing whether or not the current book should be displayed
      */
-    private boolean checkUser(Book book) {
+    public boolean checkUser(Book book) {
         if (uuid == null) {
             return true;
         }
@@ -286,38 +257,38 @@ public class BorrowList extends BookList {
         }
     }
 
-    /**
-     * Change the internal filtered list to only show books with a given status.
-     *
-     * @param statusEnum
-     *      The status to filter by
-     */
-    public void filter(@Nullable final Book.StatusEnum statusEnum) {
-        db.getAllBooks(new OnSuccessListener<List<Book>>() {
-                    @Override
-                    public void onSuccess(List<Book> books) {
-                        for (Book book : books) {
-                            if (checkUser(book) &&
-                                (statusEnum == null ||
-                                 Book.StatusEnum.valueOf(book.getStatus()) == statusEnum))
-                            {
-                                filteredBooks.add(book);
-                            }
-                        }
-                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
-                    }
-                },
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
-                    }
-                });
-        filteredBooks.clear();
-
-
-        notifyDataSetChanged();
-    }
+//    /**
+//     * Change the internal filtered list to only show books with a given status.
+//     *
+//     * @param statusEnum
+//     *      The status to filter by
+//     */
+//    public void filter(@Nullable final Book.StatusEnum statusEnum) {
+//        db.getAllBooks(new OnSuccessListener<List<Book>>() {
+//                    @Override
+//                    public void onSuccess(List<Book> books) {
+//                        for (Book book : books) {
+//                            if (checkUser(book) &&
+//                                (statusEnum == null ||
+//                                 Book.StatusEnum.valueOf(book.getStatus()) == statusEnum))
+//                            {
+//                                filteredBooks.add(book);
+//                            }
+//                        }
+//                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+//                    }
+//                },
+//                new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+//                    }
+//                });
+//        filteredBooks.clear();
+//
+//
+//        notifyDataSetChanged();
+//    }
 
     /**
      * Delete a book from the filtered list of books.

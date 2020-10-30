@@ -1,5 +1,6 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,6 +9,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,17 +36,32 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DBHandler db = new DBHandler();
+
         bookList = findViewById(R.id.book_list);
-        allBooksAdapter = new BorrowList(this);
+        final ArrayList<Book> filteredBooks = new ArrayList<>();
+        allBooksAdapter = new BorrowList(MainActivity.this, filteredBooks);
         bookList.setAdapter(allBooksAdapter);
 
-        // TODO: remove the following 6 lines when done testing
-        Log.d(ProgramTags.TEST_TAG, "There are " + allBooksAdapter.getCount() + " books in the database");
-        Log.d(ProgramTags.TEST_TAG, "These books' ISBNs are:");
-        for (int i = 0; i < allBooksAdapter.getCount(); ++i) {
-            Log.d(ProgramTags.TEST_TAG, ((Book) allBooksAdapter.getItem(i)).getIsbn());
-        }
+        db.getAllBooks(new OnSuccessListener<List<Book>>() {
+                    @Override
+                    public void onSuccess(List<Book> books) {
+                       filteredBooks.addAll(books);
+                       allBooksAdapter.notifyDataSetChanged();
+                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
 
+                       setUi();
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+                    }
+                });
+    }
+
+    private void setUi() {
         uuid = getIntent().getStringExtra("uuid");
 
         // menu buttons
@@ -79,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, MyBookActivity.class);
-//                i.putExtra("uuid", uuid);
+//              i.putExtra("uuid", uuid);
                 startActivity(i);
             }
         });
@@ -107,6 +129,5 @@ public class MainActivity extends AppCompatActivity {
                 new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
             }
         });
-
     }
 }

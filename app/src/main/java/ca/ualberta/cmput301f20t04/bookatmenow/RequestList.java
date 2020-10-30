@@ -37,7 +37,7 @@ public class RequestList extends BookList {
      *      The UUID of the {@link User} whose requests are being managed
      */
     public RequestList(Context context, final String ownerName) {
-        super(context);
+        super(context, new LinkedList<Book>());
 
         // In the case of the request list, filteredBooks is represented as a LinkedList because it
         // is frequently added to and deleted from, and is never sorted, therefore not needing
@@ -141,7 +141,7 @@ public class RequestList extends BookList {
             public void onClick(View view) {
                 book.setStatus(Book.StatusEnum.Borrowed.toString());
                 book.setBorrower(borrower);
-                db.addBook(book);
+//                db.addBook(book);
 
                 refreshRequests();
             }
@@ -153,7 +153,7 @@ public class RequestList extends BookList {
             @Override
             public void onClick(View view) {
                 book.setStatus(Book.StatusEnum.Available.toString());
-                db.addBook(book);
+//                db.addBook(book);
 
                 refreshRequests();
             }
