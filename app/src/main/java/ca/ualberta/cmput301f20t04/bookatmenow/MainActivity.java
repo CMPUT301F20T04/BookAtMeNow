@@ -17,7 +17,6 @@ public class MainActivity extends AppCompatActivity {
     private Button addBookButton;
     private Button homeButton;
 
-    private boolean loggedIn = false;
     private String uuid;
 
     @Override
@@ -25,14 +24,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // login info
-//        if (!loggedIn) {
-//            loggedIn = true;
-//            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-//            Bundle b = new Bundle();
-//            b = getIntent().getExtras();
-//            final String uuid = b.getString("uuid");
-//        }
+        uuid = getIntent().getStringExtra("uuid");
 
         // menu buttons
         Button editProfileButton = findViewById(R.id.edit_profile);
@@ -44,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, ProfileActivity.class);
-//                i.putExtra("uuid", uuid);
+                i.putExtra("uuid", uuid);
                 startActivity(i);
             }
         });

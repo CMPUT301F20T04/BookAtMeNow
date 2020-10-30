@@ -40,37 +40,41 @@ public class LoginActivity extends AppCompatActivity {
                 db.usernameExists(usernameOrEmail, new OnSuccessListener<String>() {
                             @Override
                             public void onSuccess(String s) {
-                                final String uuid = s;
-                                db.getUser(uuid, new OnSuccessListener<User>() {
-                                    @Override
-                                    public void onSuccess(final User user) {
-                                        db.checkPassword(uuid, logInPW.getText().toString(), new OnSuccessListener<Boolean>() {
-                                            @Override
-                                            public void onSuccess(Boolean aBoolean) {
-                                                if (aBoolean) {
-                                                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
-//                                                    i.putExtra("uuid", uuid);
-                                                    startActivity(i);
-                                                } else {
+                                if (s != null) {
+                                    final String uuid = s;
+                                    db.getUser(uuid, new OnSuccessListener<User>() {
+                                        @Override
+                                        public void onSuccess(final User user) {
+                                            db.checkPassword(uuid, logInPW.getText().toString(), new OnSuccessListener<Boolean>() {
+                                                @Override
+                                                public void onSuccess(Boolean aBoolean) {
+                                                    if (aBoolean) {
+                                                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                                        i.putExtra("uuid", uuid);
+                                                        startActivity(i);
+                                                    } else {
+                                                        // username and password don't match, try again
+                                                        recreate();
+                                                    }
+                                                }
+                                            }, new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
                                                     // username and password don't match, try again
                                                     startActivity(new Intent(LoginActivity.this, LoginActivity.class));
                                                 }
-                                            }
-                                        }, new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                // username and password don't match, try again
-                                                startActivity(new Intent(LoginActivity.this, LoginActivity.class));
-                                            }
-                                        }); // end of checkPassword
-                                    }
-                                }, new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // can't get uuid, assume account doesn't exist
-                                        startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
-                                    }
-                                }); // end of getUser
+                                            }); // end of checkPassword
+                                        }
+                                    }, new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            // can't get uuid, assume account doesn't exist
+                                            startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
+                                        }
+                                    }); // end of getUser
+                                } else { // end of not null
+                                    recreate();
+                                }
                             }
                         }, new OnFailureListener() {
                     @Override
