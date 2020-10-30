@@ -40,7 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Button cancelButton;
     private Button addressButton;
 
-    private User newUser;
+    private String uuid;
 
     // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
     static final Pattern EMAIL_REGEX  = Pattern.compile(
@@ -104,6 +104,35 @@ public class ProfileActivity extends AppCompatActivity {
 
         // need login to enable profile editing
         // get user info to populate edit texts
+        uuid = getIntent().getStringExtra("uuid");
+
+        db.usernameExists(uuid, new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                if (s != null) {
+                    db.getUser(s, new OnSuccessListener<User>() {
+                        @Override
+                        public void onSuccess(User user) {
+                            usernameEditText.setText(user.getUsername());
+                            passwordEditText.setText(user.getPassword());
+                            emailEditText.setText(user.getEmail());
+                            phoneEditText.setText(user.getPhone());
+                            addressEditText.setText(user.getAddress());
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
 
         addressButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +146,7 @@ public class ProfileActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                finish();
             }
         });
 
@@ -131,13 +160,13 @@ public class ProfileActivity extends AppCompatActivity {
         saveProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
+                final String username = usernameEditText.getText().toString();
+                final String password = passwordEditText.getText().toString();
                 String passwordConfirm = passwordConfirmEditText.getText().toString();
-                String email = emailEditText.getText().toString();
+                final String email = emailEditText.getText().toString();
                 // optional
-                String phone = phoneEditText.getText().toString();
-                String address = addressEditText.getText().toString();
+                final String phone = phoneEditText.getText().toString();
+                final String address = addressEditText.getText().toString();
 
                 // error messages
                 TextView confirmPwTextView = findViewById(R.id.confirm_pw);
@@ -159,35 +188,62 @@ public class ProfileActivity extends AppCompatActivity {
                     invalidEmailTextView.setText("");
                 }
 
+                // assumes full user profile
                 if (username.length() > 0 && password.length() > 0
                         && password.equals(passwordConfirm)
                         && validEmail(email) && validPassword(password)
                         && phone.length() > 0 && address.length() > 0) {
 
-                    newUser.setUsername(username);
-                    newUser.setPassword(password);
-                    newUser.setEmail(email);
-                    newUser.setPhone(phone);
-                    newUser.setAddress(address);
-                    User myUser = new User(username, password, phone, email, address);
+                    final User myUser = new User(username, password, phone, email, address);
                     // also doesn't work for newUser
-                    db.addUser(myUser, new OnSuccessListener<Boolean>() {
-                                @Override
-                                public void onSuccess(Boolean aBoolean) {
-                                    if (aBoolean) {
-                                        startActivity(new Intent(ProfileActivity.this, MainActivity.class));
-                                    } else {
-                                        startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+                    db.usernameExists(username, new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            // uuid does not exist
+                            if (s == null) {
+                                db.addUser(myUser, new OnSuccessListener<Boolean>() {
+                                    @Override
+                                    public void onSuccess(Boolean aBoolean) {
+                                        if (aBoolean) {
+                                            startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                                        } else {
+                                            startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+                                        }
+
                                     }
+                                }, new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d("switcherTest", e.toString());
+                                    }
+                                });
+                            } else {
+                                // user is logged in and wants to edit
+                                if (s == uuid) {
+                                    db.getUser(s, new OnSuccessListener<User>() {
+                                        @Override
+                                        public void onSuccess(User user) {
+                                            user.setUsername(username);
+                                            user.setPassword(password);
+                                            user.setEmail(email);
+                                            user.setPhone(phone);
+                                            user.setAddress(address);
+                                        }
+                                    }, new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
 
+                                        }
+                                    });
                                 }
-                            }, new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.d("switcherTest", e.toString());
+                            }
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
 
-                                }
-                            });
+                        }
+                    });
                 }
             }
         });

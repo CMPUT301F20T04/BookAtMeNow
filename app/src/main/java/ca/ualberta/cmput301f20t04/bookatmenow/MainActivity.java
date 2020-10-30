@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,10 +20,17 @@ public class MainActivity extends AppCompatActivity {
 
     private String uuid;
 
+    ListView bookList;
+    BorrowList allBooksAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        bookList = findViewById(R.id.book_list);
+//        allBooksAdapter = new BorrowList(MainActivity.this);
+//        bookList.setAdapter(allBooksAdapter);
 
         uuid = getIntent().getStringExtra("uuid");
 
