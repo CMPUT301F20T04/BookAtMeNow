@@ -87,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                                                         Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                                         i.putExtra("uuid", uuid);
                                                         startActivity(i);
+                                                        finish();
                                                     } else {
                                                         clearField();
                                                         invalidLoginDialog.show();

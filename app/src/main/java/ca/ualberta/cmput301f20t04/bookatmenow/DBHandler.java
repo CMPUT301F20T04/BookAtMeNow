@@ -471,7 +471,7 @@ public class DBHandler {
                         String status = doc.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
                         String borrower = doc.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
                         String owner = doc.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
-                        List<String> requests = doc.toObject(ListAssist.class).requests;
+                        List<String> requests = (List<String>) doc.get(FireStoreMapping.BOOK_FIELDS_REQUESTS);
                         String image = doc.getString(FireStoreMapping.BOOK_FIELDS_IMAGE);
 
                         finalBook.setTitle(title);
