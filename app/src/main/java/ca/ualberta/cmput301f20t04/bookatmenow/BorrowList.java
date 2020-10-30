@@ -65,7 +65,7 @@ public class BorrowList extends BookList {
      */
     public BorrowList(Context context) {
         super(context);
-//        filteredBooks = new ArrayList<>();
+        filteredBooks = new ArrayList<>();
 
         viewMode = ViewMode.ALL;
         user = null;
