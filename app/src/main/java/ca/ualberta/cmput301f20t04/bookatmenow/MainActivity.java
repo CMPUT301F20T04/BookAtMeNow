@@ -92,16 +92,11 @@ public class MainActivity extends AppCompatActivity {
         final Button homeButton = findViewById(R.id.home);
         homeButton.setVisibility(View.GONE);
 
-        // temporary for access to the MyBook activity
-        final Button myBookButton = findViewById(R.id.temp_book);
-        myBookButton.setVisibility(View.GONE);
-
         myBooksButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addBookButton.setVisibility(View.VISIBLE);
                 homeButton.setVisibility(View.VISIBLE);
-                myBookButton.setVisibility(View.VISIBLE);
 
                 if (uuid != null) {
                     Iterator<Book> bookIterator = filteredBooks.iterator();
@@ -112,16 +107,16 @@ public class MainActivity extends AppCompatActivity {
                             allBooksAdapter.notifyDataSetChanged();
                         }
                     }
-                }
-            }
-        });
 
-        myBookButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, MyBookActivity.class);
-//              i.putExtra("uuid", uuid);
-                startActivity(i);
+                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
+                            Intent i = new Intent(MainActivity.this, MyBookActivity.class);
+//                            i.putExtra("uuid", uuid);
+                            startActivity(i);
+                        }
+                    });
+                }
             }
         });
 
@@ -130,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 addBookButton.setVisibility(View.GONE);
                 homeButton.setVisibility(View.GONE);
-                myBookButton.setVisibility(View.GONE);
                 filteredBooks.addAll(books);
                 allBooksAdapter.notifyDataSetChanged();
             }
