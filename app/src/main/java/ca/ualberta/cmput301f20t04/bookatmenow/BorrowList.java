@@ -119,7 +119,7 @@ public class BorrowList extends BookList {
      * @return
      *      A boolean representing whether or not the current book should be displayed
      */
-    public boolean checkUser(Book book) {
+    public static boolean checkUser(Book book, String uuid, ViewMode viewMode) {
         if (uuid == null) {
             return true;
         }

@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                        filteredBooks.addAll(books);
                        allBooksAdapter.notifyDataSetChanged();
                        Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
-                       setUi();
+                       setUi(filteredBooks);
                     }
                 },
                 new OnFailureListener() {
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setUi() {
+    private void setUi(final ArrayList<Book> filteredBooks) {
         uuid = getIntent().getStringExtra("uuid");
 
         // menu buttons
@@ -103,7 +104,14 @@ public class MainActivity extends AppCompatActivity {
                 myBookButton.setVisibility(View.VISIBLE);
 
                 if (uuid != null) {
-                    // filter all books but only for one uuid
+                    Iterator<Book> bookIterator = filteredBooks.iterator();
+                    while (bookIterator.hasNext()) {
+                        Book book = bookIterator.next();
+                        if (!BorrowList.checkUser(book, uuid, BorrowList.ViewMode.OWNED)) {
+                            bookIterator.remove();
+                            allBooksAdapter.notifyDataSetChanged();
+                        }
+                    }
                 }
             }
         });
