@@ -89,6 +89,7 @@ public class DBHandler {
         uploadTask.continueWith(new Continuation<Void, Boolean>() {
             @Override
             public Boolean then(@NonNull Task<Void> task) throws Exception {
+                Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
                 return true;
             }
         })
@@ -115,6 +116,7 @@ public class DBHandler {
         removeTask.continueWith(new Continuation<Void, Boolean>() {
             @Override
             public Boolean then(@NonNull Task<Void> task) throws Exception {
+                Log.d(ProgramTags.DB_MESSAGE, "User removed successfully");
                 return true;
             }
         })
@@ -158,6 +160,7 @@ public class DBHandler {
                 finalUser.setEmail(email);
                 finalUser.setAddress(address);
 
+                Log.d(ProgramTags.DB_MESSAGE, "User retrieved successfully");
                 return finalUser;
             }
         })
@@ -225,6 +228,7 @@ public class DBHandler {
         updateTask.continueWith(new Continuation<Void, Boolean>() {
             @Override
             public Boolean then(@NonNull Task<Void> task) throws Exception {
+                Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
                 return true;
             }
         })
@@ -339,7 +343,7 @@ public class DBHandler {
      * @param bookToAdd
      *      Book object containing complete or incomplete book data, handler will fill everything else with an empty string
      */
-    public void addBook(Book bookToAdd) {
+    public void addBook(Book bookToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
         // <Field, Data>
         HashMap<String, Object> bookData = new HashMap<String, Object>();
         if(bookToAdd.getTitle() != null) {
@@ -390,9 +394,50 @@ public class DBHandler {
             bookData.put(FireStoreMapping.BOOK_FIELDS_IMAGE, "");
         }
 
-        db.collection(FireStoreMapping.COLLECTIONS_BOOK)
+        Task<Void> addTask = db
+                .collection(FireStoreMapping.COLLECTIONS_BOOK)
                 .document(bookToAdd.getIsbn())
                 .set(bookData);
+
+        addTask.continueWith(new Continuation<Void, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<Void> task) throws Exception {
+                Log.d(ProgramTags.DB_MESSAGE, "Book added successfully");
+                return true;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Converter method to convert a book hash to a book object
+     * @param data
+     *      Takes in the hash data of a book
+     * @return
+     *      Returns a completed book object
+     */
+    private Book convertToBook(DocumentSnapshot data) {
+        Book finalBook = new Book();
+
+        String title = data.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
+        String author = data.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
+        String status = data.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
+        String borrower = data.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
+        String owner = data.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
+        List<String> requests = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_REQUESTS);
+        String image = data.getString(FireStoreMapping.BOOK_FIELDS_IMAGE);
+
+
+        finalBook.setTitle(title);
+        finalBook.setAuthor(author);
+        finalBook.setIsbn(data.getId());
+        finalBook.setStatus(status);
+        finalBook.setBorrower(borrower);
+        finalBook.setOwner(owner);
+        finalBook.setRequests(requests);
+
+        return finalBook;
     }
 
     /**
@@ -414,30 +459,13 @@ public class DBHandler {
             @Override
             public Book then(@NonNull Task<DocumentSnapshot> task) throws Exception {
                 DocumentSnapshot bookData = task.getResult();
-                Book finalBook = new Book();
 
                 if (!bookData.exists()) {
                     return null;
                 }
 
-                String title = bookData.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
-                String author = bookData.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
-                String status = bookData.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
-                String borrower = bookData.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
-                String owner = bookData.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
-                List<String> requests = bookData.toObject(ListAssist.class).requests;
-                String image = bookData.getString(FireStoreMapping.BOOK_FIELDS_IMAGE);
-
-
-                finalBook.setTitle(title);
-                finalBook.setAuthor(author);
-                finalBook.setIsbn(bookData.getId());
-                finalBook.setStatus(status);
-                finalBook.setBorrower(borrower);
-                finalBook.setOwner(owner);
-                finalBook.setRequests(requests);
-
-                return finalBook;
+                Log.d(ProgramTags.DB_MESSAGE, "Book retrieved successfully");
+                return convertToBook(bookData);
             }
         })
                 .addOnSuccessListener(successListener)
@@ -464,28 +492,11 @@ public class DBHandler {
 
                 for (DocumentSnapshot doc: bookData) {
                     if (doc.exists()) {
-                        Book finalBook = new Book();
-
-                        String title = doc.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
-                        String author = doc.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
-                        String status = doc.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
-                        String borrower = doc.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
-                        String owner = doc.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
-                        List<String> requests = (List<String>) doc.get(FireStoreMapping.BOOK_FIELDS_REQUESTS);
-                        String image = doc.getString(FireStoreMapping.BOOK_FIELDS_IMAGE);
-
-                        finalBook.setTitle(title);
-                        finalBook.setAuthor(author);
-                        finalBook.setIsbn(doc.getId());
-                        finalBook.setStatus(status);
-                        finalBook.setBorrower(borrower);
-                        finalBook.setOwner(owner);
-                        finalBook.setRequests(requests);
-
-                        books.add(finalBook);
+                        books.add(convertToBook(doc));
                     }
                 }
 
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s books.", books.size()));
                 return books;
             }
         })
@@ -493,4 +504,64 @@ public class DBHandler {
                 .addOnFailureListener(failureListener);
     }
 
+    /**
+     * Returns all books requested by specific UUID
+     * @param uuid
+     *      User ID of the user to check for
+     * @param successListener
+     *      Listener to act when data is successfully retrieved
+     * @param failureListener
+     *      Listener to act if data retrieval fails
+     */
+    public void userRequests(String uuid, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        Task<QuerySnapshot> requestTask = db
+                .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                .whereArrayContains(FireStoreMapping.BOOK_FIELDS_REQUESTS, uuid)
+                .get();
+
+        requestTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
+            @Override
+            public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> requestData = task.getResult().getDocuments();
+                List<Book> books = new ArrayList<>();
+
+                for (DocumentSnapshot doc: requestData) {
+                    if (doc.exists()) {
+                        books.add(convertToBook(doc));
+                    }
+                }
+
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s books.", books.size()));
+                return books;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Basic book removal method.
+     * @param isbn
+     *      ISBN of a book to remove, a string
+     * @param successListener
+     *      Listener returning true if book is successfuly removed
+     * @param failureListener
+     *      Listener to act on DB failure
+     */
+    public void removeBook(String isbn, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+        Task<Void> removeTask = db
+                .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                .document(isbn)
+                .delete();
+
+        removeTask.continueWith(new Continuation<Void, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<Void> task) throws Exception {
+                Log.d(ProgramTags.DB_MESSAGE, "Book removed successfully");
+                return true;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
 }
