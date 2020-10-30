@@ -98,31 +98,32 @@ public class ProfileActivity extends AppCompatActivity {
 
         uuid = getIntent().getStringExtra("uuid");
 
+        if (uuid != null) {
+            db.usernameExists(uuid, new OnSuccessListener<String>() {
+                @Override
+                public void onSuccess(String s) {
+                    db.getUser(uuid, new OnSuccessListener<User>() {
+                        @Override
+                        public void onSuccess(User user) {
+                            usernameEditText.setText(user.getUsername());
+                            emailEditText.setText(user.getEmail());
+                            phoneEditText.setText(user.getPhone());
+                            addressEditText.setText(user.getAddress());
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
 
-        db.usernameExists(uuid, new OnSuccessListener<String>() {
-            @Override
-            public void onSuccess(String s) {
-                db.getUser(uuid, new OnSuccessListener<User>() {
-                    @Override
-                    public void onSuccess(User user) {
-                        usernameEditText.setText(user.getUsername());
-                        emailEditText.setText(user.getEmail());
-                        phoneEditText.setText(user.getPhone());
-                        addressEditText.setText(user.getAddress());
-                    }
-                }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                        }
+                    });
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
 
-                    }
-                });
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
+                }
+            });
+        }
 
         addressButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,8 +163,6 @@ public class ProfileActivity extends AppCompatActivity {
                 TextView confirmPwTextView = findViewById(R.id.confirm_pw);
                 TextView invalidEmailTextView = findViewById(R.id.invalidEmail);
 
-                HashMap<String, String> data = new HashMap<>();
-
                 if (!password.equals(passwordConfirm)) {
                     confirmPwTextView.setText("Passwords don't match.");
                 } else if (!validPassword(password)) {
@@ -181,11 +180,9 @@ public class ProfileActivity extends AppCompatActivity {
                 // assumes full user profile
                 if (username.length() > 0 && password.length() > 0
                         && password.equals(passwordConfirm)
-                        && validEmail(email) && validPassword(password)
-                        && phone.length() > 0 && address.length() > 0) {
+                        && validEmail(email) && validPassword(password)) {
 
-                    final User myUser = new User(username, password, phone, email, address);
-                    // also doesn't work for newUser
+                    final User myUser = new User(username, password, email);
                     db.usernameExists(username, new OnSuccessListener<String>() {
                         @Override
                         public void onSuccess(String s) {
@@ -195,6 +192,10 @@ public class ProfileActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(Boolean aBoolean) {
                                         if (aBoolean) {
+                                            if (phone.length() > 0 && address.length() > 0) {
+                                                myUser.setPhone(phone);
+                                                myUser.setAddress(address);
+                                            }
                                             startActivity(new Intent(ProfileActivity.this, MainActivity.class));
                                         } else {
                                             recreate();
@@ -209,15 +210,32 @@ public class ProfileActivity extends AppCompatActivity {
                                 });
                             } else {
                                 // user is logged in and wants to edit
+                                /**
+                                 * updateUser doesn't work yet
+                                 */
                                 if (s == uuid) {
                                     db.getUser(s, new OnSuccessListener<User>() {
                                         @Override
                                         public void onSuccess(User user) {
-                                            user.setUsername(username);
-                                            user.setPassword(password);
-                                            user.setEmail(email);
-                                            user.setPhone(phone);
-                                            user.setAddress(address);
+                                            db.updateUser(user, new OnSuccessListener<Boolean>() {
+                                                @Override
+                                                public void onSuccess(Boolean aBoolean) {
+                                                    if (aBoolean) {
+                                                        myUser.setUsername(username);
+                                                        myUser.setEmail(email);
+                                                        if (phone.length() > 0 && address.length() > 0) {
+                                                            myUser.setPhone(phone);
+                                                            myUser.setAddress(address);
+                                                        }
+                                                        startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                                                    }
+                                                }
+                                            }, new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+
+                                                }
+                                            });
                                         }
                                     }, new OnFailureListener() {
                                         @Override
