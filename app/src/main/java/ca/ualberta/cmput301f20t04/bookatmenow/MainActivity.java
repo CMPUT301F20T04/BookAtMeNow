@@ -29,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bookList = findViewById(R.id.book_list);
-//        allBooksAdapter = new BorrowList(MainActivity.this);
-//        bookList.setAdapter(allBooksAdapter);
+        allBooksAdapter = new BorrowList(this);
+        bookList.setAdapter(allBooksAdapter);
 
         uuid = getIntent().getStringExtra("uuid");
 

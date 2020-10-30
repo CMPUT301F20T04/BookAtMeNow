@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +17,6 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -89,9 +90,9 @@ public class ProfileActivity extends AppCompatActivity {
         final EditText addressEditText = findViewById(R.id.address);
 
         // buttons
-        Button saveProfileButton = findViewById(R.id.profile_save);
-        Button logoutButton = findViewById(R.id.logout);
-        Button cancelButton = findViewById(R.id.profile_cancel);
+        final Button saveProfileButton = findViewById(R.id.profile_save);
+        final Button logoutButton = findViewById(R.id.logout);
+        final Button cancelButton = findViewById(R.id.profile_cancel);
         Button addressButton = findViewById(R.id.address_button);
 
         final DBHandler db = new DBHandler();
@@ -113,7 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-
+                            recreate();
                         }
                     });
                 }
@@ -123,6 +124,8 @@ public class ProfileActivity extends AppCompatActivity {
 
                 }
             });
+        } else {
+            logoutButton.setVisibility(View.GONE);
         }
 
         addressButton.setOnClickListener(new View.OnClickListener() {
@@ -148,6 +151,53 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        // Dialog for mismatch password error
+        final AlertDialog.Builder mismatchPasswordDialog = new AlertDialog.Builder(this)
+                .setTitle("Error!")
+                .setMessage("Passwords don't match!")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        cancelButton.setEnabled(true);
+                        logoutButton.setEnabled(true);
+                    }
+                });
+        // Dialog for invalid password error
+        final AlertDialog.Builder invalidPasswordDialog = new AlertDialog.Builder(this)
+                .setTitle("Error!")
+                .setMessage("Invalid password!")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        cancelButton.setEnabled(true);
+                        logoutButton.setEnabled(true);
+                    }
+                });
+
+        // Dialog for invalid email error
+        final AlertDialog.Builder invalidEmailDialog = new AlertDialog.Builder(this)
+                .setTitle("Error!")
+                .setMessage("Invalid email!")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        cancelButton.setEnabled(true);
+                        logoutButton.setEnabled(true);
+                    }
+                });
+
+        // Dialog for database error
+        final AlertDialog.Builder databaseErrorDialog = new AlertDialog.Builder(this)
+                .setTitle("Error!")
+                .setMessage("Invalid input!")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        cancelButton.setEnabled(true);
+                        logoutButton.setEnabled(true);
+                    }
+                });
+
         saveProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,22 +209,14 @@ public class ProfileActivity extends AppCompatActivity {
                 final String phone = phoneEditText.getText().toString();
                 final String address = addressEditText.getText().toString();
 
-                // error messages
-                TextView confirmPwTextView = findViewById(R.id.confirm_pw);
-                TextView invalidEmailTextView = findViewById(R.id.invalidEmail);
-
                 if (!password.equals(passwordConfirm)) {
-                    confirmPwTextView.setText("Passwords don't match.");
+                    mismatchPasswordDialog.show();
                 } else if (!validPassword(password)) {
-                    confirmPwTextView.setText("Invalid Password.");
-                } else {
-                    confirmPwTextView.setText("");
+                    invalidPasswordDialog.show();
                 }
 
                 if (!validEmail(email)) {
-                    invalidEmailTextView.setText("Invalid Email.");
-                } else {
-                    invalidEmailTextView.setText("");
+                    invalidEmailDialog.show();
                 }
 
                 // assumes full user profile
@@ -205,7 +247,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 }, new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Log.d("switcherTest", e.toString());
+                                        databaseErrorDialog.show();
                                     }
                                 });
                             } else {
@@ -233,14 +275,14 @@ public class ProfileActivity extends AppCompatActivity {
                                             }, new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
-
+                                                    databaseErrorDialog.show();
                                                 }
                                             });
                                         }
                                     }, new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-
+                                            databaseErrorDialog.show();
                                         }
                                     });
                                 }
@@ -249,7 +291,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-
+                            databaseErrorDialog.show();
                         }
                     });
                 }
