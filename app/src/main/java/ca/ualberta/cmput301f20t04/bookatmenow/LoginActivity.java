@@ -3,6 +3,10 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,12 +35,33 @@ public class LoginActivity extends AppCompatActivity {
 
         final DBHandler db = new DBHandler();
 
-        Button loginBtn = findViewById(R.id.login_btn);
+        final AlertDialog.Builder invalidLoginDialog = new AlertDialog.Builder(this)
+                .setTitle("Error!")
+                .setMessage("Invalid Username or Password")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        LoginActivity.this.recreate();
+                    }
+                });
+
+        final AlertDialog.Builder databaseErrorDialog = new AlertDialog.Builder(this)
+                .setTitle("Error!")
+                .setMessage("Invalid Username or Password")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        LoginActivity.this.recreate();
+                    }
+                });
+
+        final Button loginBtn = findViewById(R.id.login_btn);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String usernameOrEmail = logInUser.getText().toString();
                 // if username exists
+                loginBtn.setVisibility(View.GONE);
                 db.usernameExists(usernameOrEmail, new OnSuccessListener<String>() {
                             @Override
                             public void onSuccess(String s) {
@@ -53,15 +78,14 @@ public class LoginActivity extends AppCompatActivity {
                                                         i.putExtra("uuid", uuid);
                                                         startActivity(i);
                                                     } else {
-                                                        // username and password don't match, try again
-                                                        recreate();
+                                                        invalidLoginDialog.show();
                                                     }
                                                 }
                                             }, new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
                                                     // username and password don't match, try again
-                                                    startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+                                                    databaseErrorDialog.show();
                                                 }
                                             }); // end of checkPassword
                                         }
@@ -69,18 +93,18 @@ public class LoginActivity extends AppCompatActivity {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             // can't get uuid, assume account doesn't exist
-                                            startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
+                                            databaseErrorDialog.show();
                                         }
                                     }); // end of getUser
                                 } else { // end of not null
-                                    recreate();
+                                    invalidLoginDialog.show();
                                 }
                             }
                         }, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         // username doesn't exist, assume account doesn't exist
-                        startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
+                        databaseErrorDialog.show();
                     }
                 }); // end of usernameExists
             }
