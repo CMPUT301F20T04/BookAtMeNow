@@ -460,7 +460,7 @@ public class DBHandler {
             @Override
             public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
                 List<DocumentSnapshot> bookData = task.getResult().getDocuments();
-                List<Book> books = new ArrayList<Book>();
+                List<Book> books = new ArrayList<>();
 
                 for (DocumentSnapshot doc: bookData) {
                     if (doc.exists()) {
