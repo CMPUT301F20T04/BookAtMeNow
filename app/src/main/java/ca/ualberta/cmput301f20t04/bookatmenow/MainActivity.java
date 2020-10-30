@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                        filteredBooks.addAll(books);
                        allBooksAdapter.notifyDataSetChanged();
                        Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
-                       setUi(filteredBooks);
+                       setUi(books, filteredBooks);
                     }
                 },
                 new OnFailureListener() {
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setUi(final ArrayList<Book> filteredBooks) {
+    private void setUi(final List<Book> books, final ArrayList<Book> filteredBooks) {
         uuid = getIntent().getStringExtra("uuid");
 
         // menu buttons
@@ -131,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
                 addBookButton.setVisibility(View.GONE);
                 homeButton.setVisibility(View.GONE);
                 myBookButton.setVisibility(View.GONE);
+                filteredBooks.addAll(books);
+                allBooksAdapter.notifyDataSetChanged();
             }
         });
 
