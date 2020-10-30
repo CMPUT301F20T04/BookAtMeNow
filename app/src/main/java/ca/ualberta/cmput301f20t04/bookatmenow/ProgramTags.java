@@ -6,6 +6,7 @@ public class ProgramTags {
     static final String DB_ERROR = "DatabaseError";
     static final String DB_TEST = "DatabaseTest";
     static final String DB_ALL_FOUND = "AllFound";
+    static final String DB_USER_FOUND = "UserFound";
 
     private ProgramTags() {}
 }

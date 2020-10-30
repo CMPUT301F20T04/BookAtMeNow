@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,20 +22,21 @@ import java.util.List;
  * requested from a given owner. With this adapter, the owner will be able to accept or reject
  * requests.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class RequestList extends BookList {
     private ArrayList<String> requesters;
+    private ArrayList<String> displayNames;
 
     /**
      * Construct a view of all a given owner's pending requests.
      *
      * @param context
      *      The context of the calling activity, used to display objects on the screen
-     * @param owner
-     *      an instance of {@link User} whose requests are being managed
+     * @param ownerName
+     *      The UUID of the {@link User} whose requests are being managed
      */
-    public RequestList(Context context, final User owner) {
+    public RequestList(Context context, final String ownerName) {
         super(context);
 
         // In the case of the request list, filteredBooks is represented as a LinkedList because it
@@ -42,18 +44,55 @@ public class RequestList extends BookList {
         // random access.
         filteredBooks = new LinkedList<>();
         requesters = new ArrayList<>();
+        displayNames = new ArrayList<>();
+
+        final HashMap<String, String> ownerMap = new HashMap<>();
+        db.getUser(ownerName, new OnSuccessListener<User>() {
+            @Override
+            public void onSuccess(User user) {
+                ownerMap.put(ProgramTags.DB_USER_FOUND, user.getUserId());
+
+                Log.d(ProgramTags.DB_USER_FOUND, "User successfully found");
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(ProgramTags.DB_ERROR, "User could not be found!" + e.toString());
+            }
+        });
+
+        if (ownerMap.isEmpty()) { return; }
 
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                     @Override
                     public void onSuccess(List<Book> books) {
                         for (Book book : books) {
-                            if (book.getOwner().equals(owner.getUsername()) &&
+                            if (book.getOwner().equals(ownerMap.get(ProgramTags.DB_USER_FOUND)) &&
                                     Book.StatusEnum.valueOf(book.getStatus()) ==
                                             Book.StatusEnum.Pending)
                             {
                                 for (String requester : book.getRequests()) {
                                     filteredBooks.add(book);
                                     requesters.add(requester);
+                                    db.getUser(requester, new OnSuccessListener<User>() {
+                                        @Override
+                                        public void onSuccess(User user) {
+                                            String username = user.getUsername();
+                                            if (username != null) {
+                                                displayNames.add(username);
+                                            } else {
+                                                displayNames.add(user.getEmail());
+                                            }
+                                            Log.d(ProgramTags.DB_USER_FOUND,
+                                                    "User successfully found");
+                                        }
+                                    }, new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(ProgramTags.DB_ERROR,
+                                                    "User could not be found!" + e.toString());
+                                        }
+                                    });
                                 }
                             }
                         }
@@ -87,10 +126,10 @@ public class RequestList extends BookList {
         convertView = inflate_helper(convertView, parent, R.layout.request_row);
 
         final Book book = filteredBooks.get(position);
-        final String borrower = requesters.get(position);
+        final String borrower = displayNames.get(position);
 
         final TextView title = convertView.findViewById(R.id.req_title_text);
-        final TextView username = convertView.findViewById(R.id.username_text);
+        final TextView username = convertView.findViewById(R.id.display_name_text);
 
         title.setText(book.getTitle());
         username.setText(borrower);

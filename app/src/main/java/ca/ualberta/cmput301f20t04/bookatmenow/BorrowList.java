@@ -25,7 +25,7 @@ import java.util.List;
  * @author Warren Stix
  * @see BookList
  * @see android.widget.BaseAdapter
- * @version 0.6
+ * @version 0.6.1
  */
 public class BorrowList extends BookList {
     /**
@@ -41,21 +41,21 @@ public class BorrowList extends BookList {
          */
         ALL,
         /**
-         * Display the {@link Book}s owned by the {@link User} with a given username
+         * Display the {@link Book}s owned by the {@link User} with a given UUID
          */
         OWNED,
         /**
-         * Display the {@link Book}s being borrowed by the {@link User} with a given username
+         * Display the {@link Book}s being borrowed by the {@link User} with a given UUID
          */
         BORROWED,
         /**
-         * Display the {@link Book}s being requested by the {@link User} with a given username
+         * Display the {@link Book}s being requested by the {@link User} with a given UUID
          */
         REQUESTED;
     }
 
     @NonNull private ViewMode viewMode;
-    @Nullable private User user;
+    @Nullable private String uuid;
 
     /**
      * Construct a view of all books in the system.
@@ -65,10 +65,10 @@ public class BorrowList extends BookList {
      */
     public BorrowList(Context context) {
         super(context);
-//        filteredBooks = new ArrayList<>();
+        filteredBooks = new ArrayList<>();
 
         viewMode = ViewMode.ALL;
-        user = null;
+        uuid = null;
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                 @Override
                 public void onSuccess(List<Book> books) {
@@ -92,17 +92,17 @@ public class BorrowList extends BookList {
      * @param viewMode
      *      The "view mode" of this list of books - indicates how many books in the system need to
      *      be displayed and re-displayed after filtering
-     * @param user
-     *      The user whose books are being displayed
+     * @param uuid
+     *      The UUID of the user whose books are being displayed
      */
     public BorrowList(Context context, @NonNull ViewMode viewMode,
-                      @Nullable User user)
+                      @Nullable String uuid)
     {
         super(context);
         filteredBooks = new ArrayList<>();
 
         this.viewMode = viewMode;
-        this.user = user;
+        this.uuid = uuid;
 
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                     @Override
@@ -130,22 +130,23 @@ public class BorrowList extends BookList {
      * adapter's current view mode.
      *
      * @param book
+     *      The current book to check
      * @return
-     *      a boolean representing whether or not the current book should be displayed
+     *      A boolean representing whether or not the current book should be displayed
      */
     private boolean checkUser(Book book) {
-        if (user == null) {
+        if (uuid == null) {
             return true;
         }
 
         switch (viewMode) {
             case OWNED:
-                return user.getUsername().equals(book.getOwner());
+                return uuid.equals(book.getOwner());
             case BORROWED:
-                return user.getUsername().equals(book.getBorrower());
+                return uuid.equals(book.getBorrower());
             case REQUESTED:
                 for (String requester : book.getRequests()) {
-                    if (user.getUsername().equals(requester)) {
+                    if (uuid.equals(requester)) {
                         return true;
                     }
                 }
