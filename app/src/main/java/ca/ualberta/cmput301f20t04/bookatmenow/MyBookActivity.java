@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -33,10 +34,16 @@ import java.util.Date;
 
 public class MyBookActivity extends AppCompatActivity {
 
+    private String init_isbn;
+
     private Button takePic;
-    private Button save;
+    private Button save_image;
     private Button to_scan_btn;
+    private Button save_changes;
     private ImageView myImg;
+    private EditText titleEditText;
+    private EditText authorEditText;
+
     private int REQUEST_IMAGE_CAPTURE = 1;
     private Uri myUri;
     private String currentPhotoPath;
@@ -44,6 +51,7 @@ public class MyBookActivity extends AppCompatActivity {
     private Boolean pictureTaken;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     StorageReference storageReference;
+    private DBHandler db;
 
     public void takePicture(View view){
         if(getCameraPermissions() == true){
@@ -176,22 +184,62 @@ public class MyBookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_book);
 
-        takePic = findViewById(R.id.MBA_button_takePic);
-        myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
-        save = findViewById(R.id.MBA_button_savePic);
-        to_scan_btn = findViewById(R.id.to_scan_btn);
-        to_scan_btn.setOnClickListener(new View.OnClickListener() {
+        Intent main = getIntent();
+
+        init_isbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
+        db = new DBHandler();
+
+        db.getBook(init_isbn, new OnSuccessListener<Book>() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MyBookActivity.this, ScanBook.class));
+            public void onSuccess(final Book book) {
+                takePic = findViewById(R.id.MBA_button_takePic);
+                myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
+                save_image = findViewById(R.id.MBA_button_savePic);
+                to_scan_btn = findViewById(R.id.to_scan_btn);
+                to_scan_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(MyBookActivity.this, ScanBook.class));
+                    }
+                });
+                save_changes = findViewById(R.id.save_change_button);
+                save_changes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        book.setTitle("Title");
+                        db.addBook(book, new OnSuccessListener<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                Intent main = new Intent();
+                                main.putExtra(ProgramTags.BOOK_CHANGED, true);
+                                main.putExtra(ProgramTags.PASSED_ISBN, init_isbn);
+
+                                setResult(RESULT_OK, main);
+                                finish();
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                            }
+                        });
+                    }
+                });
+
+                titleEditText = findViewById(R.id.editTextTitle);
+                titleEditText.setText(book.getTitle());
+
+                authorEditText = findViewById(R.id.editTextAuthor);
+                authorEditText.setText(book.getAuthor());
+
+                storageReference = FirebaseStorage.getInstance().getReference();
+
+                pictureTaken = false;
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
             }
         });
-
-        storageReference = FirebaseStorage.getInstance().getReference();
-
-        pictureTaken = false;
-
-//        setResult(RESULT_OK);
-//        finish();
     }
 }
