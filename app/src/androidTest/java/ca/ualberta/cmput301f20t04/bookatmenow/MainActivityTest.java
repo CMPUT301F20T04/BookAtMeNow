@@ -47,20 +47,34 @@ public class MainActivityTest {
 
     /**
      * Check that Home and MyBooks are the same activity
+     * Check that buttons are visible / invisible
      */
     @Test
     public void clickMyBooks() {
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+        assertEquals(solo.getView(R.id.home).getVisibility(), View.GONE);;
+        assertEquals(solo.getView(R.id.add).getVisibility(), View.GONE);;
         solo.clickOnButton("My Books");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        // check that Home and Add buttons are visible
+        assertEquals(solo.getView(R.id.home).getVisibility(), View.VISIBLE);;
+        assertEquals(solo.getView(R.id.add).getVisibility(), View.VISIBLE);;
+    }
+
+    /**
+     * Check nav to Profile
+     */
+    @Test
+    public void clickProfile() {
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+        solo.clickOnButton("Profile");
+        solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
     }
 
     @Test
     public void clickFilter() {
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.clickOnButton("Filter");
-        // check dialog actions
+        // check dialog actions when search works
     }
 
     /**

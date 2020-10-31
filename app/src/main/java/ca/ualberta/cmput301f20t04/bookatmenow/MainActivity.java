@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
                             Intent i = new Intent(MainActivity.this, MyBookActivity.class);
-//                            i.putExtra("uuid", uuid);
                             startActivityForResult(i, 0);
                         }
                     });
