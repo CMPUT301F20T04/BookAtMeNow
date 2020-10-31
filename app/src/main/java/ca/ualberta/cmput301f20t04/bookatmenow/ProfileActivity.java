@@ -228,20 +228,19 @@ public class ProfileActivity extends AppCompatActivity {
                         && validEmail(email) && validPassword(password)) {
 
                     final User myUser = new User(username, password, email);
+                    myUser.setPhone(phone);
+                    myUser.setAddress(address);
                     db.usernameExists(username, new OnSuccessListener<String>() {
                         @Override
                         public void onSuccess(String s) {
-                            // uuid does not exist
+                            // uuid does not exist (new user)
                             if (s == null) {
                                 db.addUser(myUser, new OnSuccessListener<Boolean>() {
                                     @Override
                                     public void onSuccess(Boolean aBoolean) {
                                         if (aBoolean) {
-                                            if (phone.length() > 0 && address.length() > 0) {
-                                                myUser.setPhone(phone);
-                                                myUser.setAddress(address);
-                                            }
-                                            startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                                            // enable editing for new account creation
+                                            startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
                                         } else {
                                             recreate();
                                         }
@@ -268,10 +267,8 @@ public class ProfileActivity extends AppCompatActivity {
                                                     if (aBoolean) {
                                                         myUser.setUsername(username);
                                                         myUser.setEmail(email);
-                                                        if (phone.length() > 0 && address.length() > 0) {
-                                                            myUser.setPhone(phone);
-                                                            myUser.setAddress(address);
-                                                        }
+                                                        myUser.setPhone(phone);
+                                                        myUser.setAddress(address);
                                                         startActivity(new Intent(ProfileActivity.this, MainActivity.class));
                                                     }
                                                 }
