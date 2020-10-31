@@ -2,6 +2,7 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
 import android.provider.ContactsContract;
+import android.view.View;
 import android.widget.EditText;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -13,6 +14,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class LoginActivityTest {
     private Solo solo;
@@ -74,6 +77,7 @@ public class LoginActivityTest {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
         solo.clickOnButton("Create Account");
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
+        assertEquals(solo.getView(R.id.logout).getVisibility(), View.GONE);
     }
 
     /**

@@ -98,6 +98,7 @@ public class ProfileActivity extends AppCompatActivity {
         final DBHandler db = new DBHandler();
 
         uuid = getIntent().getStringExtra("uuid");
+        logoutButton.setVisibility(View.VISIBLE);
 
         if (uuid != null) {
             db.usernameExists(uuid, new OnSuccessListener<String>() {
