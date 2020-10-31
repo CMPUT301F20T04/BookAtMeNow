@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, i);
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (i.getBooleanExtra(ProgramTags.BOOK_CHANGED, false)) {
-                final String isbn = i.getStringExtra(ProgramTags.RETURNED_ISBN);
+                final String isbn = i.getStringExtra(ProgramTags.PASSED_ISBN);
 
                 db.getBook(isbn, new OnSuccessListener<Book>() {
                     @Override
