@@ -158,8 +158,8 @@ public class BorrowList extends BookList {
      */
     @Override
     @NonNull
-    public View getView(int position, View convertiView, ViewGroup parent) {
-        final View convertedView = inflate_helper(convertiView, parent, R.layout.borrow_row);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        final View convertedView = inflate_helper(convertView, parent, R.layout.borrow_row);
 
         final Book book = filteredBooks.get(position);
 
@@ -189,6 +189,7 @@ public class BorrowList extends BookList {
         }, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                Log.d(ProgramTags.DB_ERROR, e + ": This book's owner could not be found!");
             }
         });
 
