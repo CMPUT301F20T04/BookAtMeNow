@@ -22,7 +22,7 @@ import java.util.List;
  * requested from a given owner. With this adapter, the owner will be able to accept or reject
  * requests.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class RequestList extends BookList {
     private ArrayList<String> requesters;

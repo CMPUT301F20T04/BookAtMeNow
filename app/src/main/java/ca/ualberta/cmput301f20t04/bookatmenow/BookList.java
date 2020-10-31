@@ -17,7 +17,7 @@ import java.util.List;
  * @see BaseAdapter
  * @see BorrowList
  * @see RequestList
- * @version 0.5
+ * @version 0.6
  */
 public abstract class BookList extends BaseAdapter {
     private Context context;

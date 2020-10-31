@@ -191,5 +191,7 @@ public class MyBookActivity extends AppCompatActivity {
 
         pictureTaken = false;
 
+//        setResult(RESULT_OK);
+//        finish();
     }
 }

@@ -32,16 +32,18 @@ public class MainActivity extends AppCompatActivity {
 
     ListView bookList;
     BorrowList allBooksAdapter;
+    ArrayList<Book> filteredBooks;
+    DBHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DBHandler db = new DBHandler();
+        db = new DBHandler();
 
         bookList = findViewById(R.id.book_list);
-        final ArrayList<Book> filteredBooks = new ArrayList<>();
+        filteredBooks = new ArrayList<>();
         allBooksAdapter = new BorrowList(MainActivity.this, filteredBooks);
         bookList.setAdapter(allBooksAdapter);
 
@@ -60,13 +62,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
                     }
                 });
-
-        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // A book
-            }
-        });
     }
 
     private void setUi(final List<Book> books, final ArrayList<Book> filteredBooks) {
@@ -113,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
                             Intent i = new Intent(MainActivity.this, MyBookActivity.class);
 //                            i.putExtra("uuid", uuid);
-                            startActivity(i);
+                            startActivityForResult(i, 0);
                         }
                     });
                 }
@@ -125,8 +120,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 addBookButton.setVisibility(View.GONE);
                 homeButton.setVisibility(View.GONE);
+
+                filteredBooks.clear();
                 filteredBooks.addAll(books);
                 allBooksAdapter.notifyDataSetChanged();
+                bookList.setOnItemClickListener(null);
             }
         });
 
@@ -145,5 +143,38 @@ public class MainActivity extends AppCompatActivity {
                 new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent i) {
+        super.onActivityResult(requestCode, resultCode, i);
+        if (requestCode == 0 && resultCode == RESULT_OK) {
+            if (i.getBooleanExtra(ProgramTags.BOOK_CHANGED, false)) {
+                final String isbn = i.getStringExtra(ProgramTags.RETURNED_ISBN);
+
+                db.getBook(isbn, new OnSuccessListener<Book>() {
+                    @Override
+                    public void onSuccess(Book book) {
+                        int pos = -1;
+                        for (int j = 0; j < filteredBooks.size(); ++j) {
+                            if (filteredBooks.get(j).getIsbn().equals(isbn)) {
+                                pos = j;
+                                break;
+                            }
+                        }
+
+                        if (pos != -1) {
+                            filteredBooks.set(pos, book);
+                            allBooksAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+            }
+        }
     }
 }
