@@ -57,6 +57,8 @@ public class BorrowList extends BookList {
     @NonNull private ViewMode viewMode;
     @Nullable private String uuid;
 
+    private DBHandler db;
+
     /**
      * Construct a view of all books in the system.
      *
@@ -157,23 +159,41 @@ public class BorrowList extends BookList {
     @Override
     @NonNull
     public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = inflate_helper(convertView, parent, R.layout.borrow_row);
+        final View convertedView = inflate_helper(convertView, parent, R.layout.borrow_row);
 
-        Book book = filteredBooks.get(position);
+        final Book book = filteredBooks.get(position);
 
-        TextView title = convertView.findViewById(R.id.title_text);
-        TextView author = convertView.findViewById(R.id.author_text);
-        TextView isbn = convertView.findViewById(R.id.isbn_text);
-        TextView status = convertView.findViewById(R.id.status_text);
-        TextView owner = convertView.findViewById(R.id.owner_text);
+        db = new DBHandler();
+        db.getUser(book.getOwner(), new OnSuccessListener<User>() {
+            @Override
+            public void onSuccess(User user) {
+                String displayName;
+                if (user.getUsername() != null) {
+                    displayName = user.getUsername();
+                } else {
+                    displayName = user.getEmail();
+                }
 
-        title.setText(book.getTitle());
-        author.setText(book.getAuthor());
-        isbn.setText(book.getIsbn());
-        status.setText(book.getStatus());
-        owner.setText(book.getOwner());
+                TextView title = convertedView.findViewById(R.id.title_text);
+                TextView author = convertedView.findViewById(R.id.author_text);
+                TextView isbn = convertedView.findViewById(R.id.isbn_text);
+                TextView status = convertedView.findViewById(R.id.status_text);
+                TextView owner = convertedView.findViewById(R.id.owner_text);
 
-        return convertView;
+                title.setText(book.getTitle());
+                author.setText(book.getAuthor());
+                isbn.setText(book.getIsbn());
+                status.setText(book.getStatus());
+                owner.setText(displayName);
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(ProgramTags.DB_ERROR, e + ": This book's owner could not be found!");
+            }
+        });
+
+        return convertedView;
     }
 
     /**

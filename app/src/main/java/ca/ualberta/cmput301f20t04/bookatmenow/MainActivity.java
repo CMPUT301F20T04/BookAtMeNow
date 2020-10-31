@@ -83,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final Button addBookButton = findViewById(R.id.add);
-        addBookButton.setVisibility(View.GONE);
+        addBookButton.setVisibility(View.INVISIBLE);
         final Button homeButton = findViewById(R.id.home);
-        homeButton.setVisibility(View.GONE);
+        homeButton.setVisibility(View.INVISIBLE);
 
         myBooksButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,19 +94,13 @@ public class MainActivity extends AppCompatActivity {
                 homeButton.setVisibility(View.VISIBLE);
 
                 if (uuid != null) {
-                    Iterator<Book> bookIterator = filteredBooks.iterator();
-                    while (bookIterator.hasNext()) {
-                        Book book = bookIterator.next();
-                        if (!BorrowList.checkUser(book, uuid, BorrowList.ViewMode.OWNED)) {
-                            bookIterator.remove();
-                            allBooksAdapter.notifyDataSetChanged();
-                        }
-                    }
+                    setViewMode(BorrowList.ViewMode.OWNED, books, filteredBooks, uuid);
 
                     bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
                             Intent i = new Intent(MainActivity.this, MyBookActivity.class);
+                            i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
                             startActivityForResult(i, 0);
                         }
                     });
@@ -117,12 +111,10 @@ public class MainActivity extends AppCompatActivity {
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addBookButton.setVisibility(View.GONE);
-                homeButton.setVisibility(View.GONE);
+                addBookButton.setVisibility(View.INVISIBLE);
+                homeButton.setVisibility(View.INVISIBLE);
 
-                filteredBooks.clear();
-                filteredBooks.addAll(books);
-                allBooksAdapter.notifyDataSetChanged();
+                setViewMode(BorrowList.ViewMode.ALL, books, filteredBooks, uuid);
                 bookList.setOnItemClickListener(null);
             }
         });
@@ -142,6 +134,36 @@ public class MainActivity extends AppCompatActivity {
                 new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
             }
         });
+
+        borrowedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setViewMode(BorrowList.ViewMode.BORROWED, books, filteredBooks, uuid);
+            }
+        });
+
+        requestedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setViewMode(BorrowList.ViewMode.REQUESTED, books, filteredBooks, uuid);
+            }
+        });
+    }
+    private void setViewMode(BorrowList.ViewMode viewMode, List<Book> allBooks,
+                             ArrayList<Book> filteredBooks, String uuid)
+    {
+        filteredBooks.clear();
+
+        if (viewMode == BorrowList.ViewMode.ALL) {
+            filteredBooks.addAll(allBooks);
+        } else {
+            for (Book book : allBooks) {
+                if (BorrowList.checkUser(book, uuid, viewMode)) {
+                    filteredBooks.add(book);
+                }
+            }
+        }
+        allBooksAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -149,21 +171,14 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, i);
         if (requestCode == 0 && resultCode == RESULT_OK) {
             if (i.getBooleanExtra(ProgramTags.BOOK_CHANGED, false)) {
-                final String isbn = i.getStringExtra(ProgramTags.RETURNED_ISBN);
+                final String isbn = i.getStringExtra(ProgramTags.PASSED_ISBN);
+                final int book_pos = i.getIntExtra(ProgramTags.BOOK_POS, -1);
 
                 db.getBook(isbn, new OnSuccessListener<Book>() {
                     @Override
                     public void onSuccess(Book book) {
-                        int pos = -1;
-                        for (int j = 0; j < filteredBooks.size(); ++j) {
-                            if (filteredBooks.get(j).getIsbn().equals(isbn)) {
-                                pos = j;
-                                break;
-                            }
-                        }
-
-                        if (pos != -1) {
-                            filteredBooks.set(pos, book);
+                        if (book_pos != -1) {
+                            filteredBooks.set(book_pos, book);
                             allBooksAdapter.notifyDataSetChanged();
                         }
                     }

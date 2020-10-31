@@ -143,29 +143,41 @@ public class DBHandler {
             @Override
             public User then(@NonNull Task<DocumentSnapshot> task) throws Exception {
                 DocumentSnapshot userData = task.getResult();
-                User finalUser = new User();
 
                 if (!userData.exists()) {
                     return null;
                 }
 
-                String username = userData.getString(FireStoreMapping.USER_FIELDS_USERNAME);
-                String phone = userData.getString(FireStoreMapping.USER_FIELDS_PHONE);
-                String email = userData.getString(FireStoreMapping.USER_FIELDS_EMAIL);
-                String address = userData.getString(FireStoreMapping.USER_FIELDS_ADDRESS);
-
-                finalUser.setUserID(userData.getId());
-                finalUser.setUsername(username);
-                finalUser.setPhone(phone);
-                finalUser.setEmail(email);
-                finalUser.setAddress(address);
-
                 Log.d(ProgramTags.DB_MESSAGE, "User retrieved successfully");
-                return finalUser;
+                return convertToUser(userData);
             }
         })
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Conversion handler, takes user hash and converts to user object
+     * @param data
+     *      Data to convert
+     * @return
+     *      Returns completed user object
+     */
+    private User convertToUser(DocumentSnapshot data) {
+        User finalUser = new User();
+
+        String username = data.getString(FireStoreMapping.USER_FIELDS_USERNAME);
+        String phone = data.getString(FireStoreMapping.USER_FIELDS_PHONE);
+        String email = data.getString(FireStoreMapping.USER_FIELDS_EMAIL);
+        String address = data.getString(FireStoreMapping.USER_FIELDS_ADDRESS);
+
+        finalUser.setUserID(data.getId());
+        finalUser.setUsername(username);
+        finalUser.setPhone(phone);
+        finalUser.setEmail(email);
+        finalUser.setAddress(address);
+
+        return finalUser;
     }
 
     /**
@@ -559,6 +571,42 @@ public class DBHandler {
             public Boolean then(@NonNull Task<Void> task) throws Exception {
                 Log.d(ProgramTags.DB_MESSAGE, "Book removed successfully");
                 return true;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Special retriever, returns a list of all the users requesting a specific book
+     * @param uuids
+     *      List of UUIDs to be retrieved
+     * @param successListener
+     *      Success listener to act on retrieved list of user objects
+     * @param failureListener
+     *      Failure listener
+     */
+    public void bookRequests(List<String> uuids, OnSuccessListener<List<User>> successListener, OnFailureListener failureListener) {
+        Task<QuerySnapshot> requestTask = db
+                .collection(FireStoreMapping.COLLECTIONS_USER)
+                .whereIn(FireStoreMapping.USER_FIELDS_ID, uuids)
+                .get();
+
+        requestTask.continueWith(new Continuation<QuerySnapshot, List<User>>() {
+            @Override
+            public List<User> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> requestData = task.getResult().getDocuments();
+
+                List<User> users = new ArrayList<>();
+
+                for (DocumentSnapshot doc: requestData) {
+                    if (doc.exists()) {
+                        users.add(convertToUser(doc));
+                    }
+                }
+
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s users.", users.size()));
+                return users;
             }
         })
                 .addOnSuccessListener(successListener)

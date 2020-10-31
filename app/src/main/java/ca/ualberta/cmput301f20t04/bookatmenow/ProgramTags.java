@@ -10,7 +10,8 @@ public class ProgramTags {
     static final String DB_USER_FOUND = "UserFound";
 
     static final String BOOK_CHANGED = "BookChanged";
-    static final String RETURNED_ISBN = "ReturnedISBN";
+    static final String BOOK_POS = "BookPosition";
+    static final String PASSED_ISBN = "PassedISBN";
 
     private ProgramTags() {}
 }

@@ -52,6 +52,7 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
     private GoogleMap map;
     private LatLng selectedLocation;
     private boolean viewingMap;
+    private boolean setAddress;
 
     private Intent mapType;
 
@@ -63,6 +64,8 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
     private final LatLng defaultLocation = new LatLng(-33.8523341, 151.2106085);//for testing
     private static final int DEFAULT_ZOOM = 15;
     private static final String TAG = GeoLocation.class.getSimpleName();
+
+    private LatLng pickupLocationViewing;
 
     /*
     We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
@@ -102,11 +105,16 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
 
         mapType = getIntent();
         viewingMap = false;
+        setAddress = false;
 
         if (mapType.getStringExtra("purpose").equals("view") ){//we are viewing the map, not setting a location
             setGeoLocPickup.setVisibility(View.GONE);
             cancelPickupLocSet.setText("BACK");
             viewingMap = true;
+            pickupLocationViewing = new LatLng(Double.valueOf(mapType.getStringExtra("lat")), Double.valueOf(mapType.getStringExtra("lng")));
+        } else if(mapType.getStringExtra("purpose").equals("profile")) {//selecting address for profile
+            setGeoLocPickup.setText("SET ADDRESS");
+            setAddress = true;
         }
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -165,11 +173,22 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
                 public void onMapClick(LatLng latLng) {
                     map.clear();//clears map of markers
                     selectedLocation = latLng;
-                    map.addMarker(new MarkerOptions()//set marker
-                            .position(latLng)
-                            .title("Pickup Location"));
+                    if(setAddress == true){
+                        map.addMarker(new MarkerOptions()//set marker
+                                .position(latLng)
+                                .title("My Address"));
+                    } else {
+                        map.addMarker(new MarkerOptions()//set marker
+                                .position(latLng)
+                                .title("Pickup Location"));
+                    }
                 }
             });
+        }  else {//viewing book pickup location. Set marker there and zoom in on it
+            Log.i("AppInfo", "should place marker at: " + String.valueOf(pickupLocationViewing));
+            map.addMarker(new MarkerOptions()//set marker
+                    .position(pickupLocationViewing)
+                    .title("Pickup Location"));
         }
 
 
