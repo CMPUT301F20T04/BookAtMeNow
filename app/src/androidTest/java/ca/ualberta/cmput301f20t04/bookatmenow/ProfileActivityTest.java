@@ -1,6 +1,7 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -51,7 +52,7 @@ public class ProfileActivityTest {
      * Check that Cancel button brings user back to Home screen
      */
     @Test
-    public void clickCancelTest() {
+    public void clickCancel() {
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         solo.clickOnButton("Cancel");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
@@ -61,14 +62,17 @@ public class ProfileActivityTest {
      * Check that logout brings user to login screen
      */
     @Test
-    public void clickLogoutTest() {
+    public void clickLogout() {
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         solo.clickOnButton("Logout");
         solo.assertCurrentActivity("Wrong Activity", LoginActivity.class);
     }
 
+    /**
+     * Will fail if user already exists in db
+     */
     @Test
-    public void fullUserTest() {
+    public void fullUser() {
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         solo.enterText((EditText) solo.getView(R.id.username), "Me");
         solo.enterText((EditText) solo.getView(R.id.password), "mypw");
