@@ -1,3 +1,8 @@
+/**
+ * List all books, list logged in user's books
+ * TODO: search all borrowed and requested books
+ */
+
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;

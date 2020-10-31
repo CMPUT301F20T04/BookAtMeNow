@@ -1,3 +1,9 @@
+/**
+ * Create new user with unique username, with or without optional fields
+ * See user details if currently logged in
+ * TODO: edit user details if currently logged in
+ */
+
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;

@@ -1,3 +1,7 @@
+/**
+ * Get phone's geolocation (lat, long) for borrow / return locations / user address
+ */
+
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;

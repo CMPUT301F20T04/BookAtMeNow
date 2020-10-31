@@ -1,3 +1,7 @@
+/**
+ * Scan in ISBN using phone camera
+ */
+
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.appcompat.app.AppCompatActivity;
