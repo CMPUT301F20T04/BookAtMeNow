@@ -124,7 +124,7 @@ public class MyBookActivity extends AppCompatActivity {
         }
     }
 
-    @Override
+    /*@Override//feature not included in current version
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {//if user took photo, set it in imageview
@@ -135,7 +135,7 @@ public class MyBookActivity extends AppCompatActivity {
             myImg.setRotation(90);
             pictureTaken = true;
         }
-    }
+    }*/
 
     private boolean getCameraPermissions() {
         /*
@@ -176,9 +176,9 @@ public class MyBookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_book);
 
-        takePic = findViewById(R.id.MBA_button_takePic);
-        myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
-        save = findViewById(R.id.MBA_button_savePic);
+        //takePic = findViewById(R.id.MBA_button_takePic);
+        //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
+        //save = findViewById(R.id.MBA_button_savePic);
         to_scan_btn = findViewById(R.id.to_scan_btn);
         to_scan_btn.setOnClickListener(new View.OnClickListener() {
             @Override

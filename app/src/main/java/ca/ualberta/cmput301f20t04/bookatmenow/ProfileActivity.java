@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +19,9 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -36,6 +41,10 @@ public class ProfileActivity extends AppCompatActivity {
     private Button addressButton;
 
     private String uuid;
+
+    //for Address
+    Geocoder geocoder;
+    List<Address> addresses;
 
     // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
     static final Pattern EMAIL_REGEX  = Pattern.compile(
@@ -72,7 +81,14 @@ public class ProfileActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK){//confirm button was pressed
             String lat = data.getStringExtra("lat");
             String lng = data.getStringExtra("lng");
-            Log.i("AppInfo", "they are: " + lat + " " + lng);
+            try {
+                addresses = geocoder.getFromLocation(Double.valueOf(lat), Double.valueOf(lng), 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            addressEditText.setText(addresses.get(0).getAddressLine(0));
+            Log.i("AppInfo", "address is: " + String.valueOf(addresses.get(0).getAddressLine(0)));
+
         }
     }
 
@@ -87,7 +103,7 @@ public class ProfileActivity extends AppCompatActivity {
         final EditText emailEditText = findViewById(R.id.email);
         // optional ones:
         final EditText phoneEditText = findViewById(R.id.phone);
-        final EditText addressEditText = findViewById(R.id.address);
+        addressEditText = findViewById(R.id.address);
 
         // buttons
         final Button saveProfileButton = findViewById(R.id.profile_save);
@@ -96,6 +112,8 @@ public class ProfileActivity extends AppCompatActivity {
         Button addressButton = findViewById(R.id.address_button);
 
         final DBHandler db = new DBHandler();
+
+        geocoder = new Geocoder(this, Locale.getDefault());
 
         uuid = getIntent().getStringExtra("uuid");
         logoutButton.setVisibility(View.VISIBLE);
@@ -133,7 +151,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, GeoLocation.class);
-                intent.putExtra("purpose", "select");
+                intent.putExtra("purpose", "profile");
                 startActivityForResult(intent, 1);
             }
         });
