@@ -1,12 +1,13 @@
-package ca.ualberta.cmput301f20t04.bookatmenow;
-
-import java.util.regex.Pattern;
-
 /**
  * User class
  * @author Jeanne Coleongco
  * @version 0.3
  */
+
+package ca.ualberta.cmput301f20t04.bookatmenow;
+
+import java.util.regex.Pattern;
+
 public class User {
     private String userId;
     private String username;
