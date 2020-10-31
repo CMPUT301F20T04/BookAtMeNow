@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -44,6 +45,15 @@ public class MyBookActivity extends AppCompatActivity {
     private Boolean pictureTaken;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     StorageReference storageReference;
+
+    private EditText title;
+    private EditText author;
+    private EditText isbn;
+    private Button deleteButton;
+    private Button submitButton;
+    private int REQUEST_SCAN_ISBN = 2;
+    private String stringIsbn;
+    private Boolean isbnTaken;
 
     public void takePicture(View view){
         if(getCameraPermissions() == true){
@@ -134,6 +144,11 @@ public class MyBookActivity extends AppCompatActivity {
             myImg.setImageBitmap(myBitmap);
             myImg.setRotation(90);
             pictureTaken = true;
+        } else if (requestCode == REQUEST_SCAN_ISBN && resultCode == RESULT_OK) {
+            if (data.hasExtra("isbn")) {
+                stringIsbn = data.getExtras().getString("isbn");
+                isbn.setText(stringIsbn);
+            }
         }
     }
 
@@ -183,7 +198,26 @@ public class MyBookActivity extends AppCompatActivity {
         to_scan_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MyBookActivity.this, ScanBook.class));
+                Intent intent = new Intent(MyBookActivity.this, ScanBook.class);
+                startActivityForResult(intent, 2);
+            }
+        });
+        title = findViewById(R.id.editTextTitle);
+        author = findViewById(R.id.editTextAuthor);
+        deleteButton = findViewById(R.id.delete_button);
+        submitButton = findViewById(R.id.submit_button);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isbnTaken) {
+                    String bookTitle = title.getText().toString();
+                    String bookAuthor = author.getText().toString();
+                    String bookIsbn = isbn.getText().toString();
+                    String owner = "";
+                    Book newBook = new Book(bookTitle, bookAuthor, bookIsbn, owner);
+                    //final DBHandler db = new DBHandler();
+                    //db.addBook();
+                }
             }
         });
 

@@ -39,4 +39,6 @@
 
     <string name="action_save_pic">SAVE PIC</string>
     <string name="action_take_picture">TAKE PICTURE</string>
+    <string name="action_delete_book">DELETE</string>
+    <string name="action_confirm_book">DONE</string>
 </resources>
