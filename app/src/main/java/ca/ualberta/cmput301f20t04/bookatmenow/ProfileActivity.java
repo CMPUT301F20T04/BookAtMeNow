@@ -126,7 +126,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             });
         } else {
-            logoutButton.setVisibility(View.GONE);
+            logoutButton.setVisibility(View.INVISIBLE);
         }
 
         addressButton.setOnClickListener(new View.OnClickListener() {

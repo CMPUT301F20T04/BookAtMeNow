@@ -83,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final Button addBookButton = findViewById(R.id.add);
-        addBookButton.setVisibility(View.GONE);
+        addBookButton.setVisibility(View.INVISIBLE);
         final Button homeButton = findViewById(R.id.home);
-        homeButton.setVisibility(View.GONE);
+        homeButton.setVisibility(View.INVISIBLE);
 
         myBooksButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,8 +117,8 @@ public class MainActivity extends AppCompatActivity {
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addBookButton.setVisibility(View.GONE);
-                homeButton.setVisibility(View.GONE);
+                addBookButton.setVisibility(View.INVISIBLE);
+                homeButton.setVisibility(View.INVISIBLE);
 
                 filteredBooks.clear();
                 filteredBooks.addAll(books);
