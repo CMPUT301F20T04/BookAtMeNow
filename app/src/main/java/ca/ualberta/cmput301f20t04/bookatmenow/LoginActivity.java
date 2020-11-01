@@ -1,3 +1,8 @@
+/**
+ * Login using username and password
+ * TODO: login using email
+ */
+
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
