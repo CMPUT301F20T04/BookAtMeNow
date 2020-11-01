@@ -54,7 +54,7 @@ public class MyBookActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
 
     StorageReference storageReference;
-
+/**
     private EditText title;
     private EditText author;
     private EditText isbn;
@@ -63,7 +63,7 @@ public class MyBookActivity extends AppCompatActivity {
     private int REQUEST_SCAN_ISBN = 2;
     private String stringIsbn;
     private Boolean isbnTaken;
-
+**/
     public void takePicture(View view){
         if(getCameraPermissions() == true){
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -260,11 +260,8 @@ public class MyBookActivity extends AppCompatActivity {
             public void onFailure(@NonNull Exception e) {
                 Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
             }
-            public void onClick(View v) {
-                Intent intent = new Intent(MyBookActivity.this, ScanBook.class);
-                startActivityForResult(intent, 2);
-            }
         });
+        /**
         title = findViewById(R.id.editTextTitle);
         author = findViewById(R.id.editTextAuthor);
         deleteButton = findViewById(R.id.delete_button);
@@ -283,5 +280,6 @@ public class MyBookActivity extends AppCompatActivity {
                 }
             }
         });
+         **/
     }
 }
