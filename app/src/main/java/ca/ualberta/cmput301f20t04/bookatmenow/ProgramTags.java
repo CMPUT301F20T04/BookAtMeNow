@@ -12,6 +12,7 @@ public class ProgramTags {
     static final String BOOK_CHANGED = "BookChanged";
     static final String BOOK_POS = "BookPosition";
     static final String PASSED_ISBN = "PassedISBN";
+    static final String PASSED_UUID = "PassedUUID";
 
     private ProgramTags() {}
 }

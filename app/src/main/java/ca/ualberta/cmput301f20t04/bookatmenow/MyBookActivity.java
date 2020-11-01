@@ -42,6 +42,9 @@ public class MyBookActivity extends AppCompatActivity {
     private EditText titleEditText;
     private EditText authorEditText;
 
+    public static final int CHANGE_BOOK = 1;
+    public static final int ADD_BOOK = -1;
+
     private String init_isbn;
 
     private  DBHandler db;
@@ -54,6 +57,78 @@ public class MyBookActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
 
     StorageReference storageReference;
+
+    /*
+        We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
+        */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_my_book);
+
+        final Intent main = getIntent();
+
+        init_isbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
+        db = new DBHandler();
+
+        db.getBook(init_isbn, new OnSuccessListener<Book>() {
+            @Override
+            public void onSuccess(final Book book) {
+                //takePic = findViewById(R.id.MBA_button_takePic);
+                //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
+                //save = findViewById(R.id.MBA_button_savePic);
+                to_scan_btn = findViewById(R.id.to_scan_btn);
+                to_scan_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(MyBookActivity.this, ScanBook.class));
+                    }
+                });
+
+                save_changes = findViewById(R.id.save_change_button);
+                save_changes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        book.setTitle("Title");
+
+                        db.addBook(book, new OnSuccessListener<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                // send data back to main
+
+                                setResult(RESULT_OK, main);
+                                finish();
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
+                                setResult(RESULT_CANCELED, main);
+                                finish();
+                            }
+                        });
+                    }
+                });
+
+                titleEditText = findViewById(R.id.editTextTitle);
+                titleEditText.setText(book.getTitle());
+
+                authorEditText = findViewById(R.id.editTextAuthor);
+                authorEditText.setText(book.getAuthor());
+
+                storageReference = FirebaseStorage.getInstance().getReference();
+
+                pictureTaken = false;
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
+                setResult(RESULT_CANCELED, main);
+                finish();
+            }
+        });
+    }
 
     public void takePicture(View view){
         if(getCameraPermissions() == true){
@@ -134,18 +209,21 @@ public class MyBookActivity extends AppCompatActivity {
         }
     }
 
-    /*@Override//feature not included in current version
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {//if user took photo, set it in imageview
-
-            myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);//need to redefine it before changing it
-            Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-            myImg.setImageBitmap(myBitmap);
-            myImg.setRotation(90);
-            pictureTaken = true;
+        if (resultCode == RESULT_OK) {
+            // feature not included in current version
+//            if (requestCode == REQUEST_IMAGE_CAPTURE) {//if user took photo, set it in imageview)
+//
+//                myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);//need to redefine it before changing it
+//                Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+//                myImg.setImageBitmap(myBitmap);
+//                myImg.setRotation(90);
+//                pictureTaken = true;
+//            }
         }
-    }*/
+    }
 
     private boolean getCameraPermissions() {
         /*
@@ -176,76 +254,5 @@ public class MyBookActivity extends AppCompatActivity {
         } else{
             new Exception("grantResult returned incorrect value");
         }
-    }
-
-    /*
-        We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
-        */
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_book);
-
-        Intent main = getIntent();
-
-        init_isbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
-        db = new DBHandler();
-
-        db.getBook(init_isbn, new OnSuccessListener<Book>() {
-            @Override
-            public void onSuccess(final Book book) {
-                //takePic = findViewById(R.id.MBA_button_takePic);
-                //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
-                //save = findViewById(R.id.MBA_button_savePic);
-                to_scan_btn = findViewById(R.id.to_scan_btn);
-                to_scan_btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(MyBookActivity.this, ScanBook.class));
-                    }
-                });
-
-                save_changes = findViewById(R.id.save_change_button);
-                save_changes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        book.setTitle("Title");
-
-                        final Intent main = new Intent();
-                        db.addBook(book, new OnSuccessListener<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean aBoolean) {
-                                // send data back to main
-
-                                setResult(RESULT_OK, main);
-                                finish();
-                            }
-                        }, new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
-                                setResult(RESULT_CANCELED, main);
-                                finish();
-                            }
-                        });
-                    }
-                });
-
-                titleEditText = findViewById(R.id.editTextTitle);
-                titleEditText.setText(book.getTitle());
-
-                authorEditText = findViewById(R.id.editTextAuthor);
-                authorEditText.setText(book.getAuthor());
-
-                storageReference = FirebaseStorage.getInstance().getReference();
-
-                pictureTaken = false;
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
-            }
-        });
     }
 }

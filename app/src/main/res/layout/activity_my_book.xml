@@ -56,25 +56,25 @@
         app:layout_constraintTop_toBottomOf="@+id/to_scan_btn">
 
         <RadioButton
-            android:id="@+id/radioButton"
+            android:id="@+id/available_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/book_status_available" />
 
         <RadioButton
-            android:id="@+id/radioButton2"
+            android:id="@+id/requested_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/book_status_requested" />
 
         <RadioButton
-            android:id="@+id/radioButton3"
+            android:id="@+id/accepted_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/book_status_accepted" />
 
         <RadioButton
-            android:id="@+id/radioButton4"
+            android:id="@+id/borrowed_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/book_status_borrowed" />
