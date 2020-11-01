@@ -157,6 +157,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     *
+     * @param viewMode
+     * @param allBooks
+     * @param filteredBooks
+     * @param uuid
+     */
     private void setViewMode(BorrowList.ViewMode viewMode, List<Book> allBooks,
                              ArrayList<Book> filteredBooks, String uuid)
     {

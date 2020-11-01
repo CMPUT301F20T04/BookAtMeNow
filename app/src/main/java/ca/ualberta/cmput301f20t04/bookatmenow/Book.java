@@ -7,9 +7,10 @@ import java.util.List;
 public class Book {
     // In normal case for easier conversion to and from String
     public enum StatusEnum {
-        Borrowed,
         Available,
-        Pending,
+        Requested,
+        Accepted,
+        Borrowed,
     }
 
     private String title;

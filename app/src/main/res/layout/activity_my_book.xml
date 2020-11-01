@@ -37,13 +37,13 @@
         app:layout_constraintTop_toBottomOf="@+id/editTextTitle" />
 
     <Button
-        android:id="@+id/to_scan_btn"
+        android:id="@+id/MyBook_button_scanIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/action_scan_isbn"
         app:layout_constraintStart_toStartOf="@+id/editTextAuthor"
-        app:layout_constraintTop_toBottomOf="@+id/editTextAuthor" />
+        app:layout_constraintTop_toBottomOf="@+id/MyBook_textview_isbn" />
 
     <RadioGroup
         android:id="@+id/radioGroup"
@@ -53,7 +53,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="100dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/to_scan_btn">
+        app:layout_constraintTop_toBottomOf="@+id/MyBook_button_scanIn">
 
         <RadioButton
             android:id="@+id/available_button"
@@ -81,7 +81,7 @@
     </RadioGroup>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/MyBook_button_markBorrowed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/action_mark_as_borrowed"
@@ -93,7 +93,7 @@
         app:layout_constraintVertical_bias="0.426" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/MyBook_button_pending"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -111,7 +111,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button3" />
+        app:layout_constraintTop_toBottomOf="@+id/MyBook_button_pending" />
 <!--
     <ImageView
         android:id="@+id/MBA_imageView_picDisplay"
@@ -148,7 +148,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 -->
     <Button
-        android:id="@+id/save_change_button"
+        android:id="@+id/MyBook_button_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -158,5 +158,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5"
         app:layout_constraintVertical_bias="0.558" />
+
+    <TextView
+        android:id="@+id/MyBook_textview_isbn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4sp"
+        android:layout_marginTop="8dp"
+        android:text="@string/default_isbn"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/editTextAuthor"
+        app:layout_constraintTop_toBottomOf="@+id/editTextAuthor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

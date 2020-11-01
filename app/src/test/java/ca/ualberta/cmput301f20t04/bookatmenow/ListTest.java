@@ -22,7 +22,7 @@ public class ListTest {
                 new Book("Introduction to Algorithms", "CLRS", "9780262033848")
         ));
 
-        database.get(0).setStatus(Book.StatusEnum.Pending.toString());
+        database.get(0).setStatus(Book.StatusEnum.Requested.toString());
         database.get(0).setOwner(mockOwner().getUsername());
         database.get(0).setRequests(new ArrayList<>(Arrays.asList(testBorrower.getUsername(),
                 testRequester.getUsername())));
@@ -34,11 +34,11 @@ public class ListTest {
         database.get(2).setStatus(Book.StatusEnum.Available.toString());
         database.get(2).setOwner(mockOwner().getUsername());
 
-        database.get(3).setStatus(Book.StatusEnum.Pending.toString());
+        database.get(3).setStatus(Book.StatusEnum.Requested.toString());
         database.get(3).setOwner(mockOwner().getUsername());
         database.get(3).setRequests(new ArrayList<>(Arrays.asList(testRequester.getUsername())));
 
-        database.get(4).setStatus(Book.StatusEnum.Pending.toString());
+        database.get(4).setStatus(Book.StatusEnum.Requested.toString());
         database.get(4).setOwner(mockOwner().getUsername());
         database.get(4).setRequests(new ArrayList<>(Arrays.asList(testBorrower.getUsername())));
 
