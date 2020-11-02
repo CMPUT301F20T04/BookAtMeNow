@@ -153,7 +153,10 @@ public class MainActivity extends AppCompatActivity {
         requestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setViewMode(BorrowList.ViewMode.REQUESTED, books, filteredBooks, uuid);
+                //setViewMode(BorrowList.ViewMode.REQUESTED, books, filteredBooks, uuid);//going to have on different activity now
+                Intent intent = new Intent(MainActivity.this, MyRequests.class);
+                intent.putExtra("uuid", uuid);
+                startActivity(intent);
             }
         });
     }
