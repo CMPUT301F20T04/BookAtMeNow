@@ -106,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
                         public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
                             Intent i = new Intent(MainActivity.this, MyBookActivity.class);
                             i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
-                            startActivityForResult(i, 0);
+                            i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                            startActivityForResult(i, MyBookActivity.CHANGE_BOOK);
                         }
                     });
                 }
@@ -127,7 +128,9 @@ public class MainActivity extends AppCompatActivity {
         addBookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MyBookActivity.class));
+                Intent i = new Intent(MainActivity.this, MyBookActivity.class);
+                i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
 
@@ -154,6 +157,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     *
+     * @param viewMode
+     * @param allBooks
+     * @param filteredBooks
+     * @param uuid
+     */
     private void setViewMode(BorrowList.ViewMode viewMode, List<Book> allBooks,
                              ArrayList<Book> filteredBooks, String uuid)
     {
@@ -174,25 +185,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent i) {
         super.onActivityResult(requestCode, resultCode, i);
-        if (requestCode == 0 && resultCode == RESULT_OK) {
-            if (i.getBooleanExtra(ProgramTags.BOOK_CHANGED, false)) {
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == MyBookActivity.CHANGE_BOOK) {
+
                 final String isbn = i.getStringExtra(ProgramTags.PASSED_ISBN);
-                final int book_pos = i.getIntExtra(ProgramTags.BOOK_POS, -1);
 
-                db.getBook(isbn, new OnSuccessListener<Book>() {
-                    @Override
-                    public void onSuccess(Book book) {
-                        if (book_pos != -1) {
-                            filteredBooks.set(book_pos, book);
-                            allBooksAdapter.notifyDataSetChanged();
+                if (i.getBooleanExtra(ProgramTags.BOOK_CHANGED, false)) {
+                    final int book_pos = i.getIntExtra(ProgramTags.BOOK_POS, -1);
+
+                    db.getBook(isbn, new OnSuccessListener<Book>() {
+                        @Override
+                        public void onSuccess(Book book) {
+                            if (book_pos != -1) {
+                                filteredBooks.set(book_pos, book);
+                                allBooksAdapter.notifyDataSetChanged();
+                            } else {
+                                filteredBooks.add(book);
+                            }
                         }
-                    }
-                }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
 
-                    }
-                });
+                        }
+                    });
+                }
             }
         }
     }

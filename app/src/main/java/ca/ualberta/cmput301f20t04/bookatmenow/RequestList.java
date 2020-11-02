@@ -69,7 +69,7 @@ public class RequestList extends BookList {
                         for (Book book : books) {
                             if (book.getOwner().equals(ownerMap.get(ProgramTags.DB_USER_FOUND)) &&
                                     Book.StatusEnum.valueOf(book.getStatus()) ==
-                                            Book.StatusEnum.Pending)
+                                            Book.StatusEnum.Requested)
                             {
                                 for (String requester : book.getRequests()) {
                                     filteredBooks.add(book);
@@ -170,7 +170,7 @@ public class RequestList extends BookList {
         Iterator<Book> bookIterator = filteredBooks.iterator();
         while (bookIterator.hasNext()) {
             Book book = bookIterator.next();
-            if (Book.StatusEnum.valueOf(book.getStatus()) != Book.StatusEnum.Pending) {
+            if (Book.StatusEnum.valueOf(book.getStatus()) != Book.StatusEnum.Requested) {
                 bookIterator.remove();
             }
         }

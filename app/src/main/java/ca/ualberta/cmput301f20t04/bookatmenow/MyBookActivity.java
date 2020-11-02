@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,12 +42,21 @@ public class MyBookActivity extends AppCompatActivity {
     private Button save_changes;
     private EditText titleEditText;
     private EditText authorEditText;
+    private TextView isbnTextView;
 
-    private String init_isbn;
+    public static final int CHANGE_BOOK = 1;
+    public static final int ADD_BOOK = -1;
+
+    private String initTitle;
+    private String initAuthor;
+    private String initIsbn;
+    private int bookPos;
 
     private  DBHandler db;
 
-    private int REQUEST_IMAGE_CAPTURE = 1;
+    final private static int REQUEST_IMAGE_CAPTURE = 1;
+    final private static int REQUEST_ISBN_SCAN = REQUEST_IMAGE_CAPTURE + 1;
+
     private Uri myUri;
     private String currentPhotoPath;
     private File photoFile;
@@ -64,6 +74,105 @@ public class MyBookActivity extends AppCompatActivity {
     private String stringIsbn;
     private Boolean isbnTaken;
 **/
+
+    /*
+        We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
+        */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_my_book);
+
+        final Intent main = getIntent();
+
+        initIsbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
+        bookPos = main.getIntExtra(ProgramTags.BOOK_POS, -1);
+        db = new DBHandler();
+
+        if (!initIsbn.isEmpty()) {
+            db.getBook(initIsbn, new OnSuccessListener<Book>() {
+                @Override
+                public void onSuccess(final Book book) {
+                    //takePic = findViewById(R.id.MBA_button_takePic);
+                    //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
+                    //save = findViewById(R.id.MBA_button_savePic);
+                    to_scan_btn = findViewById(R.id.MyBook_button_scanIn);
+                    to_scan_btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(MyBookActivity.this, ScanBook.class);
+                            startActivityForResult(i, REQUEST_ISBN_SCAN);
+                        }
+                    });
+
+                    save_changes = findViewById(R.id.MyBook_button_save);
+                    save_changes.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (isbnTextView.getText().toString().isEmpty()) {
+                                isbnTextView.setError("Book must have an ISBN!");
+                                return;
+                            }
+
+                            if (!dataChanged()) {
+                                setResult(RESULT_OK, main);
+                                main.putExtra(ProgramTags.BOOK_CHANGED, false);
+                                finish();
+                            }
+
+                            db.addBook(book, new OnSuccessListener<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean aBoolean) {
+                                    // send data back to main
+
+                                    setResult(RESULT_OK, main);
+                                    finish();
+                                }
+                            }, new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
+                                    setResult(RESULT_CANCELED, main);
+                                    finish();
+                                }
+                            });
+                        }
+                    });
+
+                    titleEditText = findViewById(R.id.editTextTitle);
+                    titleEditText.setText(book.getTitle());
+
+                    authorEditText = findViewById(R.id.editTextAuthor);
+                    authorEditText.setText(book.getAuthor());
+
+                    isbnTextView = findViewById(R.id.MyBook_textview_isbn);
+                    isbnTextView.setText(initIsbn);
+
+//                storageReference = FirebaseStorage.getInstance().getReference();
+//
+//                pictureTaken = false;
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
+                    setResult(RESULT_CANCELED, main);
+                    finish();
+                }
+            });
+        }
+    }
+
+    private boolean dataChanged() {
+        String newIsbn = isbnTextView.getText().toString();
+        String newTitle = titleEditText.getText().toString();
+        String newAuthor = authorEditText.getText().toString();
+
+        return (!newIsbn.equals(initIsbn)) ||
+               (!newTitle.equals(initTitle)) ||
+               (!newAuthor.equals(initAuthor));
+    }
+
     public void takePicture(View view){
         if(getCameraPermissions() == true){
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -143,23 +252,31 @@ public class MyBookActivity extends AppCompatActivity {
         }
     }
 
-    /*@Override//feature not included in current version
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {//if user took photo, set it in imageview
 
-            myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);//need to redefine it before changing it
-            Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-            myImg.setImageBitmap(myBitmap);
-            myImg.setRotation(90);
-            pictureTaken = true;
-        } else if (requestCode == REQUEST_SCAN_ISBN && resultCode == RESULT_OK) {
-            if (data.hasExtra("isbn")) {
-                stringIsbn = data.getExtras().getString("isbn");
-                isbn.setText(stringIsbn);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                // feature not included in current version
+//                case REQUEST_IMAGE_CAPTURE: // if user took photo, set it in imageview
+//                    myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay); //need to redefine it before changing it
+//                    Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+//                    myImg.setImageBitmap(myBitmap);
+//                    myImg.setRotation(90);
+//                    pictureTaken = true;
+//                    break;
+
+                case REQUEST_ISBN_SCAN:
+                    String newIsbn = data.getStringExtra("isbn");
+
+                    if (!newIsbn.equals(initIsbn)) {
+                        isbnTextView.setText(newIsbn);
+                    }
+                    break;
             }
         }
-    }*/
+    }
 
     private boolean getCameraPermissions() {
         /*
@@ -191,95 +308,91 @@ public class MyBookActivity extends AppCompatActivity {
             new Exception("grantResult returned incorrect value");
         }
     }
-
-    /*
-        We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
-        */
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_book);
-
-        Intent main = getIntent();
-
-        init_isbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
-        db = new DBHandler();
-
-        db.getBook(init_isbn, new OnSuccessListener<Book>() {
-            @Override
-            public void onSuccess(final Book book) {
-                //takePic = findViewById(R.id.MBA_button_takePic);
-                //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
-                //save = findViewById(R.id.MBA_button_savePic);
-                to_scan_btn = findViewById(R.id.to_scan_btn);
-                to_scan_btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(MyBookActivity.this, ScanBook.class));
-                    }
-                });
-
-                save_changes = findViewById(R.id.save_change_button);
-                save_changes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        book.setTitle("Title");
-
-                        final Intent main = new Intent();
-                        db.addBook(book, new OnSuccessListener<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean aBoolean) {
-                                // send data back to main
-
-                                setResult(RESULT_OK, main);
-                                finish();
-                            }
-                        }, new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
-                                setResult(RESULT_CANCELED, main);
-                                finish();
-                            }
-                        });
-                    }
-                });
-
-                titleEditText = findViewById(R.id.editTextTitle);
-                titleEditText.setText(book.getTitle());
-
-                authorEditText = findViewById(R.id.editTextAuthor);
-                authorEditText.setText(book.getAuthor());
-
-                storageReference = FirebaseStorage.getInstance().getReference();
-
-                pictureTaken = false;
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
-            }
-        });
-        /**
-        title = findViewById(R.id.editTextTitle);
-        author = findViewById(R.id.editTextAuthor);
-        deleteButton = findViewById(R.id.delete_button);
-        submitButton = findViewById(R.id.submit_button);
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isbnTaken) {
-                    String bookTitle = title.getText().toString();
-                    String bookAuthor = author.getText().toString();
-                    String bookIsbn = isbn.getText().toString();
-                    String owner = "";
-                    Book newBook = new Book(bookTitle, bookAuthor, bookIsbn, owner);
-                    //final DBHandler db = new DBHandler();
-                    //db.addBook();
-                }
-            }
-        });
-         **/
-    }
 }
+/**
+ old oncreate
+ @Override
+ protected void onCreate(Bundle savedInstanceState) {
+ super.onCreate(savedInstanceState);
+ setContentView(R.layout.activity_my_book);
+
+ Intent main = getIntent();
+
+ init_isbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
+ db = new DBHandler();
+
+ db.getBook(init_isbn, new OnSuccessListener<Book>() {
+ @Override
+ public void onSuccess(final Book book) {
+ //takePic = findViewById(R.id.MBA_button_takePic);
+ //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
+ //save = findViewById(R.id.MBA_button_savePic);
+ to_scan_btn = findViewById(R.id.to_scan_btn);
+ to_scan_btn.setOnClickListener(new View.OnClickListener() {
+ @Override
+ public void onClick(View v) {
+ startActivity(new Intent(MyBookActivity.this, ScanBook.class));
+ }
+ });
+
+ save_changes = findViewById(R.id.save_change_button);
+ save_changes.setOnClickListener(new View.OnClickListener() {
+ @Override
+ public void onClick(View v) {
+ book.setTitle("Title");
+
+ final Intent main = new Intent();
+ db.addBook(book, new OnSuccessListener<Boolean>() {
+ @Override
+ public void onSuccess(Boolean aBoolean) {
+ // send data back to main
+
+ setResult(RESULT_OK, main);
+ finish();
+ }
+ }, new OnFailureListener() {
+ @Override
+ public void onFailure(@NonNull Exception e) {
+ Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
+ setResult(RESULT_CANCELED, main);
+ finish();
+ }
+ });
+ }
+ });
+
+ titleEditText = findViewById(R.id.editTextTitle);
+ titleEditText.setText(book.getTitle());
+
+ authorEditText = findViewById(R.id.editTextAuthor);
+ authorEditText.setText(book.getAuthor());
+
+ storageReference = FirebaseStorage.getInstance().getReference();
+
+ pictureTaken = false;
+ }
+ }, new OnFailureListener() {
+ @Override
+ public void onFailure(@NonNull Exception e) {
+ Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
+ }
+ });
+ title = findViewById(R.id.editTextTitle);
+ author = findViewById(R.id.editTextAuthor);
+ deleteButton = findViewById(R.id.delete_button);
+ submitButton = findViewById(R.id.submit_button);
+ submitButton.setOnClickListener(new View.OnClickListener() {
+ @Override
+ public void onClick(View v) {
+ if (isbnTaken) {
+ String bookTitle = title.getText().toString();
+ String bookAuthor = author.getText().toString();
+ String bookIsbn = isbn.getText().toString();
+ String owner = "";
+ Book newBook = new Book(bookTitle, bookAuthor, bookIsbn, owner);
+ //final DBHandler db = new DBHandler();
+ //db.addBook();
+ }
+ }
+ });
+ **/
