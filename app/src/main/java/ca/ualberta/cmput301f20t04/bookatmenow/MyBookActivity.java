@@ -371,14 +371,6 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    scanButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent i = new Intent(MyBookActivity.this, ScanBook.class);
-                            startActivityForResult(i, REQUEST_ISBN_SCAN);
-                        }
-                    });
-
                     statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -473,6 +465,14 @@ public class MyBookActivity extends AppCompatActivity {
                         newBook.setStatus(selectedStatusButton.getText().toString());
                         Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", newBook.getStatus()));
                     }
+                }
+            });
+
+            scanButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(MyBookActivity.this, ScanBook.class);
+                    startActivityForResult(i, REQUEST_ISBN_SCAN);
                 }
             });
 
