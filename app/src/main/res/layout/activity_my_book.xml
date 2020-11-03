@@ -112,9 +112,9 @@
         android:id="@+id/myBook_current_borrower_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"
         android:text="@string/default_current_borrower"
-        android:layout_gravity="center_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -158,11 +158,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/aBook_cancel_button"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_save_change_button" />
+        app:layout_constraintTop_toBottomOf="@+id/myBook_save_change_button"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/myBook_remove_button"
