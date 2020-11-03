@@ -32,6 +32,8 @@ public class MyRequests extends AppCompatActivity {
 
     private String uuid;
 
+    public final static int REQUEST_ACTIVITY = 20;
+
     public void back(View view){
         this.finish();
     }
@@ -52,7 +54,7 @@ public class MyRequests extends AppCompatActivity {
 
         db = new DBHandler();
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         uuid = intent.getStringExtra("uuid");
 
         //get all books that current user has requested to borrow
@@ -75,5 +77,12 @@ public class MyRequests extends AppCompatActivity {
                 }
         );
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
     }
 }
