@@ -184,7 +184,7 @@ public class BorrowList extends BookList {
                 borrower.setText(book.getBorrower());
             }
         }, new OnFailureListener() {
-            @Overridegit 
+            @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d(ProgramTags.DB_ERROR, e + ": This book's owner could not be found!");
             }
