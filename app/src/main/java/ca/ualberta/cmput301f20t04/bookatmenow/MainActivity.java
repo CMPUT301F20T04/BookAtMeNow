@@ -166,15 +166,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        addBookButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, MyBookActivity.class);
-                i.putExtra(ProgramTags.PASSED_UUID, uuid);
-                startActivityForResult(i, MyBookActivity.ADD_BOOK);
-            }
-        });
-
         final Button filterButton = findViewById(R.id.filter);
 
         filterButton.setOnClickListener(new View.OnClickListener() {
