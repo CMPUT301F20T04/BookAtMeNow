@@ -167,12 +167,7 @@ public class BorrowList extends BookList {
         db.getUser(book.getOwner(), new OnSuccessListener<User>() {
             @Override
             public void onSuccess(User user) {
-                String displayName;
-                if (user.getUsername() != null) {
-                    displayName = user.getUsername();
-                } else {
-                    displayName = user.getEmail();
-                }
+                String displayName = user.getUsername();
 
                 TextView title = convertedView.findViewById(R.id.title_text);
                 TextView author = convertedView.findViewById(R.id.author_text);
@@ -184,7 +179,23 @@ public class BorrowList extends BookList {
                 author.setText(book.getAuthor());
                 isbn.setText(book.getIsbn());
                 status.setText(book.getStatus());
+
+                if (status.equals("Borrowed") || status.equals("Accepted")) {
+                    db.getUser(book.getBorrower(), new OnSuccessListener<User>() {
+                        @Override
+                        public void onSuccess(User user) {
+
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+                }
+
                 owner.setText(displayName);
+
             }
         }, new OnFailureListener() {
             @Override

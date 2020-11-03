@@ -63,7 +63,7 @@ public class Book {
             if (s.name().equals(status)) {
                 this.status = status;
             } else {
-                this.status = "Available"; // acceptable default according to client
+                this.status = "Accepted"; // default due to the existence of a borrower
             }
         }
         this.owner = owner;
