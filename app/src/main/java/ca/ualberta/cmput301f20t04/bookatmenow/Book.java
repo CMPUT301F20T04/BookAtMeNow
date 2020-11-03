@@ -4,6 +4,8 @@ import android.media.Image;
 
 import java.util.List;
 
+import javax.net.ssl.SSLEngineResult;
+
 public class Book {
     // In normal case for easier conversion to and from String
     public enum StatusEnum {
@@ -27,12 +29,20 @@ public class Book {
      * @param title
      * @param author
      * @param isbn
+     * @param status
      * @param owner
      */
-    public Book(String title, String author, String isbn, String owner) {
+    public Book(String title, String author, String isbn, String status, String owner) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
+        for (StatusEnum s : StatusEnum.values()) {
+            if (s.name().equals(status)) {
+                this.status = status;
+            } else {
+                this.status = "Available"; // acceptable default according to client
+            }
+        }
         this.owner = owner;
     }
 
@@ -41,13 +51,21 @@ public class Book {
      * @param title
      * @param author
      * @param isbn
+     * @param status
      * @param owner
      * @param borrower
      */
-    public Book(String title, String author, String isbn, String owner, String borrower) {
+    public Book(String title, String author, String isbn, String status, String owner, String borrower) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
+        for (StatusEnum s : StatusEnum.values()) {
+            if (s.name().equals(status)) {
+                this.status = status;
+            } else {
+                this.status = "Available"; // acceptable default according to client
+            }
+        }
         this.owner = owner;
         this.borrower = borrower;
     }

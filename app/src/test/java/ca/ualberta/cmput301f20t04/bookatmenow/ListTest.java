@@ -12,14 +12,15 @@ public class ListTest {
     private ArrayList<Book> mockDatabase() {
         User testBorrower = new User("test_borrower", "345def", "test@testing.com");
         User testRequester = new User("test_requester", "678ghi", "test@testing.net");
+        User testOwner = new User("test_owner", "asdlfkj", "mine@mine.com");
 
         ArrayList<Book> database = new ArrayList<>(Arrays.asList(
-                new Book("A Tale of Two Cities", "Charles Dickens", "9781788280587"),
-                new Book("Neuromancer", "William Gibson", "9780441569595", testBorrower.getUsername()),
-                new Book("Dune", "Frank Herbert", "9780441172719"),
-                new Book("C Programming: A Modern Approach", "K.N. King", "9780393979503"),
-                new Book("The Rust Programming Language", "Steve Klabnik", "9781718500440"),
-                new Book("Introduction to Algorithms", "CLRS", "9780262033848")
+                new Book("A Tale of Two Cities", "Charles Dickens", "9781788280587", "Available", testOwner.getUsername()),
+                new Book("Neuromancer", "William Gibson", "9780441569595", "Borrowed", testOwner.getUsername(), testBorrower.getUsername()),
+                new Book("Dune", "Frank Herbert", "9780441172719", "Requested", testOwner.getUsername()),
+                new Book("C Programming: A Modern Approach", "K.N. King", "9780393979503", "Accepted", testOwner.getUsername(), testBorrower.getUsername()),
+                new Book("The Rust Programming Language", "Steve Klabnik", "9781718500440", "Available", testOwner.getUsername()),
+                new Book("Introduction to Algorithms", "CLRS", "9780262033848", "Invalid", testOwner.getUsername()) // should default to Available status
         ));
 
         database.get(0).setStatus(Book.StatusEnum.Requested.toString());
