@@ -13,9 +13,11 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="@string/default_title"
         android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_author_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.059"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,14 +29,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="@string/default_author"
         android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_isbn_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.059"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_title_edittext" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/myBook_isbn_edittext"
@@ -42,13 +44,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="96dp"
         android:ems="10"
         android:hint="@string/myBook_isbn_hint"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_status_radiogroup"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.059"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_author_edittext" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/myBook_scan_button"
@@ -68,9 +70,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="96dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_isbn_edittext">
+        tools:layout_editor_absoluteY="269dp">
 
         <RadioButton
             android:id="@+id/myBook_available_radiobutton"
@@ -101,9 +102,11 @@
         android:id="@+id/myBook_pending_request_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/action_pending_requests"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/action_pending_requests"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_current_borrower_textview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/myBook_status_radiogroup" />
@@ -113,12 +116,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="24dp"
+        android:layout_marginBottom="32dp"
         android:text="@string/default_current_borrower"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_remove_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_pending_request_button" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/myBook_imageview"
@@ -146,36 +149,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/myBook_save_button"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_cancel_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_remove_button" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/myBook_cancel_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:text="@string/aBook_cancel_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_save_change_button"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/myBook_remove_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
         android:text="@string/myBook_remove_button"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_save_change_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_current_borrower_textview" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
