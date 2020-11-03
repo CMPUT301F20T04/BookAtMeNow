@@ -174,31 +174,17 @@ public class BorrowList extends BookList {
                 TextView isbn = convertedView.findViewById(R.id.isbn_text);
                 TextView status = convertedView.findViewById(R.id.status_text);
                 TextView owner = convertedView.findViewById(R.id.owner_text);
+                TextView borrower = convertedView.findViewById(R.id.borrower_text);
 
                 title.setText(book.getTitle());
                 author.setText(book.getAuthor());
                 isbn.setText(book.getIsbn());
                 status.setText(book.getStatus());
-
-                if (status.equals("Borrowed") || status.equals("Accepted")) {
-                    db.getUser(book.getBorrower(), new OnSuccessListener<User>() {
-                        @Override
-                        public void onSuccess(User user) {
-
-                        }
-                    }, new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                        }
-                    });
-                }
-
                 owner.setText(displayName);
-
+                borrower.setText(book.getBorrower());
             }
         }, new OnFailureListener() {
-            @Override
+            @Overridegit 
             public void onFailure(@NonNull Exception e) {
                 Log.d(ProgramTags.DB_ERROR, e + ": This book's owner could not be found!");
             }
