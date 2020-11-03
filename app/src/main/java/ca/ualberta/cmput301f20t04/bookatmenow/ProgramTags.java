@@ -10,9 +10,13 @@ public class ProgramTags {
     static final String DB_USER_FOUND = "UserFound";
 
     static final String BOOK_CHANGED = "BookChanged";
+    static final String BOOK_DATA = "BookData";
     static final String BOOK_POS = "BookPosition";
     static final String PASSED_ISBN = "PassedISBN";
     static final String PASSED_UUID = "PassedUUID";
+
+    static final String GENERAL_ERROR = "ERROR";
+    static final String GENERAL_SUCCESS = "SUCCESS";
 
     private ProgramTags() {}
 }

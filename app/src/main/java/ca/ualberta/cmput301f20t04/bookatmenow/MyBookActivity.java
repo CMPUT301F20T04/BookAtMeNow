@@ -6,10 +6,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,6 +19,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,31 +37,34 @@ import java.util.Date;
 
 public class MyBookActivity extends AppCompatActivity {
 
-    private Button takePic;
-    private Button save;
-    private Button to_scan_btn;
-    private ImageView myImg;
-    private Button save_changes;
+    private Button scanButton;
+    private Button cancelButton;
+    private Button saveChangesButton;
+    private Button removeButton;
+    private Button pendingRequestButton;
+    private Button takeImageButton;
+    private RadioGroup statusButtons;
+    private RadioButton selectedStatusButton;
     private EditText titleEditText;
     private EditText authorEditText;
-    private TextView isbnTextView;
+    private EditText isbnEditText;
+    private TextView currentBorrower;
 
-    public static final int CHANGE_BOOK = 1;
-    public static final int ADD_BOOK = -1;
+    private ImageView bookImage;
 
-    private String initTitle;
-    private String initAuthor;
     private String initIsbn;
-    private int bookPos;
 
-    private  DBHandler db;
+    public static final int CHANGE_BOOK_FROM_MAIN = 2;
+    public static final int CHANGE_BOOK_FROM_MYBOOKS = 3;
+    public static final int ADD_BOOK = 1;
+
+    private DBHandler db;
 
     final private static int REQUEST_IMAGE_CAPTURE = 1;
-    final private static int REQUEST_ISBN_SCAN = REQUEST_IMAGE_CAPTURE + 1;
+    final private static int REQUEST_ISBN_SCAN = 0;
+
 
     private Uri myUri;
-    private String currentPhotoPath;
-    private File photoFile;
     private Boolean pictureTaken;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
 
@@ -75,103 +80,14 @@ public class MyBookActivity extends AppCompatActivity {
     private Boolean isbnTaken;
 **/
 
-    /*
-        We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
-        */
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_book);
-
-        final Intent main = getIntent();
-
-        initIsbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
-        bookPos = main.getIntExtra(ProgramTags.BOOK_POS, -1);
-        db = new DBHandler();
-
-        if (!initIsbn.isEmpty()) {
-            db.getBook(initIsbn, new OnSuccessListener<Book>() {
-                @Override
-                public void onSuccess(final Book book) {
-                    //takePic = findViewById(R.id.MBA_button_takePic);
-                    //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
-                    //save = findViewById(R.id.MBA_button_savePic);
-                    to_scan_btn = findViewById(R.id.MyBook_button_scanIn);
-                    to_scan_btn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent i = new Intent(MyBookActivity.this, ScanBook.class);
-                            startActivityForResult(i, REQUEST_ISBN_SCAN);
-                        }
-                    });
-
-                    save_changes = findViewById(R.id.MyBook_button_save);
-                    save_changes.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (isbnTextView.getText().toString().isEmpty()) {
-                                isbnTextView.setError("Book must have an ISBN!");
-                                return;
-                            }
-
-                            if (!dataChanged()) {
-                                setResult(RESULT_OK, main);
-                                main.putExtra(ProgramTags.BOOK_CHANGED, false);
-                                finish();
-                            }
-
-                            db.addBook(book, new OnSuccessListener<Boolean>() {
-                                @Override
-                                public void onSuccess(Boolean aBoolean) {
-                                    // send data back to main
-
-                                    setResult(RESULT_OK, main);
-                                    finish();
-                                }
-                            }, new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
-                                    setResult(RESULT_CANCELED, main);
-                                    finish();
-                                }
-                            });
-                        }
-                    });
-
-                    titleEditText = findViewById(R.id.editTextTitle);
-                    titleEditText.setText(book.getTitle());
-
-                    authorEditText = findViewById(R.id.editTextAuthor);
-                    authorEditText.setText(book.getAuthor());
-
-                    isbnTextView = findViewById(R.id.MyBook_textview_isbn);
-                    isbnTextView.setText(initIsbn);
-
-//                storageReference = FirebaseStorage.getInstance().getReference();
-//
-//                pictureTaken = false;
-                }
-            }, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
-                    setResult(RESULT_CANCELED, main);
-                    finish();
-                }
-            });
+    private View.OnClickListener cancelButtonAction = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            setResult(RESULT_CANCELED);
+            Log.d(ProgramTags.GENERAL_SUCCESS, "Cancelled book edit activity.");
+            finish();
         }
-    }
-
-    private boolean dataChanged() {
-        String newIsbn = isbnTextView.getText().toString();
-        String newTitle = titleEditText.getText().toString();
-        String newAuthor = authorEditText.getText().toString();
-
-        return (!newIsbn.equals(initIsbn)) ||
-               (!newTitle.equals(initTitle)) ||
-               (!newAuthor.equals(initAuthor));
-    }
+    };
 
     public void takePicture(View view){
         if(getCameraPermissions() == true){
@@ -179,7 +95,7 @@ public class MyBookActivity extends AppCompatActivity {
             // Ensure that there's a camera activity to handle the intent
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                 // Create the File where the photo should go
-                photoFile = null;
+                File photoFile = null;
                 try {
                     photoFile = createImageFile();
                 } catch (IOException ex) {
@@ -211,7 +127,7 @@ public class MyBookActivity extends AppCompatActivity {
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
+        String currentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
@@ -271,7 +187,7 @@ public class MyBookActivity extends AppCompatActivity {
                     String newIsbn = data.getStringExtra("isbn");
 
                     if (!newIsbn.equals(initIsbn)) {
-                        isbnTextView.setText(newIsbn);
+                        isbnEditText.setText(newIsbn);
                     }
                     break;
             }
@@ -306,6 +222,300 @@ public class MyBookActivity extends AppCompatActivity {
             takePicture(null);
         } else{
             new Exception("grantResult returned incorrect value");
+        }
+    }
+
+    private boolean checkFields() {
+        return (!(titleEditText.getText().length() < 1) &&
+                !(authorEditText.getText().length() < 1) &&
+                !(isbnEditText.getText().length() < 13 && isbnEditText.getText().length() > 13) &&
+                !(statusButtons.getCheckedRadioButtonId() == -1));
+    }
+
+    private void toggleAllFields(int mode) {
+        if (saveChangesButton.isEnabled()) {
+            if (mode == 0) {
+                scanButton.setEnabled(false);
+                saveChangesButton.setEnabled(false);
+                cancelButton.setEnabled(false);
+                statusButtons.setEnabled(false);
+                takeImageButton.setEnabled(false);
+                titleEditText.setEnabled(false);
+                authorEditText.setEnabled(false);
+                isbnEditText.setEnabled(false);
+            } else if (mode == 1) {
+                saveChangesButton.setEnabled(false);
+                cancelButton.setEnabled(false);
+                statusButtons.setEnabled(false);
+                removeButton.setEnabled(false);
+                pendingRequestButton.setEnabled(false);
+                takeImageButton.setEnabled(false);
+                titleEditText.setEnabled(false);
+                authorEditText.setEnabled(false);
+            }
+        } else if (!saveChangesButton.isEnabled()) {
+            if (mode == 0) {
+                scanButton.setEnabled(true);
+                saveChangesButton.setEnabled(true);
+                cancelButton.setEnabled(true);
+                statusButtons.setEnabled(true);
+                takeImageButton.setEnabled(true);
+                titleEditText.setEnabled(true);
+                authorEditText.setEnabled(true);
+                isbnEditText.setEnabled(true);
+            } else if (mode == 1) {
+                saveChangesButton.setEnabled(true);
+                cancelButton.setEnabled(true);
+                statusButtons.setEnabled(true);
+                removeButton.setEnabled(true);
+                pendingRequestButton.setEnabled(true);
+                takeImageButton.setEnabled(true);
+                titleEditText.setEnabled(true);
+                authorEditText.setEnabled(true);
+            }
+        }
+    }
+
+    /*
+        We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
+        */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_my_book);
+
+        final Intent main = getIntent();
+        db = new DBHandler();
+
+        scanButton = findViewById(R.id.myBook_scan_button);
+        saveChangesButton = findViewById(R.id.myBook_save_change_button);
+        cancelButton = findViewById(R.id.myBook_cancel_button);
+        statusButtons = findViewById(R.id.myBook_status_radiogroup);
+        removeButton = findViewById(R.id.myBook_remove_button);
+        pendingRequestButton = findViewById(R.id.myBook_pending_request_button);
+        takeImageButton = findViewById(R.id.myBook_take_picture_button);
+
+        titleEditText = findViewById(R.id.myBook_title_edittext);
+        authorEditText = findViewById(R.id.myBook_author_edittext);
+        isbnEditText = findViewById(R.id.myBook_isbn_edittext);
+        currentBorrower = findViewById(R.id.myBook_current_borrower_textview);
+
+        bookImage = findViewById(R.id.myBook_imageview);
+
+        cancelButton.setOnClickListener(cancelButtonAction);
+
+        if (main.hasExtra(ProgramTags.PASSED_ISBN)) {
+            initIsbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
+            isbnEditText.setVisibility(View.INVISIBLE);
+            scanButton.setVisibility(View.INVISIBLE);
+
+            //takePic = findViewById(R.id.MBA_button_takePic);
+            //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
+            //save = findViewById(R.id.MBA_button_savePic);
+
+            db.getBook(initIsbn, new OnSuccessListener<Book>() {
+                @Override
+                public void onSuccess(final Book book) {
+                    titleEditText.setText(book.getTitle());
+                    authorEditText.setText(book.getAuthor());
+                    isbnEditText.setText(book.getIsbn());
+
+                    String status = book.getStatus();
+                    switch (status) {
+                        case FireStoreMapping.BOOK_STATUS_AVAILABLE:
+                            statusButtons.check(R.id.myBook_available_radiobutton);
+                            break;
+                        case FireStoreMapping.BOOK_STATUS_ACCEPTED:
+                            statusButtons.check(R.id.myBook_accepted_radiobutton);
+                            break;
+                        case FireStoreMapping.BOOK_STATUS_BORROWED:
+                            statusButtons.check(R.id.myBook_borrowed_radiobutton);
+                            break;
+                        case FireStoreMapping.BOOK_STATUS_UNAVAILABLE:
+                            statusButtons.check(R.id.myBook_unavailable_radiobutton);
+                            break;
+                        default:
+                    }
+
+                    removeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            new AlertDialog
+                                    .Builder(MyBookActivity.this)
+                                    .setTitle("Remove Book")
+                                    .setMessage("Are you sure you want to permanently delete this book?")
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            db.removeBook(initIsbn,
+                                                    new OnSuccessListener<Boolean>() {
+                                                        @Override
+                                                        public void onSuccess(Boolean aBoolean) {
+                                                            setResult(RESULT_OK, main);
+                                                            finish();
+                                                        }
+                                                    },
+                                                    new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    });
+                                        }
+                                    })
+                                    .setNegativeButton(android.R.string.no, null)
+                                    .show();
+                        }
+                    });
+
+                    scanButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(MyBookActivity.this, ScanBook.class);
+                            startActivityForResult(i, REQUEST_ISBN_SCAN);
+                        }
+                    });
+
+                    statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                            selectedStatusButton = radioGroup.findViewById(i);
+                            if (selectedStatusButton.isChecked()) {
+                                book.setStatus(selectedStatusButton.getText().toString());
+                                Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", book.getStatus()));
+                            }
+                        }
+                    });
+
+                    saveChangesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            toggleAllFields(1);
+
+                            if (checkFields()) {
+                                book.setTitle(titleEditText.getText().toString().trim());
+                                book.setAuthor(authorEditText.getText().toString().trim());
+
+                                try {
+                                    db.addBook(book, new OnSuccessListener<Boolean>() {
+                                        @Override
+                                        public void onSuccess(Boolean aBoolean) {
+                                            // send data back to main
+
+                                            setResult(RESULT_OK, main);
+                                            finish();
+                                        }
+                                    }, new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
+                                            setResult(RESULT_CANCELED, main);
+                                            finish();
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                            } else {
+                                new AlertDialog.Builder(MyBookActivity.this)
+                                        .setTitle("Error!")
+                                        .setMessage("Please fill in all the required fields!")
+                                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                toggleAllFields(1);
+                                            }
+                                        }).show();
+                            }
+                        }
+                    });
+                    titleEditText.setText(book.getTitle());
+
+                    authorEditText.setText(book.getAuthor());
+
+                    storageReference = FirebaseStorage.getInstance().getReference();
+
+                    pictureTaken = false;
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
+                }
+            });
+        } else {
+            final String uuid = main.getStringExtra(ProgramTags.PASSED_UUID);
+            final Book newBook = new Book();
+
+            pendingRequestButton.setVisibility(View.INVISIBLE);
+            removeButton.setVisibility(View.INVISIBLE);
+            currentBorrower.setVisibility(View.INVISIBLE);
+
+            statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                    selectedStatusButton = radioGroup.findViewById(i);
+                    if (selectedStatusButton.isChecked()) {
+                        newBook.setStatus(selectedStatusButton.getText().toString());
+                        Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", newBook.getStatus()));
+                    }
+                }
+            });
+
+            saveChangesButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    toggleAllFields(0);
+                    if (checkFields()) {
+
+                        newBook.setTitle(titleEditText.getText().toString().trim());
+                        Log.d(ProgramTags.BOOK_DATA, String.format("Book title set to %s", newBook.getTitle()));
+
+                        newBook.setAuthor(authorEditText.getText().toString().trim());
+                        Log.d(ProgramTags.BOOK_DATA, String.format("Book author set to %s", newBook.getAuthor()));
+
+                        newBook.setIsbn(isbnEditText.getText().toString().trim());
+                        Log.d(ProgramTags.BOOK_DATA, String.format("Book isbn set to %s", newBook.getIsbn()));
+
+                        newBook.setOwner(uuid);
+                        Log.d(ProgramTags.BOOK_DATA, String.format("Book owner set to %s", newBook.getOwner()));
+
+
+                        try {
+                            db.addBook(newBook,
+                                    new OnSuccessListener<Boolean>() {
+                                        @Override
+                                        public void onSuccess(Boolean aBoolean) {
+                                            Toast.makeText(getApplicationContext(), "Book added.", Toast.LENGTH_LONG).show();
+                                            setResult(RESULT_OK, main);
+                                            finish();
+                                        }
+                                    },
+                                    new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(getApplicationContext(), "Failed to save data, please try again.", Toast.LENGTH_LONG).show();
+                                            Log.d(ProgramTags.DB_ERROR, "Failed to add new book from MyBookActivity.");
+                                        }
+                                    });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        new AlertDialog.Builder(MyBookActivity.this)
+                                .setTitle("Error!")
+                                .setMessage("Please fill in all the required fields!")
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        toggleAllFields(0);
+                                    }
+                                }).show();
+                    }
+                }
+            });
+
         }
     }
 }

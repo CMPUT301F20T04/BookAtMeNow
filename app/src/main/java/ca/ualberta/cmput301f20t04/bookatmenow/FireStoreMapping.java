@@ -20,6 +20,12 @@ public class FireStoreMapping {
     static final String BOOK_FIELDS_REQUESTS = "Requests";
     static final String BOOK_FIELDS_IMAGE = "Image";
 
+    static final String BOOK_STATUS_AVAILABLE = "Available";
+    static final String BOOK_STATUS_REQUESTED = "Requested";
+    static final String BOOK_STATUS_ACCEPTED = "Accepted";
+    static final String BOOK_STATUS_BORROWED = "Borrowed";
+    static final String BOOK_STATUS_UNAVAILABLE = "Unavailable";
+
 
     /**
      * Private class so this is not initialised by accident

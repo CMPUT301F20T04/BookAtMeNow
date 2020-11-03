@@ -35,6 +35,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finishAffinity();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
@@ -48,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         final AlertDialog.Builder invalidLoginDialog = new AlertDialog.Builder(this)
                 .setTitle("Error!")
                 .setMessage("Invalid Username or Password")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         loginBtn.setEnabled(true);
@@ -60,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         final AlertDialog.Builder databaseErrorDialog = new AlertDialog.Builder(this)
                 .setTitle("Error!")
                 .setMessage("Invalid Username or Password")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         loginBtn.setEnabled(true);

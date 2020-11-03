@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,13 +26,13 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Button addBookButton;
+    private Button homeButton;
+
     private Button editProfileButton;
     private Button myBooksButton;
     private Button borrowedButton;
     private Button requestedButton;
-
-    private Button addBookButton;
-    private Button homeButton;
 
     private String uuid;
 
@@ -51,16 +52,18 @@ public class MainActivity extends AppCompatActivity {
         filteredBooks = new ArrayList<>();
         allBooksAdapter = new BorrowList(MainActivity.this, filteredBooks);
         bookList.setAdapter(allBooksAdapter);
+        uuid = getIntent().getStringExtra("uuid");
 
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
-                    @Override
-                    public void onSuccess(List<Book> books) {
-                       filteredBooks.addAll(books);
-                       allBooksAdapter.notifyDataSetChanged();
-                       Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
-                       setUi(books, filteredBooks);
-                    }
-                },
+                           @Override
+                           public void onSuccess(List<Book> books) {
+                               filteredBooks.clear();
+                               filteredBooks.addAll(books);
+                               allBooksAdapter.notifyDataSetChanged();
+                               Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
+                               setUi(filteredBooks);
+                           }
+                       },
                 new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -69,14 +72,18 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void setUi(final List<Book> books, final ArrayList<Book> filteredBooks) {
-        uuid = getIntent().getStringExtra("uuid");
-
+    private void setUi(final ArrayList<Book> filteredBooks) {
         // menu buttons
-        Button editProfileButton = findViewById(R.id.edit_profile);
-        Button myBooksButton = findViewById(R.id.my_books);
-        Button borrowedButton = findViewById(R.id.borrowed);
-        Button requestedButton = findViewById(R.id.requested);
+        editProfileButton = findViewById(R.id.edit_profile);
+        myBooksButton = findViewById(R.id.my_books);
+        borrowedButton = findViewById(R.id.borrowed);
+        requestedButton = findViewById(R.id.requested);
+
+
+        addBookButton = findViewById(R.id.add);
+        addBookButton.setVisibility(View.INVISIBLE);
+        homeButton = findViewById(R.id.home);
+        homeButton.setVisibility(View.INVISIBLE);
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,33 +102,72 @@ public class MainActivity extends AppCompatActivity {
         myBooksButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addBookButton.setVisibility(View.VISIBLE);
-                homeButton.setVisibility(View.VISIBLE);
-
-                if (uuid != null) {
-                    setViewMode(BorrowList.ViewMode.OWNED, books, filteredBooks, uuid);
-
-                    bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
-                            Intent i = new Intent(MainActivity.this, MyBookActivity.class);
-                            i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
-                            i.putExtra(ProgramTags.PASSED_UUID, uuid);
-                            startActivityForResult(i, MyBookActivity.CHANGE_BOOK);
+                db.getAllBooks(
+                        new OnSuccessListener<List<Book>>() {
+                            @Override
+                            public void onSuccess(List<Book> books) {
+                                addBookButton.setVisibility(View.VISIBLE);
+                                homeButton.setVisibility(View.VISIBLE);
+                                myBooksButton.setEnabled(false);
+                                setViewMode(BorrowList.ViewMode.OWNED, books);
+                            }
+                        },
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    });
+                );
+            }
+        });
+
+        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
+                Log.d(ProgramTags.TEST_TAG, uuid);
+                if (filteredBooks.get(pos).getOwner().equals(uuid)) {
+                    Intent i = new Intent(MainActivity.this, MyBookActivity.class);
+                    i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
+                    i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                    if (!myBooksButton.isEnabled()) {
+                        startActivityForResult(i, MyBookActivity.CHANGE_BOOK_FROM_MYBOOKS);
+                    } else {
+                        startActivityForResult(i, MyBookActivity.CHANGE_BOOK_FROM_MAIN);
+                    }
                 }
+            }
+        });
+
+        addBookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, MyBookActivity.class);
+                i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
 
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addBookButton.setVisibility(View.INVISIBLE);
-                homeButton.setVisibility(View.INVISIBLE);
-
-                setViewMode(BorrowList.ViewMode.ALL, books, filteredBooks, uuid);
-                bookList.setOnItemClickListener(null);
+                db.getAllBooks(
+                        new OnSuccessListener<List<Book>>() {
+                            @Override
+                            public void onSuccess(List<Book> books) {
+                                addBookButton.setVisibility(View.INVISIBLE);
+                                homeButton.setVisibility(View.INVISIBLE);
+                                enableMenuButtons();
+                                setViewMode(BorrowList.ViewMode.ALL, books);
+                            }
+                        },
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                );
             }
         });
 
@@ -146,13 +192,40 @@ public class MainActivity extends AppCompatActivity {
         borrowedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setViewMode(BorrowList.ViewMode.BORROWED, books, filteredBooks, uuid);
+                db.getAllBooks(
+                        new OnSuccessListener<List<Book>>() {
+                            @Override
+                            public void onSuccess(List<Book> books) {
+                                setViewMode(BorrowList.ViewMode.BORROWED, books);
+                            }
+                        },
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                );
             }
         });
 
         requestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                db.getAllBooks(
+                        new OnSuccessListener<List<Book>>() {
+                            @Override
+                            public void onSuccess(List<Book> books) {
+                                setViewMode(BorrowList.ViewMode.REQUESTED, books);
+                            }
+                        },
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                );
                 //setViewMode(BorrowList.ViewMode.REQUESTED, books, filteredBooks, uuid);//going to have on different activity now
                 Intent intent = new Intent(MainActivity.this, MyRequests.class);
                 intent.putExtra("uuid", uuid);
@@ -165,12 +238,8 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param viewMode
      * @param allBooks
-     * @param filteredBooks
-     * @param uuid
      */
-    private void setViewMode(BorrowList.ViewMode viewMode, List<Book> allBooks,
-                             ArrayList<Book> filteredBooks, String uuid)
-    {
+    private void setViewMode(BorrowList.ViewMode viewMode, List<Book> allBooks)    {
         filteredBooks.clear();
 
         if (viewMode == BorrowList.ViewMode.ALL) {
@@ -185,36 +254,39 @@ public class MainActivity extends AppCompatActivity {
         allBooksAdapter.notifyDataSetChanged();
     }
 
+    private void enableMenuButtons() {
+        editProfileButton.setEnabled(true);
+        myBooksButton.setEnabled(true);
+        borrowedButton.setEnabled(true);
+        requestedButton.setEnabled(true);
+    }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent i) {
+    protected void onActivityResult(final int requestCode, final int resultCode, Intent i) {
         super.onActivityResult(requestCode, resultCode, i);
-
-        if (resultCode == RESULT_OK) {
-            if (requestCode == MyBookActivity.CHANGE_BOOK) {
-
-                final String isbn = i.getStringExtra(ProgramTags.PASSED_ISBN);
-
-                if (i.getBooleanExtra(ProgramTags.BOOK_CHANGED, false)) {
-                    final int book_pos = i.getIntExtra(ProgramTags.BOOK_POS, -1);
-
-                    db.getBook(isbn, new OnSuccessListener<Book>() {
-                        @Override
-                        public void onSuccess(Book book) {
-                            if (book_pos != -1) {
-                                filteredBooks.set(book_pos, book);
-                                allBooksAdapter.notifyDataSetChanged();
+        db.getAllBooks(
+                new OnSuccessListener<List<Book>>() {
+                    @Override
+                    public void onSuccess(List<Book> books) {
+                        try {
+                            if (requestCode == MyBookActivity.ADD_BOOK || requestCode == MyBookActivity.CHANGE_BOOK_FROM_MYBOOKS) {
+                                setViewMode(BorrowList.ViewMode.OWNED, books);
                             } else {
-                                filteredBooks.add(book);
+                                setViewMode(BorrowList.ViewMode.ALL, books);
                             }
+                            Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
+                        } catch (Exception e) {
+                            Log.d(ProgramTags.GENERAL_ERROR, String.format("Failed to update book list with error %s", e));
+                            Toast.makeText(getApplicationContext(), "Failed to update book list.", Toast.LENGTH_LONG).show();
                         }
-                    }, new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                        }
-                    });
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }
+        );
     }
 }

@@ -355,7 +355,7 @@ public class DBHandler {
      * @param bookToAdd
      *      Book object containing complete or incomplete book data, handler will fill everything else with an empty string
      */
-    public void addBook(Book bookToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+    public void addBook(Book bookToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) throws Exception {
         // <Field, Data>
         HashMap<String, Object> bookData = new HashMap<String, Object>();
         if(bookToAdd.getTitle() != null) {
@@ -373,7 +373,7 @@ public class DBHandler {
         if(bookToAdd.getIsbn() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_ISBN, bookToAdd.getIsbn());
         } else {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_ISBN, "");
+            throw new Exception("Cannot add book without ISBN.");
         }
 
         if(bookToAdd.getStatus() != null) {
@@ -391,7 +391,7 @@ public class DBHandler {
         if(bookToAdd.getOwner() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_OWNER, bookToAdd.getOwner());
         } else {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_OWNER, "");
+            throw new Exception("Cannot add free-floating book. Assign to existing user.");
         }
 
         if(bookToAdd.getRequests() != null) {
