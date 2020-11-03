@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
                         new OnSuccessListener<List<Book>>() {
                             @Override
                             public void onSuccess(List<Book> books) {
+                                enableMenuButtons();
                                 addBookButton.setVisibility(View.VISIBLE);
                                 homeButton.setVisibility(View.VISIBLE);
                                 myBooksButton.setEnabled(false);
@@ -191,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
                         new OnSuccessListener<List<Book>>() {
                             @Override
                             public void onSuccess(List<Book> books) {
+                                enableMenuButtons();
+                                borrowedButton.setEnabled(false);
                                 setViewMode(BorrowList.ViewMode.BORROWED, books);
                             }
                         },
