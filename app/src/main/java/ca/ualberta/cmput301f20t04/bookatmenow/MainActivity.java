@@ -1,6 +1,6 @@
 /**
  * List all books, list logged in user's books
- * TODO: search all borrowed and requested books
+ * TODO: list all borrowed and requested books, search functionality
  */
 
 package ca.ualberta.cmput301f20t04.bookatmenow;
@@ -135,16 +135,11 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         startActivityForResult(i, MyBookActivity.CHANGE_BOOK_FROM_MAIN);
                     }
+                } else {
+                    Intent i = new Intent(MainActivity.this, ABookActivity.class);
+                    i.putExtra("ISBN", filteredBooks.get(pos).getIsbn());
+                    startActivity(i);
                 }
-            }
-        });
-
-        addBookButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, MyBookActivity.class);
-                i.putExtra(ProgramTags.PASSED_UUID, uuid);
-                startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
 

@@ -31,7 +31,7 @@
     <string name="action_select_borrower">Select Borrower</string>
     <string name="action_pending_requests">Pending Requests</string>
     <string name="default_current_borrower">Current Borrower</string>
-    
+
     <string name="book_status_available">Available</string>
     <string name="book_status_requested">Requested</string>
     <string name="book_status_accepted">Accepted</string>
