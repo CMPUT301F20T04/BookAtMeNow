@@ -15,17 +15,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A BaseAdapter class specialized for a database of {@link Book}s to be owned, borrowed, requested,
  * or simply displayed.
  *
+ * Much of this class had to be deprecated due to idiosyncrasies with the way async databases work.
+ *
  * @author Warren Stix
  * @see BookList
  * @see android.widget.BaseAdapter
- * @version 0.7
+ * @version 1.0
  */
 public class BorrowList extends BookList {
     /**
@@ -91,6 +91,8 @@ public class BorrowList extends BookList {
         this.viewMode = viewMode;
         this.uuid = uuid;
 
+        // the following commented code is deprecated; it was broken by the implementation of the
+        // database
 //        db.getAllBooks(new OnSuccessListener<List<Book>>() {
 //                    @Override
 //                    public void onSuccess(List<Book> books) {
@@ -224,12 +226,16 @@ public class BorrowList extends BookList {
 
     /**
      * A class used to compare two books by their current status.
+     * <p>
+     * Deprecated due to due to idiosyncrasies with the way async databases work.
+     *
      * @author Warren Stix
      * @version 0.2
      * @see Comparator
+     *
+     * @deprecated
      */
     public static class CompareByStatus implements Comparator<Book> {
-        // TODO: only temporarily public for testing purposes!
         private Book.StatusEnum statusEnum;
 
         /**
@@ -274,13 +280,17 @@ public class BorrowList extends BookList {
         }
     }
 
-//    /**
-//     * Change the internal filtered list to only show books with a given status.
-//     *
-//     * @param statusEnum
-//     *      The status to filter by
-//     */
-//    public void filter(@Nullable final Book.StatusEnum statusEnum) {
+    /**
+     * Change the internal filtered list to only show books with a given status.
+     * <p>
+     * Deprecated due to due to idiosyncrasies with the way async databases work.
+     *
+     * @param statusEnum
+     *      The status to filter by
+     *
+     * @deprecated
+     */
+    public void filter(@Nullable final Book.StatusEnum statusEnum) {
 //        db.getAllBooks(new OnSuccessListener<List<Book>>() {
 //                    @Override
 //                    public void onSuccess(List<Book> books) {
@@ -301,16 +311,14 @@ public class BorrowList extends BookList {
 //                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
 //                    }
 //                });
-//        filteredBooks.clear();
-//
-//
-//        notifyDataSetChanged();
-//    }
+        filteredBooks.clear();
+
+
+        notifyDataSetChanged();
+    }
 
     /**
      * Delete a book from the filtered list of books.
-     *
-     * This method is temporary until deletion of books from the database can be implemented.
      *
      * @param position
      *      the position in the filtered list at which a book must be deleted

@@ -23,6 +23,7 @@ import java.util.List;
  * requests.
  *
  * @version 0.7
+ * @deprecated
  */
 public class RequestList extends BookList {
     private ArrayList<String> requesters;
@@ -128,7 +129,7 @@ public class RequestList extends BookList {
         final Book book = filteredBooks.get(position);
         final String borrower = displayNames.get(position);
 
-        final TextView title = convertView.findViewById(R.id.req_title_text);
+        final TextView title = convertView.findViewById(R.id.display_name_text);
         final TextView username = convertView.findViewById(R.id.display_name_text);
 
         title.setText(book.getTitle());

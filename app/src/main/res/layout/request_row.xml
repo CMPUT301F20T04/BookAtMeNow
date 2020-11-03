@@ -7,27 +7,17 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/req_title_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/default_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/display_name_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:text="@string/default_username"
-        android:textSize="12sp"
+        android:textColor="@color/design_default_color_on_secondary"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/confirm_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/req_title_text" />
+        app:layout_constraintTop_toTopOf="@+id/confirm_button" />
 
     <ImageButton
         android:id="@+id/confirm_button"
