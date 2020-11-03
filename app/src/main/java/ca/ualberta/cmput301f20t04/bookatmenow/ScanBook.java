@@ -33,9 +33,13 @@ public class ScanBook extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     private TextView isbnText;
 
+
+     // If the USE BARCODE button is clicked.
+     // If no ISBN has been scanned, tell user to scan one.  Otherwise put the scanned ISBN in an
+     // intent object and finish the activity.
     public void setBookISBN(View view) {
         if (bookISBN == null){
-            Toast toast = Toast.makeText(this, "Please scan a ISBN barcode.", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(this, "Please scan an ISBN barcode.", Toast.LENGTH_SHORT);
             toast.show();
         } else {
             Intent returnData = new Intent();
@@ -45,7 +49,8 @@ public class ScanBook extends AppCompatActivity {
         }
     }
 
-    public void cancel(View view) {//cancel setting pickup location, or pressing back on location view screen
+    //If the CANCEL button is clicked, finish the activity.
+    public void cancel(View view) {
         this.finish();
     }
 
@@ -58,17 +63,21 @@ public class ScanBook extends AppCompatActivity {
         initialize();
     }
 
+
     private void initialize(){
 
+        //Build barcode detector object.
         BarcodeDetector detector = new BarcodeDetector.Builder(this)
                 .setBarcodeFormats(Barcode.ALL_FORMATS)
                 .build();
 
+        //Build camera source object.
         cameraSource = new CameraSource.Builder(this, detector)
                 .setRequestedPreviewSize(1920, 1080)
                 .setAutoFocusEnabled(true)
                 .build();
 
+        //Get camera permissions and add callback to the SurfaceHolder of the camera preview.
         cameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
@@ -94,7 +103,7 @@ public class ScanBook extends AppCompatActivity {
             }
         });
 
-
+        //Set the processor to scan barcodes as they appear.
         detector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
@@ -103,10 +112,9 @@ public class ScanBook extends AppCompatActivity {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                //If an barcode exists and is 13 digits long, set TextView and bookISBN string.
+                //If a barcode exists and is 13 digits long (length of ISBN-13), set TextView and bookISBN string.
                 if (barcodes.size() > 0 && (barcodes.valueAt(0).displayValue).length() == 13) {
                     isbnText.post(new Runnable() {
-
                         @Override
                         public void run() {
                             bookISBN = barcodes.valueAt(0).displayValue;
