@@ -1,8 +1,3 @@
-/**
- * View A Book that's not owned by the logged in user
- * TODO: add viewing pickup location, optional book image, request / return / borrow
- */
-
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
@@ -17,6 +12,10 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+/**
+ * View A Book that's not owned by the logged in user.
+ * TODO: add viewing pickup location, optional book image, request / return / borrow, pretty-up UI.
+ */
 public class ABookActivity extends AppCompatActivity {
 
     private TextView aTitle;

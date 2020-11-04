@@ -21,8 +21,7 @@ public class MainActivityTest {
     private Solo solo;
 
     /**
-     * Test class for MainActivity. All the UI tests are written here. Robotium test framework is
-     used
+     * Test class for MainActivity. Robotium test framework is used.
      */
     @Rule
     public ActivityTestRule<MainActivity> rule =
@@ -77,11 +76,14 @@ public class MainActivityTest {
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
     }
 
+    /**
+     * Check filter button.
+     * TODO: check dialog actions when search works
+     */
     @Test
     public void clickFilter() {
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.clickOnButton("Filter");
-        // check dialog actions when search works
     }
 
     /**

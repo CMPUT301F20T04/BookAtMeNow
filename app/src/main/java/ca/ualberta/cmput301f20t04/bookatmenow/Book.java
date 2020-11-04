@@ -6,6 +6,13 @@ import java.util.List;
 
 import javax.net.ssl.SSLEngineResult;
 
+/**
+ * Represents a book in the app.
+ * Is owned by one user, has title, author, status (Available, Requested, Accepted, Borrowed), has a unique ISBN.
+ * Can be borrowed by one user, have multiple requests on it.
+ * Can have an image.
+ * @author Warren Stix, Jeanne Coleongco
+ */
 public class Book {
     // In normal case for easier conversion to and from String
     public enum StatusEnum {

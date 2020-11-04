@@ -1,8 +1,3 @@
-/**
- * List all books, list logged in user's books
- * TODO: list all borrowed and requested books, search functionality
- */
-
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
@@ -24,6 +19,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * List all books, list logged in user's books.
+ * TODO: list all borrowed and requested books, search functionality
+ */
 public class MainActivity extends AppCompatActivity {
 
     private Button addBookButton;

@@ -1,6 +1,3 @@
-/**
- *
- */
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
@@ -12,6 +9,10 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+/**
+ * View A Profile that's not the logged in user's.
+ * TODO: pretty-up UI, add profile picture.
+ */
 public class AProfileActivity extends AppCompatActivity {
 
     private TextView aUsername;

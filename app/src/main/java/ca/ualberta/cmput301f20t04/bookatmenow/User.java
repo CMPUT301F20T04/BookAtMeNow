@@ -1,23 +1,44 @@
-/**
- * User class
- * @author Jeanne Coleongco
- * @version 0.3
- */
-
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import java.util.regex.Pattern;
 
+/**
+ * Represents a user in the app.
+ * Has a unique username
+ * Has password and email.
+ * Can have a phone # and/or address.
+ * @author Jeanne Coleongco
+ * @version 0.3
+ */
 public class User {
+    /**
+     * Unique user ID, randomly generated on account creation.
+     * Having it enables changing one's account details without losing information on books owned.
+     * TODO: use this to check uniqueness of username & email every time a user edits their account.
+     */
     private String userId;
+
+    /**
+     * Unique username, checked on account creation.
+     * TODO: make spaces in the name invalid.
+     */
     private String username;
+
+    /**
+     * Password must be letters, numbers, no spaces.
+     * TODO: allow special characters.
+     */
     private String password;
-    private String phone;
     private String email;
+
+    /**
+     * Optional fields.
+     */
+    private String phone;
     private String address;
 
     /**
-     * constructs basic User
+     * Constructs basic user.
      * @param username
      * @param password
      * @param email
@@ -29,7 +50,8 @@ public class User {
     }
 
     /**
-     * constructs user with optional phone #
+     * Constructs user with optional phone # or email.
+     * Differentiates between phone # or email and assigns to the appropriate variable.
      * @param username
      * @param password
      * @param phoneOrAddress
@@ -50,7 +72,7 @@ public class User {
     }
 
     /**
-     * constructs user with everything
+     * constructs user with everything.
      * @param username
      * @param password
      * @param phone
@@ -66,20 +88,29 @@ public class User {
     }
 
     /**
-     * Constructor for DB handler
+     * Constructor for DB handler.
      */
     public User() {}
 
+    /**
+     * Gets user's unique id.
+     * @return unique user id
+     */
     public String getUserId() {
         return this.userId;
     }
 
+    /**
+     * Only used when the user is first created.
+     * Should not be updated otherwise.
+     * @param id
+     */
     public void setUserID(String id) {
         this.userId = id;
     }
 
     /**
-     *
+     * Gets the unique username.
      * @return username
      */
     public String getUsername() {
@@ -87,7 +118,7 @@ public class User {
     }
 
     /**
-     *
+     * Sets the username on account creation.
      * @param username
      */
     public void setUsername(String username) {
@@ -95,7 +126,7 @@ public class User {
     }
 
     /**
-     *
+     * Gets the user's password.
      * @return password
      */
     public String getPassword() {
@@ -103,7 +134,7 @@ public class User {
     }
 
     /**
-     *
+     * Sets the user's password on account creation.
      * @param password
      */
     public void setPassword(String password) {
@@ -111,7 +142,7 @@ public class User {
     }
 
     /**
-     *
+     * Gets user's phone #.
      * @return phone
      */
     public String getPhone() {
@@ -119,7 +150,7 @@ public class User {
     }
 
     /**
-     *
+     * Sets the user's phone # on account creation.
      * @param phone
      */
     public void setPhone(String phone) {
@@ -127,7 +158,7 @@ public class User {
     }
 
     /**
-     *
+     * Gets user's email.
      * @return email
      */
     public String getEmail() {
@@ -135,7 +166,7 @@ public class User {
     }
 
     /**
-     *
+     * Sets user's email on account creation.
      * @param email
      */
     public void setEmail(String email) {
@@ -143,7 +174,7 @@ public class User {
     }
 
     /**
-     *
+     * Gets user's address.
      * @return address
      */
     public String getAddress() {
@@ -151,7 +182,7 @@ public class User {
     }
 
     /**
-     *
+     * Sets user's address on account creation.
      * @param address
      */
     public void setAddress(String address) {
