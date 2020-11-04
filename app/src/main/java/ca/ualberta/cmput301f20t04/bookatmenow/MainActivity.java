@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         new OnSuccessListener<List<Book>>() {
                             @Override
                             public void onSuccess(List<Book> books) {
+                                enableMenuButtons();
                                 addBookButton.setVisibility(View.VISIBLE);
                                 homeButton.setVisibility(View.VISIBLE);
                                 myBooksButton.setEnabled(false);
@@ -190,6 +191,8 @@ public class MainActivity extends AppCompatActivity {
                         new OnSuccessListener<List<Book>>() {
                             @Override
                             public void onSuccess(List<Book> books) {
+                                enableMenuButtons();
+                                borrowedButton.setEnabled(false);
                                 setViewMode(BorrowList.ViewMode.BORROWED, books);
                             }
                         },
@@ -206,24 +209,9 @@ public class MainActivity extends AppCompatActivity {
         requestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                db.getAllBooks(
-                        new OnSuccessListener<List<Book>>() {
-                            @Override
-                            public void onSuccess(List<Book> books) {
-                                setViewMode(BorrowList.ViewMode.REQUESTED, books);
-                            }
-                        },
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                );
-                //setViewMode(BorrowList.ViewMode.REQUESTED, books, filteredBooks, uuid);//going to have on different activity now
                 Intent intent = new Intent(MainActivity.this, MyRequests.class);
                 intent.putExtra("uuid", uuid);
-                startActivity(intent);
+                startActivityForResult(intent, MyRequests.REQUEST_ACTIVITY);
             }
         });
     }
@@ -267,6 +255,9 @@ public class MainActivity extends AppCompatActivity {
                                 setViewMode(BorrowList.ViewMode.OWNED, books);
                             } else {
                                 setViewMode(BorrowList.ViewMode.ALL, books);
+                                enableMenuButtons();
+                                addBookButton.setVisibility(View.INVISIBLE);
+                                homeButton.setVisibility(View.INVISIBLE);
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
                         } catch (Exception e) {

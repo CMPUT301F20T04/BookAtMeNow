@@ -16,6 +16,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".AProfileActivity"></activity>
         <activity android:name=".ABookActivity" />
+        <activity android:name=".BookRequests"></activity>
         <activity android:name=".MyRequests" />
         <activity android:name=".MyBookActivity" />
         <activity android:name=".MyBook" />
@@ -51,5 +52,10 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 </manifest>

@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -34,6 +35,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+//import static ca.ualberta.cmput301f20t04.bookatmenow.R.id.editTextAuthor;
 
 public class MyBookActivity extends AppCompatActivity {
 
@@ -368,14 +371,6 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    scanButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent i = new Intent(MyBookActivity.this, ScanBook.class);
-                            startActivityForResult(i, REQUEST_ISBN_SCAN);
-                        }
-                    });
-
                     statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -430,6 +425,16 @@ public class MyBookActivity extends AppCompatActivity {
                             }
                         }
                     });
+
+                    pendingRequestButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent i = new Intent(MyBookActivity.this, BookRequests.class);
+                            i.putExtra("ISBN", initIsbn);
+                            startActivity(i);
+                        }
+                    });
+
                     titleEditText.setText(book.getTitle());
 
                     authorEditText.setText(book.getAuthor());
@@ -460,6 +465,14 @@ public class MyBookActivity extends AppCompatActivity {
                         newBook.setStatus(selectedStatusButton.getText().toString());
                         Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", newBook.getStatus()));
                     }
+                }
+            });
+
+            scanButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(MyBookActivity.this, ScanBook.class);
+                    startActivityForResult(i, REQUEST_ISBN_SCAN);
                 }
             });
 
