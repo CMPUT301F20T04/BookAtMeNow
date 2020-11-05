@@ -20,8 +20,8 @@ import java.util.LinkedList;
  * @version 0.2
  */
 public class RequestAdapter extends ArrayAdapter<User> {
-    LinkedList<User> requests;
-    Context context;
+    private LinkedList<User> requests;
+    private Context context;
 
     /**
      * Construct a viewable list of requests from a given {@link LinkedList} of {@link User}s.

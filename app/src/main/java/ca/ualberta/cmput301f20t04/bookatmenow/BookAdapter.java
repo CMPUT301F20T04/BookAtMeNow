@@ -78,9 +78,10 @@ public class BookAdapter extends ArrayAdapter<Book> {
     public BookAdapter(Context context, ArrayList<Book> filteredBooks) {
         super(context, 0, filteredBooks);
 
+        this.context = context;
         this.filteredBooks = filteredBooks;
 //        viewMode = ViewMode.ALL;
-        uuid = null;
+//        uuid = null;
     }
 
     /**
@@ -101,7 +102,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         this.context = context;
 //        this.viewMode = viewMode;
-        this.uuid = uuid;
+//        this.uuid = uuid;
 
         // the following commented code is deprecated; it was broken by the implementation of the
         // database
@@ -172,13 +173,11 @@ public class BookAdapter extends ArrayAdapter<Book> {
      */
     @Override
     @NonNull
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final View convertedView;
-        if(convertView == null){
-            convertedView = LayoutInflater.from(context).inflate(R.layout.request_row, parent,false);
-        } else {
-            convertedView = convertView;
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        if(convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.borrow_row, parent, false);
         }
+        final View convertedView = convertView;
 
         final Book book = filteredBooks.get(position);
 
