@@ -1,0 +1,443 @@
+@startuml
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.ABookActivity <<boundary>> {
+        - aStatus : TextView
+        - aTitle : TextView
+        - anAuthor : TextView
+        - anIsbn : TextView
+        - anOwner : Button
+        - isbn : String
+        - uuid : String
+        # onCreate()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.AProfileActivity <<boundary>> {
+        ~ uuid : String
+        - aPhone : TextView
+        - aUsername : TextView
+        - anAddress : TextView
+        - anEmail : TextView
+        # onCreate()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.Book <<entity>> {
+        - author : String
+        - borrower : String
+        - image : Image
+        - isbn : String
+        - owner : String
+        - requests : List<String>
+        - status : String
+        - title : String
+        + Book()
+        + Book()
+        + Book()
+        + getAuthor()
+        + getBorrower()
+        + getImage()
+        + getIsbn()
+        + getOwner()
+        + getRequests()
+        + getStatus()
+        + getTitle()
+        + setAuthor()
+        + setBorrower()
+        + setImage()
+        + setIsbn()
+        + setOwner()
+        + setRequests()
+        + setStatus()
+        + setTitle()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    enum StatusEnum {
+      Accepted
+      Available
+      Borrowed
+      Requested
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter <<control>> {
+        - context : Context
+        - filteredBooks : ArrayList<Book>
+        - uuid : String
+        + BookAdapter()
+        + BookAdapter()
+        {static} + checkUser()
+        + delete()
+        + getView()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    enum ViewMode {
+      ALL
+      BORROWED
+      OWNED
+      REQUESTED
+    }
+  }
+
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.BookRequests <<boundary>> {
+        - backButton : Button
+        - isbn : String
+        - myBookReqsList : ListView
+        - myBookRequests : ArrayList<Book>
+        + back()
+        # onCreate()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <<control>> {
+        ~ db : FirebaseFirestore
+        + DBHandler()
+        + addBook()
+        + addUser()
+        + bookRequests()
+        + checkPassword()
+        + emailExists()
+        + getAllBooks()
+        + getBook()
+        + getUser()
+        + removeBook()
+        + removeUser()
+        + updateUser()
+        + userRequests()
+        + usernameExists()
+        - convertToBook()
+        - convertToUser()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.FilterDialog <<boundary>> {
+        + onCreateDialog()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.FireStoreMapping <<control>> {
+        {static} ~ BOOK_FIELDS_AUTHOR : String
+        {static} ~ BOOK_FIELDS_BORROWER : String
+        {static} ~ BOOK_FIELDS_IMAGE : String
+        {static} ~ BOOK_FIELDS_ISBN : String
+        {static} ~ BOOK_FIELDS_OWNER : String
+        {static} ~ BOOK_FIELDS_REQUESTS : String
+        {static} ~ BOOK_FIELDS_STATUS : String
+        {static} ~ BOOK_FIELDS_TITLE : String
+        {static} ~ BOOK_STATUS_ACCEPTED : String
+        {static} ~ BOOK_STATUS_AVAILABLE : String
+        {static} ~ BOOK_STATUS_BORROWED : String
+        {static} ~ BOOK_STATUS_REQUESTED : String
+        {static} ~ BOOK_STATUS_UNAVAILABLE : String
+        {static} ~ COLLECTIONS_BOOK : String
+        {static} ~ COLLECTIONS_USER : String
+        {static} ~ USER_FIELDS_ADDRESS : String
+        {static} ~ USER_FIELDS_EMAIL : String
+        {static} ~ USER_FIELDS_ID : String
+        {static} ~ USER_FIELDS_PASSWORD : String
+        {static} ~ USER_FIELDS_PHONE : String
+        {static} ~ USER_FIELDS_USERNAME : String
+        - FireStoreMapping()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.GeoLocation <<boundary>> {
+        {static} - DEFAULT_ZOOM : int
+        {static} - PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION : int
+        {static} - TAG : String
+        - cameraPosition : CameraPosition
+        - cancelPickupLocSet : Button
+        - defaultLocation : LatLng
+        - fusedLocationProviderClient : FusedLocationProviderClient
+        - lastKnownLocation : Location
+        - locationPermissionGranted : boolean
+        - map : GoogleMap
+        - mapType : Intent
+        - pickupLocationViewing : LatLng
+        - selectedLocation : LatLng
+        - setAddress : boolean
+        - setGeoLocPickup : Button
+        - viewingMap : boolean
+        + cancel()
+        + onMapReady()
+        + onRequestPermissionsResult()
+        + setPickupLocation()
+        # onCreate()
+        - getDeviceLocation()
+        - getLocationPermission()
+        - updateLocationUI()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.LoginActivity <<boundary>> {
+        - createAccBtn : Button
+        - logInPW : EditText
+        - logInUser : EditText
+        - loginBtn : Button
+        + onBackPressed()
+        # onCreate()
+        - clearField()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.MainActivity <<boundary>> {
+        ~ bookList : ListView
+        ~ filteredBooks : ArrayList<Book>
+        - addBookButton : Button
+        - borrowedButton : Button
+        - editProfileButton : Button
+        - homeButton : Button
+        - myBooksButton : Button
+        - requestedButton : Button
+        - uuid : String
+        # onActivityResult()
+        # onCreate()
+        - enableMenuButtons()
+        - setUi()
+        - setViewMode()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.MyBookActivity <<boundary>> {
+        {static} + ADD_BOOK : int
+        {static} + CHANGE_BOOK_FROM_MAIN : int
+        {static} + CHANGE_BOOK_FROM_MYBOOKS : int
+        ~ storageReference : StorageReference
+        {static} - PERMISSIONS_REQUEST_ACCESS_CAMERA : int
+        {static} - REQUEST_IMAGE_CAPTURE : int
+        {static} - REQUEST_ISBN_SCAN : int
+        - authorEditText : EditText
+        - bookImage : ImageView
+        - cancelButton : Button
+        - cancelButtonAction : OnClickListener
+        - currentBorrower : TextView
+        - initIsbn : String
+        - isbnEditText : EditText
+        - myUri : Uri
+        - pendingRequestButton : Button
+        - pictureTaken : Boolean
+        - removeButton : Button
+        - saveChangesButton : Button
+        - scanButton : Button
+        - selectedStatusButton : RadioButton
+        - statusButtons : RadioGroup
+        - takeImageButton : Button
+        - titleEditText : EditText
+        + onRequestPermissionsResult()
+        + saveImg()
+        + takePicture()
+        # onActivityResult()
+        # onCreate()
+        - checkFields()
+        - createImageFile()
+        - getCameraPermissions()
+        - toggleAllFields()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.MyRequests <<boundary>> {
+        {static} + REQUEST_ACTIVITY : int
+        - backButton : Button
+        - myRequestedBooks : ArrayList<Book>
+        - noRequests : TextView
+        - requestBookList : ListView
+        - uuid : String
+        + back()
+        # onCreate()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.ProfileActivity <<boundary>> {
+        {static} ~ EMAIL_REGEX : Pattern
+        {static} ~ PW_REGEX : Pattern
+        ~ addresses : List<Address>
+        ~ geocoder : Geocoder
+        - addressButton : Button
+        - addressEditText : EditText
+        - cancelButton : Button
+        - emailEditText : EditText
+        - logoutButton : Button
+        - passwordConfirmEditText : EditText
+        - passwordEditText : EditText
+        - phoneEditText : EditText
+        - saveProfileButton : Button
+        - usernameEditText : EditText
+        - uuid : String
+        {static} + validEmail()
+        {static} + validPassword()
+        # onActivityResult()
+        # onCreate()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.ProgramTags <<control>> {
+        {static} ~ BOOK_CHANGED : String
+        {static} ~ BOOK_DATA : String
+        {static} ~ BOOK_POS : String
+        {static} ~ DB_ALL_FOUND : String
+        {static} ~ DB_ERROR : String
+        {static} ~ DB_MESSAGE : String
+        {static} ~ DB_TEST : String
+        {static} ~ DB_USER_FOUND : String
+        {static} ~ GENERAL_ERROR : String
+        {static} ~ GENERAL_SUCCESS : String
+        {static} ~ PASSED_ISBN : String
+        {static} ~ PASSED_UUID : String
+        {static} ~ TEST_TAG : String
+        - ProgramTags()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.RequestAdapter <<control>> {
+        - context : Context
+        - requests : LinkedList<User>
+        + getView()
+        ~ RequestAdapter()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.ScanBook <<boundary>> {
+        {static} - PERMISSIONS_REQUEST_ACCESS_CAMERA : int
+        - bookISBN : String
+        - cameraSource : CameraSource
+        - cameraView : SurfaceView
+        - isbnText : TextView
+        + cancel()
+        + setBookISBN()
+        # onCreate()
+        - initialize()
+    }
+  }
+  
+
+  namespace ca.ualberta.cmput301f20t04.bookatmenow {
+    class ca.ualberta.cmput301f20t04.bookatmenow.User <<entity>> {
+        - address : String
+        - email : String
+        - password : String
+        - phone : String
+        - userId : String
+        - username : String
+        + User()
+        + User()
+        + User()
+        + User()
+        + getAddress()
+        + getEmail()
+        + getPassword()
+        + getPhone()
+        + getUserId()
+        + getUsername()
+        + setAddress()
+        + setEmail()
+        + setPassword()
+        + setPhone()
+        + setUserID()
+        + setUsername()
+    }
+  }
+  
+
+  ca.ualberta.cmput301f20t04.bookatmenow.ABookActivity -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.ABookActivity o-- ca.ualberta.cmput301f20t04.bookatmenow.DBHandler : db
+  ca.ualberta.cmput301f20t04.bookatmenow.AProfileActivity -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.AProfileActivity o-- ca.ualberta.cmput301f20t04.bookatmenow.DBHandler : db
+  ca.ualberta.cmput301f20t04.bookatmenow.Book +-down- ca.ualberta.cmput301f20t04.bookatmenow.Book.StatusEnum
+  ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter -up-|> android.widget.ArrayAdapter
+  ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter o-- ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter.ViewMode : viewMode
+  ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter +-down- ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter.ViewMode
+  ca.ualberta.cmput301f20t04.bookatmenow.BookRequests -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.BookRequests o-- ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter : booksAdapter
+  ca.ualberta.cmput301f20t04.bookatmenow.BookRequests o-- ca.ualberta.cmput301f20t04.bookatmenow.DBHandler : db
+  ca.ualberta.cmput301f20t04.bookatmenow.BookRequests o-- ca.ualberta.cmput301f20t04.bookatmenow.Book : myBook
+  ca.ualberta.cmput301f20t04.bookatmenow.FilterDialog -up-|> androidx.appcompat.app.AppCompatDialogFragment
+  ca.ualberta.cmput301f20t04.bookatmenow.GeoLocation .up.|> com.google.android.gms.maps.OnMapReadyCallback
+  ca.ualberta.cmput301f20t04.bookatmenow.GeoLocation -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.LoginActivity -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.MainActivity -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.MainActivity o-- ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter : allBooksAdapter
+  ca.ualberta.cmput301f20t04.bookatmenow.MainActivity o-- ca.ualberta.cmput301f20t04.bookatmenow.DBHandler : db
+  ca.ualberta.cmput301f20t04.bookatmenow.MyBookActivity -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.MyBookActivity o-- ca.ualberta.cmput301f20t04.bookatmenow.DBHandler : db
+  ca.ualberta.cmput301f20t04.bookatmenow.MyRequests -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.MyRequests o-- ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter : booksAdapter
+  ca.ualberta.cmput301f20t04.bookatmenow.MyRequests o-- ca.ualberta.cmput301f20t04.bookatmenow.DBHandler : db
+  ca.ualberta.cmput301f20t04.bookatmenow.ProfileActivity -up-|> androidx.appcompat.app.AppCompatActivity
+  ca.ualberta.cmput301f20t04.bookatmenow.RequestAdapter -up-|> android.widget.ArrayAdapter
+  ca.ualberta.cmput301f20t04.bookatmenow.ScanBook -up-|> androidx.appcompat.app.AppCompatActivity
+
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler o-- ca.ualberta.cmput301f20t04.bookatmenow.User
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler o-- ca.ualberta.cmput301f20t04.bookatmenow.Book
+
+  ca.ualberta.cmput301f20t04.bookatmenow.MainActivity <-- ca.ualberta.cmput301f20t04.bookatmenow.LoginActivity: "<<creates>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.MyBookActivity <-- ca.ualberta.cmput301f20t04.bookatmenow.MainActivity: "<<creates>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.MyRequests <-- ca.ualberta.cmput301f20t04.bookatmenow.MainActivity: "<<creates>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.ProfileActivity <-- ca.ualberta.cmput301f20t04.bookatmenow.MainActivity: "<<creates>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.ProfileActivity --> ca.ualberta.cmput301f20t04.bookatmenow.GeoLocation: "<<creates>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <.. ca.ualberta.cmput301f20t04.bookatmenow.LoginActivity: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <.. ca.ualberta.cmput301f20t04.bookatmenow.MainActivity: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <.. ca.ualberta.cmput301f20t04.bookatmenow.MyBookActivity: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <.. ca.ualberta.cmput301f20t04.bookatmenow.MyRequests: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <.. ca.ualberta.cmput301f20t04.bookatmenow.ABookActivity: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <.. ca.ualberta.cmput301f20t04.bookatmenow.AProfileActivity: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.DBHandler <.. ca.ualberta.cmput301f20t04.bookatmenow.BookRequests: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter <.. ca.ualberta.cmput301f20t04.bookatmenow.MyRequests: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter <.. ca.ualberta.cmput301f20t04.bookatmenow.BookRequests: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter <.. ca.ualberta.cmput301f20t04.bookatmenow.MainActivity: "<<uses>>"
+
+  ca.ualberta.cmput301f20t04.bookatmenow.ProgramTags <.. ca.ualberta.cmput301f20t04.bookatmenow.BookAdapter: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.ProgramTags <.. ca.ualberta.cmput301f20t04.bookatmenow.DBHandler: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.ProgramTags <.. ca.ualberta.cmput301f20t04.bookatmenow.MainActivity: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.ProgramTags <.. ca.ualberta.cmput301f20t04.bookatmenow.MyBookActivity: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.ProgramTags <.. ca.ualberta.cmput301f20t04.bookatmenow.MyRequests: "<<uses>>"
+  ca.ualberta.cmput301f20t04.bookatmenow.FireStoreMapping <.. ca.ualberta.cmput301f20t04.bookatmenow.DBHandler: "<<uses>>"
+
+
+
+right footer
+
+
+PlantUML diagram (partially) generated by SketchIt (with the rest manually edited by Warren Stix)! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml
