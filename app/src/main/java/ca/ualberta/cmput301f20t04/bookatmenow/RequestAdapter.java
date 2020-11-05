@@ -10,22 +10,30 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * A simple {@link ArrayAdapter} to be used in concert with {@link DBHandler#bookRequests}.
  *
  * @author Warren Stix
- * @version 0.1
+ * @see ArrayAdapter
+ * @version 0.2
  */
 public class RequestAdapter extends ArrayAdapter<User> {
     LinkedList<User> requests;
     Context context;
 
+    /**
+     * Construct a viewable list of requests from a given {@link LinkedList} of {@link User}s.
+     * <p>
+     * The {@link LinkedList} was chosen to represent a list of requests because it can easily be
+     * deleted from at any point and will never need to be sorted.
+     *
+     * @param context
+     *      The context of the calling activity, used to display objects on the screen
+     * @param requests
+     *      The list of {@link User}s to display
+     */
     RequestAdapter(Context context, LinkedList<User> requests) {
         super(context, 0, requests);
 
@@ -33,6 +41,19 @@ public class RequestAdapter extends ArrayAdapter<User> {
         this.requests = requests;
     }
 
+    /**
+     * A required method from {@link ArrayAdapter} for displaying an element of the
+     * internal list at a given position.
+     *
+     * @param position
+     *      The position of the element to display from the internal list
+     * @param convertView
+     *      The external {@link View} in which to display the element's data
+     * @param parent
+     *      The {@link ViewGroup} containing the elements of the {@link android.widget.ListView}
+     * @return
+     *      The original given {@link View}, converted into a row of the internal list
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

@@ -16,7 +16,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -36,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private String uuid;
 
     ListView bookList;
-    BorrowList allBooksAdapter;
+    BookAdapter allBooksAdapter;
     ArrayList<Book> filteredBooks;
     DBHandler db;
 
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         bookList = findViewById(R.id.book_list);
         filteredBooks = new ArrayList<>();
-        allBooksAdapter = new BorrowList(MainActivity.this, filteredBooks);
+        allBooksAdapter = new BookAdapter(MainActivity.this, filteredBooks);
         bookList.setAdapter(allBooksAdapter);
         uuid = getIntent().getStringExtra("uuid");
 
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                                 addBookButton.setVisibility(View.VISIBLE);
                                 homeButton.setVisibility(View.VISIBLE);
                                 myBooksButton.setEnabled(false);
-                                setViewMode(BorrowList.ViewMode.OWNED, books);
+                                setViewMode(BookAdapter.ViewMode.OWNED, books);
                             }
                         },
                         new OnFailureListener() {
@@ -153,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                                 addBookButton.setVisibility(View.INVISIBLE);
                                 homeButton.setVisibility(View.INVISIBLE);
                                 enableMenuButtons();
-                                setViewMode(BorrowList.ViewMode.ALL, books);
+                                setViewMode(BookAdapter.ViewMode.ALL, books);
                             }
                         },
                         new OnFailureListener() {
@@ -193,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onSuccess(List<Book> books) {
                                 enableMenuButtons();
                                 borrowedButton.setEnabled(false);
-                                setViewMode(BorrowList.ViewMode.BORROWED, books);
+                                setViewMode(BookAdapter.ViewMode.BORROWED, books);
                             }
                         },
                         new OnFailureListener() {
@@ -221,14 +220,14 @@ public class MainActivity extends AppCompatActivity {
      * @param viewMode
      * @param allBooks
      */
-    private void setViewMode(BorrowList.ViewMode viewMode, List<Book> allBooks)    {
+    private void setViewMode(BookAdapter.ViewMode viewMode, List<Book> allBooks)    {
         filteredBooks.clear();
 
-        if (viewMode == BorrowList.ViewMode.ALL) {
+        if (viewMode == BookAdapter.ViewMode.ALL) {
             filteredBooks.addAll(allBooks);
         } else {
             for (Book book : allBooks) {
-                if (BorrowList.checkUser(book, uuid, viewMode)) {
+                if (BookAdapter.checkUser(book, uuid, viewMode)) {
                     filteredBooks.add(book);
                 }
             }
@@ -252,9 +251,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(List<Book> books) {
                         try {
                             if (requestCode == MyBookActivity.ADD_BOOK || requestCode == MyBookActivity.CHANGE_BOOK_FROM_MYBOOKS) {
-                                setViewMode(BorrowList.ViewMode.OWNED, books);
+                                setViewMode(BookAdapter.ViewMode.OWNED, books);
                             } else {
-                                setViewMode(BorrowList.ViewMode.ALL, books);
+                                setViewMode(BookAdapter.ViewMode.ALL, books);
                                 enableMenuButtons();
                                 addBookButton.setVisibility(View.INVISIBLE);
                                 homeButton.setVisibility(View.INVISIBLE);
