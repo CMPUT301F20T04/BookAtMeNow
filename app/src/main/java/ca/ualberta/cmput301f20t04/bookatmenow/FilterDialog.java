@@ -16,6 +16,10 @@ import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+/**
+ * Filter dialog.
+ * TODO: rework using fragments, enable searching.
+ */
 public class FilterDialog extends AppCompatDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

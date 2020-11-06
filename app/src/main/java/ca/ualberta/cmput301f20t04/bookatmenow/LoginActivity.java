@@ -1,8 +1,3 @@
-/**
- * Login using username and password
- * TODO: login using email
- */
-
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
@@ -19,6 +14,10 @@ import android.widget.EditText;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+/**
+ * Login using username and password that exist in the database.
+ * TODO: login using email
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText logInUser;

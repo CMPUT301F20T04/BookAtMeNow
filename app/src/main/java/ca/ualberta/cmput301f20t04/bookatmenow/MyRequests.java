@@ -25,7 +25,7 @@ public class MyRequests extends AppCompatActivity {
 
     //listView and its properties
     private ListView requestBookList;
-    private BorrowList booksAdapter;
+    private BookAdapter booksAdapter;
     private ArrayList<Book> myRequestedBooks;
 
     private DBHandler db;
@@ -48,7 +48,7 @@ public class MyRequests extends AppCompatActivity {
         noRequests = findViewById(R.id.noRequested_TextView_MyRequests);
 
         myRequestedBooks = new ArrayList<>();
-        booksAdapter = new BorrowList(MyRequests.this, myRequestedBooks);
+        booksAdapter = new BookAdapter(MyRequests.this, myRequestedBooks);
         requestBookList.setAdapter(booksAdapter);
         noRequests.setVisibility(View.INVISIBLE);
 

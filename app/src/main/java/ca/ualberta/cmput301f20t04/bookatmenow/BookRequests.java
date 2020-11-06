@@ -21,7 +21,7 @@ public class BookRequests extends AppCompatActivity {
     private ListView myBookReqsList;
     private Button backButton;
 
-    private BorrowList booksAdapter;
+    private BookAdapter booksAdapter;
     private ArrayList<Book> myBookRequests;
 
     private DBHandler db;
@@ -44,7 +44,7 @@ public class BookRequests extends AppCompatActivity {
         backButton = findViewById(R.id.back_button_BookRequests);
 
         myBookRequests = new ArrayList<>();
-        booksAdapter = new BorrowList(BookRequests.this, myBookRequests);
+        booksAdapter = new BookAdapter(BookRequests.this, myBookRequests);
         myBookReqsList.setAdapter(booksAdapter);
 
         db = new DBHandler();

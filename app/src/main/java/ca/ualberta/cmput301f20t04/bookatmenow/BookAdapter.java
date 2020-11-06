@@ -2,8 +2,10 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,17 +19,17 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- * A BaseAdapter class specialized for a database of {@link Book}s to be owned, borrowed, requested,
- * or simply displayed.
- *
+ * An {@link ArrayAdapter} class specialized for a database of {@link Book}s to be owned, borrowed,
+ * requested, or simply displayed.
+ * <p>
  * Much of this class had to be deprecated due to idiosyncrasies with the way async databases work.
  *
  * @author Warren Stix
- * @see BookList
+ * @see ArrayAdapter
  * @see android.widget.BaseAdapter
- * @version 1.0
+ * @version 1.1
  */
-public class BorrowList extends BookList {
+public class BookAdapter extends ArrayAdapter<Book> {
     /**
      * Identify the "View Mode" this adapter is launched in.
      *
@@ -54,10 +56,18 @@ public class BorrowList extends BookList {
         REQUESTED;
     }
 
+    /**
+     * @deprecated
+     */
     @NonNull private ViewMode viewMode;
+
+    /**
+     * @deprecated
+     */
     @Nullable private String uuid;
 
-    private DBHandler db;
+    private Context context;
+    private ArrayList<Book> filteredBooks;
 
     /**
      * Construct a view of all books in the system.
@@ -65,11 +75,13 @@ public class BorrowList extends BookList {
      * @param context
      *      The context of the calling activity, used to display objects on the screen
      */
-    public BorrowList(Context context, ArrayList<Book> filteredBooks) {
-        super(context, filteredBooks);
+    public BookAdapter(Context context, ArrayList<Book> filteredBooks) {
+        super(context, 0, filteredBooks);
 
-        viewMode = ViewMode.ALL;
-        uuid = null;
+        this.context = context;
+        this.filteredBooks = filteredBooks;
+//        viewMode = ViewMode.ALL;
+//        uuid = null;
     }
 
     /**
@@ -83,13 +95,14 @@ public class BorrowList extends BookList {
      * @param uuid
      *      The UUID of the user whose books are being displayed
      */
-    public BorrowList(Context context, ArrayList<Book> filteredBooks, @NonNull ViewMode viewMode,
-                      @Nullable String uuid)
+    public BookAdapter(Context context, ArrayList<Book> filteredBooks, @NonNull ViewMode viewMode,
+                       @Nullable String uuid)
     {
-        super(context, filteredBooks);
+        super(context, 0, filteredBooks);
 
-        this.viewMode = viewMode;
-        this.uuid = uuid;
+        this.context = context;
+//        this.viewMode = viewMode;
+//        this.uuid = uuid;
 
         // the following commented code is deprecated; it was broken by the implementation of the
         // database
@@ -146,7 +159,7 @@ public class BorrowList extends BookList {
     }
 
     /**
-     * A required method from {@link android.widget.BaseAdapter} for displaying an element of the
+     * A required method from {@link ArrayAdapter} for displaying an element of the
      * internal list at a given position.
      *
      * @param position
@@ -160,12 +173,15 @@ public class BorrowList extends BookList {
      */
     @Override
     @NonNull
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final View convertedView = inflate_helper(convertView, parent, R.layout.borrow_row);
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        if(convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.borrow_row, parent, false);
+        }
+        final View convertedView = convertView;
 
         final Book book = filteredBooks.get(position);
 
-        db = new DBHandler();
+        DBHandler db = new DBHandler();
         db.getUser(book.getOwner(), new OnSuccessListener<User>() {
             @Override
             public void onSuccess(User user) {
@@ -200,12 +216,16 @@ public class BorrowList extends BookList {
      * long value from an element of the internal list at a given position. In this case, the ISBN
      * of a book can be used, as a 64-bit long can represent up to 19 digits, while an ISBN has at
      * most 13 digits.
+     * <p>
+     * Deprecated due to due to idiosyncrasies with the way async databases work.
      *
      * @param position
      *      The position in the internal filtered list from which to get a unique feature of the
      *      element
      * @return
      *      The book's unique identifying ISBN at this position
+     *
+     * @deprecated
      */
     @Override
     public long getItemId(int position) {
@@ -214,10 +234,14 @@ public class BorrowList extends BookList {
 
     /**
      * Sort the internal list based on a given {@link Book.StatusEnum}.
+     * <p>
+     * Deprecated due to due to idiosyncrasies with the way async databases work.
      *
      * @param statusEnum
      *      The status of books to come first in the internal list
      * @see CompareByStatus
+     *
+     * @deprecated
      */
     public void sort(Book.StatusEnum statusEnum) {
         Collections.sort(filteredBooks, new CompareByStatus(statusEnum));

@@ -8,6 +8,9 @@ import java.util.Collections;
 
 import static org.junit.Assert.*;
 
+/**
+ * @deprecated
+ */
 public class ListTest {
     private ArrayList<Book> mockDatabase() {
         User testBorrower = new User("test_borrower", "345def", "test@testing.com");
@@ -58,7 +61,7 @@ public class ListTest {
     public void sortTest() {
         ArrayList<Book> database = mockDatabase();
         for (Book.StatusEnum status : Book.StatusEnum.values()) {
-            Collections.sort(database, new BorrowList.CompareByStatus(status));
+            Collections.sort(database, new BookAdapter.CompareByStatus(status));
 
             // if a book with the current status exists in the database, assert it comes first
             for (Book book : database) {

@@ -25,8 +25,7 @@ public class ProfileActivityTest {
     DBHandler db = new DBHandler();
 
     /**
-     * Test class for ProfileActivity. All the UI tests are written here. Robotium test framework is
-     used
+     * Test class for ProfileActivity. Robotium test framework is used.
      */
     @Rule
     public ActivityTestRule<ProfileActivity> rule =
@@ -50,17 +49,17 @@ public class ProfileActivityTest {
     }
 
     /**
-     * Check that Cancel button brings user back to Home screen
+     * Checks that Cancel button brings user back to Home screen.
      */
     @Test
     public void clickCancel() {
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         solo.clickOnButton("Cancel");
-        solo.waitForActivity("MainActivity"); // check if ProfileActivity finished
+        solo.waitForActivity("MainActivity"); // checks if ProfileActivity finished
     }
 
     /**
-     * Check that select address goes into Geolocation
+     * Checks that select address goes into Geolocation.
      */
     @Test
     public void clickAddress() {
@@ -71,7 +70,8 @@ public class ProfileActivityTest {
     }
 
     /**
-     * Will fail if user already exists in db
+     * Checks filling all user fields.
+     * Will fail if user already exists in db.
      */
     @Test
     public void fullUser() {

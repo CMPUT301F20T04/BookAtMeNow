@@ -12,12 +12,16 @@ import java.util.List;
  * An abstract definition of an adapter for a {@link android.widget.ListView} that displays a
  * filtered {@link List} of books. The specific form this list takes is up to the derived class to
  * implement.
+ * <p>
+ * This class has been completely deprecated because this "all-in-one" style of Adapter does not
+ * play well with async databases like FireStore - the list would never be constructed properly.
  *
  * @author Warren Stix
  * @see BaseAdapter
- * @see BorrowList
  * @see RequestList
  * @version 0.6
+ *
+ * @deprecated
  */
 public abstract class BookList extends BaseAdapter {
     private Context context;

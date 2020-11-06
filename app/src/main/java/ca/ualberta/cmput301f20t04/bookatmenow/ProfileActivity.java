@@ -1,9 +1,3 @@
-/**
- * Create new user with unique username, with or without optional fields
- * See user details if currently logged in
- * TODO: edit user details if currently logged in
- */
-
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
@@ -29,12 +23,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+/**
+ * Create new user with unique username, with or without optional fields.
+ * See user details if currently logged in.
+ * TODO: edit user details if currently logged in
+ */
 public class ProfileActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private EditText passwordEditText;
     private EditText passwordConfirmEditText;
     private EditText emailEditText;
+
     // optional ones:
     private EditText phoneEditText;
     private EditText addressEditText;
@@ -47,11 +47,13 @@ public class ProfileActivity extends AppCompatActivity {
 
     private String uuid;
 
-    //for Address
+    // for Address
     Geocoder geocoder;
     List<Address> addresses;
 
-    // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+    /**
+     * https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+     */
     static final Pattern EMAIL_REGEX  = Pattern.compile(
             "^[\\w+&*-]+" +
                     "(?:\\.[\\w+&*-]+)*" +
@@ -60,7 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
     );
 
     /**
-     *
+     * Check email address format.
      * @param email
      * @return true if email is valid, false if it is not
      */
@@ -70,6 +72,10 @@ public class ProfileActivity extends AppCompatActivity {
         return EMAIL_REGEX.matcher(email).matches();
     }
 
+    /**
+     * Password is alphanumeric.
+     * TODO: allow special characters.
+     */
     static final Pattern PW_REGEX  = Pattern.compile(
             "^[\\w+&*-]+"
     );
@@ -80,6 +86,12 @@ public class ProfileActivity extends AppCompatActivity {
         return PW_REGEX.matcher(password).matches();
     }
 
+    /**
+     * Location for address.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -123,6 +135,7 @@ public class ProfileActivity extends AppCompatActivity {
         uuid = getIntent().getStringExtra("uuid");
         logoutButton.setVisibility(View.VISIBLE);
 
+        // user doesn't exist yet
         if (uuid != null) {
             db.usernameExists(uuid, new OnSuccessListener<String>() {
                 @Override
@@ -262,7 +275,6 @@ public class ProfileActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(Boolean aBoolean) {
                                         if (aBoolean) {
-                                            // enable editing for new account creation
                                             startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
                                         } else {
                                             recreate();

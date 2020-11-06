@@ -21,8 +21,7 @@ public class LoginActivityTest {
     private Solo solo;
 
     /**
-     * Test class for LoginActivity. All the UI tests are written here. Robotium test framework is
-     used
+     * Test class for LoginActivity. Robotium test framework is used.
      */
     @Rule
     public ActivityTestRule<LoginActivity> rule =
@@ -45,6 +44,9 @@ public class LoginActivityTest {
         Activity activity = rule.getActivity();
     }
 
+    /**
+     * Checks successful login and logout.
+     */
     @Test
     public void successfulLoginLogoutTest() {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
@@ -58,6 +60,9 @@ public class LoginActivityTest {
         solo.waitForActivity("LoginActivity"); // check if everything else finished
     }
 
+    /**
+     * Checks wrong username entry but correct password.
+     */
     @Test
     public void wrongUsernameTest() {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
@@ -67,6 +72,9 @@ public class LoginActivityTest {
         solo.assertCurrentActivity("Wrong Activity", LoginActivity.class);
     }
 
+    /**
+     * Checks wrong password entry but correct username.
+     */
     @Test
     public void wrongPasswordTest() {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
@@ -77,6 +85,9 @@ public class LoginActivityTest {
     }
 
     /**
+     * Checks clicking on create account.
+     * Actually works in practice on real phones and emulators, but produces the following error on Pixel 2 API 30 emulator.
+     *
      * Error:
      * android.view.WindowManager$BadTokenException: Unable to add window -- token android.os.BinderProxy@8e6f5e4 is not valid; is your activity running?
      * at android.view.ViewRootImpl.setView(ViewRootImpl.java:1068)
