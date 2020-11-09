@@ -43,10 +43,16 @@ public class ScanBook extends AppCompatActivity {
             Toast toast = Toast.makeText(this, "Please scan an ISBN barcode.", Toast.LENGTH_SHORT);
             toast.show();
         } else {
-            Intent returnData = new Intent();
-            returnData.putExtra("isbn", bookISBN);
-            setResult(Activity.RESULT_OK, returnData);
-            this.finish();
+            final Intent main = getIntent();
+            String passedIsbn = main.getStringExtra("ISBN");
+            // if book barcode matches scanned barcode
+            // allow barcode to be used to check out the book
+            if (passedIsbn.equals(bookISBN)) {
+                this.finish();
+            } else {
+                Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);
+                toast.show();
+            }
         }
     }
 
@@ -62,22 +68,6 @@ public class ScanBook extends AppCompatActivity {
         cameraView = findViewById(R.id.camera_view);
         isbnText = findViewById(R.id.isbn_number);
         useBarcode = findViewById(R.id.ScanBook_button_done);
-        useBarcode.setVisibility(View.INVISIBLE);
-
-        final Intent main = getIntent();
-        String passedIsbn = main.getStringExtra("ISBN");
-        // if book barcode matches scanned barcode
-        // allow barcode to be used to check out the book
-        if (passedIsbn.equals(passedIsbn)) {
-            useBarcode.setVisibility(View.VISIBLE);
-        }
-
-        useBarcode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         initialize();
     }
