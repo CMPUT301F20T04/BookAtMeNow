@@ -81,14 +81,13 @@ public class ScanBook extends AppCompatActivity {
 
     private void initialize(){
 
-        //Build barcode detector object.
+        //Build barcode detector object. Set it to read 13 digit barcodes.
         BarcodeDetector detector = new BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.ALL_FORMATS)
+                .setBarcodeFormats(Barcode.EAN_13)
                 .build();
 
         //Build camera source object.
         cameraSource = new CameraSource.Builder(this, detector)
-                .setRequestedPreviewSize(1920, 1080)
                 .setAutoFocusEnabled(true)
                 .build();
 
@@ -127,8 +126,8 @@ public class ScanBook extends AppCompatActivity {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                //If a barcode exists and is 13 digits long (length of ISBN-13), set TextView and bookISBN string.
-                if (barcodes.size() > 0 && (barcodes.valueAt(0).displayValue).length() == 13) {
+                //If a barcode exists, set TextView and bookISBN string.
+                if (barcodes.size() > 0) {
                     isbnText.post(new Runnable() {
                         @Override
                         public void run() {
