@@ -376,8 +376,18 @@ public class MyBookActivity extends AppCompatActivity {
                         public void onCheckedChanged(RadioGroup radioGroup, int i) {
                             selectedStatusButton = radioGroup.findViewById(i);
                             if (selectedStatusButton.isChecked()) {
-                                book.setStatus(selectedStatusButton.getText().toString());
+                                String status = selectedStatusButton.getText().toString();
+                                book.setStatus(status);
                                 Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", book.getStatus()));
+                                if (status.equals("Accepted")) {
+                                    Intent intent = new Intent(MyBookActivity.this, BookRequests.class);
+                                    intent.putExtra("ISBN", initIsbn);
+                                    startActivity(intent);
+                                } else if (status.equals("Borrowed")) {
+                                    Intent intent = new Intent(MyBookActivity.this, ScanBook.class);
+                                    intent.putExtra("ISBN", initIsbn);
+                                    startActivity(intent);
+                                }
                             }
                         }
                     });
@@ -462,9 +472,11 @@ public class MyBookActivity extends AppCompatActivity {
                 public void onCheckedChanged(RadioGroup radioGroup, int i) {
                     selectedStatusButton = radioGroup.findViewById(i);
                     if (selectedStatusButton.isChecked()) {
-                        newBook.setStatus(selectedStatusButton.getText().toString());
+                        String status = selectedStatusButton.getText().toString();
+                        newBook.setStatus(status);
                         Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", newBook.getStatus()));
                     }
+
                 }
             });
 

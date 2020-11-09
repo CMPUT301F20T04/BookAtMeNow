@@ -16,6 +16,7 @@ import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +34,6 @@ public class ScanBook extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     private TextView isbnText;
 
-
      // If the USE BARCODE button is clicked.
      // If no ISBN has been scanned, tell user to scan one.  Otherwise put the scanned ISBN in an
      // intent object and finish the activity.
@@ -42,10 +42,25 @@ public class ScanBook extends AppCompatActivity {
             Toast toast = Toast.makeText(this, "Please scan an ISBN barcode.", Toast.LENGTH_SHORT);
             toast.show();
         } else {
-            Intent returnData = new Intent();
-            returnData.putExtra("isbn", bookISBN);
-            setResult(Activity.RESULT_OK, returnData);
-            this.finish();
+            final Intent main = getIntent();
+            String passedIsbn = main.getStringExtra("ISBN");
+
+            if (passedIsbn != null) {
+                // if book barcode matches scanned barcode
+                // allow barcode to be used to check out the book
+                if (passedIsbn.equals(bookISBN)) {
+                    this.finish();
+                } else {
+                    Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            } else {
+                // new book
+                Intent returnData = new Intent();
+                returnData.putExtra("isbn", bookISBN);
+                setResult(Activity.RESULT_OK, returnData);
+                this.finish();
+            }
         }
     }
 
@@ -66,14 +81,13 @@ public class ScanBook extends AppCompatActivity {
 
     private void initialize(){
 
-        //Build barcode detector object.
+        //Build barcode detector object. Set it to read 13 digit barcodes.
         BarcodeDetector detector = new BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.ALL_FORMATS)
+                .setBarcodeFormats(Barcode.EAN_13)
                 .build();
 
         //Build camera source object.
         cameraSource = new CameraSource.Builder(this, detector)
-                .setRequestedPreviewSize(1920, 1080)
                 .setAutoFocusEnabled(true)
                 .build();
 
@@ -112,8 +126,8 @@ public class ScanBook extends AppCompatActivity {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                //If a barcode exists and is 13 digits long (length of ISBN-13), set TextView and bookISBN string.
-                if (barcodes.size() > 0 && (barcodes.valueAt(0).displayValue).length() == 13) {
+                //If a barcode exists, set TextView and bookISBN string.
+                if (barcodes.size() > 0) {
                     isbnText.post(new Runnable() {
                         @Override
                         public void run() {
