@@ -33,7 +33,6 @@ public class ScanBook extends AppCompatActivity {
     private CameraSource cameraSource;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     private TextView isbnText;
-    private Button useBarcode;
 
      // If the USE BARCODE button is clicked.
      // If no ISBN has been scanned, tell user to scan one.  Otherwise put the scanned ISBN in an
@@ -45,13 +44,22 @@ public class ScanBook extends AppCompatActivity {
         } else {
             final Intent main = getIntent();
             String passedIsbn = main.getStringExtra("ISBN");
-            // if book barcode matches scanned barcode
-            // allow barcode to be used to check out the book
-            if (passedIsbn.equals(bookISBN)) {
-                this.finish();
+
+            if (passedIsbn != null) {
+                // if book barcode matches scanned barcode
+                // allow barcode to be used to check out the book
+                if (passedIsbn.equals(bookISBN)) {
+                    this.finish();
+                } else {
+                    Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
             } else {
-                Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);
-                toast.show();
+                // new book
+                Intent returnData = new Intent();
+                returnData.putExtra("isbn", bookISBN);
+                setResult(Activity.RESULT_OK, returnData);
+                this.finish();
             }
         }
     }
@@ -67,8 +75,6 @@ public class ScanBook extends AppCompatActivity {
         setContentView(R.layout.activity_scan_book);
         cameraView = findViewById(R.id.camera_view);
         isbnText = findViewById(R.id.isbn_number);
-        useBarcode = findViewById(R.id.ScanBook_button_done);
-
         initialize();
     }
 
