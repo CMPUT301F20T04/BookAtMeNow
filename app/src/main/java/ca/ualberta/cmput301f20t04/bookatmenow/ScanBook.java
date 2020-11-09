@@ -16,6 +16,7 @@ import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +33,7 @@ public class ScanBook extends AppCompatActivity {
     private CameraSource cameraSource;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     private TextView isbnText;
-
+    private Button useBarcode;
 
      // If the USE BARCODE button is clicked.
      // If no ISBN has been scanned, tell user to scan one.  Otherwise put the scanned ISBN in an
@@ -60,6 +61,24 @@ public class ScanBook extends AppCompatActivity {
         setContentView(R.layout.activity_scan_book);
         cameraView = findViewById(R.id.camera_view);
         isbnText = findViewById(R.id.isbn_number);
+        useBarcode = findViewById(R.id.ScanBook_button_done);
+        useBarcode.setVisibility(View.INVISIBLE);
+
+        final Intent main = getIntent();
+        String passedIsbn = main.getStringExtra("ISBN");
+        // if book barcode matches scanned barcode
+        // allow barcode to be used to check out the book
+        if (passedIsbn.equals(passedIsbn)) {
+            useBarcode.setVisibility(View.VISIBLE);
+        }
+
+        useBarcode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         initialize();
     }
 
