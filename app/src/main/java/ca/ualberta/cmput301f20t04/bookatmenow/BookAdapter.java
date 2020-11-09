@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -69,6 +70,8 @@ public class BookAdapter extends ArrayAdapter<Book> {
     private Context context;
     private ArrayList<Book> filteredBooks;
 
+    private DBHandler db;
+
     /**
      * Construct a view of all books in the system.
      *
@@ -82,6 +85,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
         this.filteredBooks = filteredBooks;
 //        viewMode = ViewMode.ALL;
 //        uuid = null;
+        db =  new DBHandler();
     }
 
     /**
@@ -125,6 +129,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
 //                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
 //                    }
 //                });
+        db = new DBHandler();
     }
 
     /**
@@ -177,29 +182,23 @@ public class BookAdapter extends ArrayAdapter<Book> {
         if(convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.borrow_row, parent, false);
         }
-        final View convertedView = convertView;
 
-        final Book book = filteredBooks.get(position);
+        setBookData(convertView, filteredBooks.get(position));
 
-        DBHandler db = new DBHandler();
+        return convertView;
+    }
+
+    private void setBookData(final View convertView, final Book book) {
         db.getUser(book.getOwner(), new OnSuccessListener<User>() {
             @Override
             public void onSuccess(User user) {
-                String displayName = user.getUsername();
+                final String ownerDisplayName = getDisplayName(user);
 
-                TextView title = convertedView.findViewById(R.id.title_text);
-                TextView author = convertedView.findViewById(R.id.author_text);
-                TextView isbn = convertedView.findViewById(R.id.isbn_text);
-                TextView status = convertedView.findViewById(R.id.status_text);
-                TextView owner = convertedView.findViewById(R.id.owner_text);
-                TextView borrower = convertedView.findViewById(R.id.borrower_text);
-
-                title.setText(book.getTitle());
-                author.setText(book.getAuthor());
-                isbn.setText(book.getIsbn());
-                status.setText(book.getStatus());
-                owner.setText(displayName);
-                borrower.setText(book.getBorrower());
+                if (book.getBorrower() != null) {
+                    setBookBorrower(convertView, book, ownerDisplayName);
+                } else {
+                    setFields(convertView, book, ownerDisplayName);
+                }
             }
         }, new OnFailureListener() {
             @Override
@@ -207,8 +206,70 @@ public class BookAdapter extends ArrayAdapter<Book> {
                 Log.d(ProgramTags.DB_ERROR, e + ": This book's owner could not be found!");
             }
         });
+    }
 
-        return convertedView;
+    private static String getDisplayName(User user) {
+        return (user.getUsername() == null) ? user.getEmail() : user.getUsername();
+    }
+
+    private void setBookBorrower(final View convertView, final Book book,
+                                 final String ownerDisplayName)
+    {
+        // FIXME: store borrowers with uuids instead of usernames
+//        db.getUser(book.getBorrower(), new OnSuccessListener<User>() {
+        db.getUser("24cce726-4185-4684-b4ed-8b943dfd45a8", new OnSuccessListener<User>() {
+            @Override
+            public void onSuccess(User user) {
+                String borrowerDisplayName = getDisplayName(user);
+
+                TextView borrower = convertView.findViewById(R.id.borrower_text);
+                setFields(convertView, book, ownerDisplayName);
+                borrower.setText(borrowerDisplayName);
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(ProgramTags.DB_ERROR, e + ": This book's borrower could not be found!");
+                setFields(convertView, book, ownerDisplayName);
+            }
+        });
+    }
+
+    private void setFields(View convertedView, Book book, String ownerDisplayName) {
+        TextView title = convertedView.findViewById(R.id.title_text);
+        TextView author = convertedView.findViewById(R.id.author_text);
+        TextView isbn = convertedView.findViewById(R.id.isbn_text);
+        TextView status = convertedView.findViewById(R.id.status_text);
+        TextView owner = convertedView.findViewById(R.id.owner_text);
+
+        title.setText(book.getTitle());
+        author.setText(book.getAuthor());
+        isbn.setText(book.getIsbn());
+        setStatus(status, book);
+        owner.setText(ownerDisplayName);
+    }
+
+    private void setStatus(TextView statusView, Book book) {
+        int colour;
+        String bookStatus = book.getStatus();
+
+        switch (Book.StatusEnum.valueOf(bookStatus)) {
+            case Available:
+                colour = ContextCompat.getColor(context, R.color.confirm);
+                break;
+            case Requested:
+                colour = ContextCompat.getColor(context, R.color.mid_way);
+                break;
+            case Accepted:
+            case Borrowed:
+                colour = ContextCompat.getColor(context, R.color.deny);
+                break;
+            default:
+                colour = 0x000000;
+        }
+
+        statusView.setText(bookStatus);
+        statusView.setTextColor(colour);
     }
 
     /**
