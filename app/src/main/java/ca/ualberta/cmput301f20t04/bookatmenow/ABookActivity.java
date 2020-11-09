@@ -36,11 +36,11 @@ public class ABookActivity extends AppCompatActivity {
 
         isbn = getIntent().getStringExtra("ISBN");
 
-        aTitle = findViewById(R.id.a_title);
-        anAuthor = findViewById(R.id.an_author);
-        anIsbn = findViewById(R.id.an_isbn);
-        aStatus = findViewById(R.id.a_status);
-        anOwner = findViewById(R.id.an_owner);
+        aTitle = findViewById(R.id.abook_title_textview);
+        anAuthor = findViewById(R.id.abook_author_textview);
+        anIsbn = findViewById(R.id.abook_isbn_textview);
+        aStatus = findViewById(R.id.abook_status_textview);
+        anOwner = findViewById(R.id.abook_owner_button);
 
         db = new DBHandler();
 
