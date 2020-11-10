@@ -33,7 +33,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".GeoLocation" />
-        <activity android:name=".ScanBook" />
+        <activity android:name=".ScanBook"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
