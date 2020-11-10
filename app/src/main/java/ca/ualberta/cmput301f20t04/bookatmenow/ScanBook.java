@@ -16,7 +16,6 @@ import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,20 +63,15 @@ public class ScanBook extends AppCompatActivity {
         }
     }
 
-    //If the CANCEL button is clicked, finish the activity.
-    public void cancel(View view) {
-        this.finish();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getSupportActionBar().hide();
         setContentView(R.layout.activity_scan_book);
-        cameraView = findViewById(R.id.camera_view);
-        isbnText = findViewById(R.id.isbn_number);
+        cameraView = findViewById(R.id.scanbook_camera_view);
+        isbnText = findViewById(R.id.scanbook_isbn);
         initialize();
     }
-
 
     private void initialize(){
 
@@ -88,6 +82,7 @@ public class ScanBook extends AppCompatActivity {
 
         //Build camera source object.
         cameraSource = new CameraSource.Builder(this, detector)
+                .setFacing(CameraSource.CAMERA_FACING_BACK)
                 .setAutoFocusEnabled(true)
                 .build();
 
@@ -132,11 +127,12 @@ public class ScanBook extends AppCompatActivity {
                         @Override
                         public void run() {
                             bookISBN = barcodes.valueAt(0).displayValue;
-                            isbnText.setText(bookISBN);
+                            isbnText.setText("ISBN: " + bookISBN);
                         }
                     });
                 }
             }
         });
     }
+
 }
