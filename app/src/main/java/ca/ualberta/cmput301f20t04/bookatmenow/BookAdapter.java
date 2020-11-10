@@ -180,7 +180,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
     @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         if(convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.borrow_row, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.book_row, parent, false);
         }
 
         setBookData(convertView, filteredBooks.get(position));

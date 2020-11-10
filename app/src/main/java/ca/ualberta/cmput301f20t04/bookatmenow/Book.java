@@ -20,6 +20,7 @@ public class Book {
         Requested,
         Accepted,
         Borrowed,
+        Unavailable,
     }
 
     private String title;
