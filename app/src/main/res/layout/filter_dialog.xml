@@ -23,7 +23,8 @@
         android:layout_marginStart="35dp"
         android:layout_marginLeft="35dp"
         android:layout_marginTop="41dp"
-        android:text="Borrowed" />
+        android:text="Borrowed"
+        android:textColor="@color/textColorPrimary" />
 
     <CheckBox
         android:id="@+id/available"
@@ -35,7 +36,8 @@
         android:layout_marginStart="35dp"
         android:layout_marginLeft="35dp"
         android:layout_marginTop="82dp"
-        android:text="Available" />
+        android:text="Available"
+        android:textColor="@color/textColorPrimary" />
 
     <CheckBox
         android:id="@+id/pending"
@@ -47,6 +49,7 @@
         android:layout_marginStart="36dp"
         android:layout_marginLeft="36dp"
         android:layout_marginTop="124dp"
-        android:text="Pending" />
+        android:text="Pending"
+        android:textColor="@color/textColorPrimary" />
 
 </RelativeLayout>
