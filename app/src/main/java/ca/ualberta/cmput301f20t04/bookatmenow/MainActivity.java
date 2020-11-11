@@ -181,7 +181,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     Intent i = new Intent(MainActivity.this, ABookActivity.class);
-                    i.putExtra("ISBN", filteredBooks.get(pos).getIsbn());
+                    i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
+                    i.putExtra(ProgramTags.PASSED_UUID, uuid);
                     startActivity(i);
                 }
             }

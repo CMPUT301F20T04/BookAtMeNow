@@ -1,6 +1,7 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.media.Image;
+import android.util.Log;
 
 import java.util.List;
 
@@ -137,6 +138,30 @@ public class Book {
 
     public void setRequests(List<String> requests) {
         this.requests = requests;
+    }
+
+    /**
+     * Add a request to the requests list.   If the requests list contains the string "EMPTY", then
+     * this is the first request being added (so the uuid of the requester will be put at the start
+     * of the list and the book status will be set to "requested").
+     * @param uuid of requesting user.
+     */
+    public void addRequest(String uuid) {
+        if(this.checkForRequest("EMPTY"))  {
+            requests.set(0, uuid);
+            this.setStatus(ProgramTags.STATUS_REQUESTED);
+        } else {
+            this.requests.add(uuid);
+        }
+    }
+
+    /**
+     * Check if a user uuid is present in the requests list.
+     * @param uuid of user being checked.
+     * @return boolean of whether user uuid was in request list.
+     */
+    public boolean checkForRequest(String uuid) {
+        return requests.contains(uuid);
     }
 
     public Image getImage() {

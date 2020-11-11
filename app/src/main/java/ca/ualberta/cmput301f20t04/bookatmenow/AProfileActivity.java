@@ -36,7 +36,7 @@ public class AProfileActivity extends AppCompatActivity {
         aPhone = findViewById(R.id.a_phone);
         anAddress = findViewById(R.id.an_address);
 
-        uuid = getIntent().getStringExtra("uuid");
+        uuid = getIntent().getStringExtra(ProgramTags.PASSED_UUID);
 
         db.getUser(uuid, new OnSuccessListener<User>() {
             @Override
