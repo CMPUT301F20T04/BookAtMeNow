@@ -7,18 +7,29 @@
     tools:context=".AProfileActivity">
 
     <TextView
-        android:id="@+id/an_address"
+        android:id="@+id/a_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Address"
+        android:layout_marginTop="100dp"
+        android:text="Username"
         android:textColor="@color/textColorSecondary"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toTopOf="@+id/an_email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/a_phone"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/an_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Email"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/a_username" />
 
     <TextView
         android:id="@+id/a_phone"
@@ -27,35 +38,21 @@
         android:layout_marginTop="8dp"
         android:text="Phone #"
         android:textColor="@color/textColorSecondary"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/an_email" />
 
     <TextView
-        android:id="@+id/an_email"
+        android:id="@+id/an_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Email"
+        android:text="Address"
         android:textColor="@color/textColorSecondary"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/a_username" />
-
-    <TextView
-        android:id="@+id/a_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="Username"
-        android:textColor="@color/textColorSecondary"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/an_email"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/a_phone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,12 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -35,6 +40,7 @@ public class AProfileActivity extends AppCompatActivity {
         anEmail = findViewById(R.id.an_email);
         aPhone = findViewById(R.id.a_phone);
         anAddress = findViewById(R.id.an_address);
+        aUsername.setTypeface(null, Typeface.BOLD);
 
         uuid = getIntent().getStringExtra(ProgramTags.PASSED_UUID);
 
@@ -42,9 +48,26 @@ public class AProfileActivity extends AppCompatActivity {
             @Override
             public void onSuccess(User user) {
                 aUsername.setText(user.getUsername());
-                anEmail.setText(user.getEmail());
-                aPhone.setText(user.getPhone());
-                anAddress.setText(user.getAddress());
+
+                String email = "Email: ";
+                SpannableString emailString = new SpannableString(email + user.getEmail());
+                emailString.setSpan(new StyleSpan(Typeface.BOLD), 0, email.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                anEmail.setText(emailString);
+
+                String phone = "Phone: ";
+                String phoneNumber = user.getPhone();
+                SpannableString phoneString = new SpannableString(phone + phoneNumber);
+                phoneString.setSpan(new StyleSpan(Typeface.BOLD), 0, phone.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                aPhone.setText(phoneString);
+                if(phoneNumber.equals("")) aPhone.setVisibility(View.INVISIBLE);
+
+                String address = "Address: ";
+                String addressLocation = user.getAddress();
+                SpannableString addressString = new SpannableString(address + addressLocation);
+                addressString.setSpan(new StyleSpan(Typeface.BOLD), 0, address.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                anAddress.setText(addressString);
+                if(addressLocation.equals("")) anAddress.setVisibility(View.INVISIBLE);
+
             }
         }, new OnFailureListener() {
             @Override
