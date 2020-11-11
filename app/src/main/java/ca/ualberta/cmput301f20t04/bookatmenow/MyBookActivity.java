@@ -193,6 +193,9 @@ public class MyBookActivity extends AppCompatActivity {
                     }
                     break;
             }
+        } else if (resultCode == RESULT_CANCELED) {
+            selectedStatusButton = statusButtons.findViewById(statusButtons.getCheckedRadioButtonId());
+            selectedStatusButton.setChecked(false);
         }
     }
 
@@ -380,11 +383,11 @@ public class MyBookActivity extends AppCompatActivity {
                                 if (status.equals("Accepted")) {
                                     Intent intent = new Intent(MyBookActivity.this, BookRequests.class);
                                     intent.putExtra("ISBN", initIsbn);
-                                    startActivity(intent);
+                                    startActivityForResult(intent, 1);
                                 } else if (status.equals("Borrowed")) {
                                     Intent intent = new Intent(MyBookActivity.this, ScanBook.class);
                                     intent.putExtra("ISBN", initIsbn);
-                                    startActivity(intent);
+                                    startActivityForResult(intent, 2);
                                 } else {
                                     book.setStatus(status);
                                 }

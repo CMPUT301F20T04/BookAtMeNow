@@ -88,6 +88,12 @@ public class ScanBook extends AppCompatActivity {
         initialize();
     }
 
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        this.finish();
+    }
+
     private void initialize(){
 
         //Build barcode detector object. Set it to read 13 digit barcodes.
