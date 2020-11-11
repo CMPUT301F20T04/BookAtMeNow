@@ -90,9 +90,11 @@ public class ABookActivity extends AppCompatActivity {
 
                 //If user hasn't requested the book yet and the book is available or requested,
                 //enable the request button.
+                Log.e("UUID", uuid);
+                Log.e("requestExists", Boolean.toString(book.checkForRequest(uuid)));
                 if(!book.checkForRequest(uuid) &&
-                        bookStatus.equals(ProgramTags.STATUS_AVAILABLE) ||
-                        bookStatus.equals(ProgramTags.STATUS_REQUESTED)) requestButton.setEnabled(true);
+                        (bookStatus.equals(ProgramTags.STATUS_AVAILABLE) ||
+                        bookStatus.equals(ProgramTags.STATUS_REQUESTED))) requestButton.setEnabled(true);
 
 
 
