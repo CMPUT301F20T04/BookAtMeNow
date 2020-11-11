@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,7 +34,20 @@ public class MainActivity extends AppCompatActivity {
     private Button borrowedButton;
     private Button requestedButton;
 
+    private Button filterButton;
+    private Button searchButton;
+
+    private EditText searchEditText;
+
     private String uuid;
+
+    private enum MainActivityViews{
+        HOME,
+        MY_BOOKS,
+        BORROWED,
+        REQUESTED,
+    }
+    private MainActivityViews currentView;
 
     ListView bookList;
     BookAdapter allBooksAdapter;
@@ -76,12 +91,42 @@ public class MainActivity extends AppCompatActivity {
         myBooksButton = findViewById(R.id.my_books);
         borrowedButton = findViewById(R.id.borrowed);
         requestedButton = findViewById(R.id.requested);
+        filterButton = findViewById(R.id.filter);
+        searchButton = findViewById(R.id.search_btn);
 
+        searchEditText = findViewById(R.id.search_bar);
+
+        currentView = MainActivityViews.HOME;
 
         addBookButton = findViewById(R.id.add);
         addBookButton.setVisibility(View.INVISIBLE);
         homeButton = findViewById(R.id.home);
         homeButton.setVisibility(View.INVISIBLE);
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String search = searchEditText.getText().toString().trim();
+                if (search.length() > 0 && currentView == MainActivityViews.HOME) {
+                    List<String> searchTerms = Arrays.asList(search.split(" "));
+                    db.searchBooks(searchTerms,
+                            new OnSuccessListener<List<Book>>() {
+                                @Override
+                                public void onSuccess(List<Book> books) {
+                                    setViewMode(BookAdapter.ViewMode.ALL, books);
+                                    homeButton.setVisibility(View.VISIBLE);
+                                    searchEditText.setText("");
+                                }
+                            },
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                }
+            }
+        });
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,8 +219,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final Button filterButton = findViewById(R.id.filter);
-
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
         requestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(MainActivity.this, MyRequests.class);
                 intent.putExtra("uuid", uuid);
                 startActivityForResult(intent, MyRequests.REQUEST_ACTIVITY);

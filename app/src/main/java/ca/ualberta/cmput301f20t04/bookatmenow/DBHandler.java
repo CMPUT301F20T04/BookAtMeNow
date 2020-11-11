@@ -13,10 +13,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import static ca.ualberta.cmput301f20t04.bookatmenow.ProfileActivity.validEmail;
 
 /**
  * Handler class
@@ -311,39 +314,42 @@ public class DBHandler {
     }
 
     /**
-     * Password checker, assumes user exists and has a password, returns null if account does not
-     * exist or account has no password
-     * @param uuid
-     *      User's email. a string
+     * Login handler, sends user data into app given login criteria is met
+     * @param user
+     *      Username/email string
      * @param password
-     *      User's password, a string
+     *      Password string
      * @param successListener
-     *      Listener to handle when data is pulled
+     *      Listener for successful retrieval
      * @param failureListener
-     *      Listener to handle the failure of data pulling
+     *      Listener for failed retrieval
      */
-    public void checkPassword(String uuid, final String password, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
-        Task<DocumentSnapshot> userTask = db
+    public void loginHandler(String user, final String password, OnSuccessListener<String> successListener, OnFailureListener failureListener) {
+        String type;
+        if (validEmail(user)) {
+            type = FireStoreMapping.USER_FIELDS_EMAIL;
+        } else {
+            type = FireStoreMapping.USER_FIELDS_USERNAME;
+        }
+
+        Task<QuerySnapshot> loginTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(uuid)
+                .whereEqualTo(type, user)
                 .get();
 
-        userTask.continueWith(new Continuation<DocumentSnapshot, Boolean>() {
+        loginTask.continueWith(new Continuation<QuerySnapshot, String>() {
             @Override
-            public Boolean then(@NonNull Task<DocumentSnapshot> task) throws Exception {
-                DocumentSnapshot userData = task.getResult();
-
-                if (!userData.exists()) {
-                    Log.d(ProgramTags.DB_ERROR, "User does not exist, please verify user's existence prior to calling this method.");
+            public String then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> loginData = task.getResult().getDocuments();
+                if (loginData.size() > 0) {
+                    if (loginData.get(0).getString(FireStoreMapping.USER_FIELDS_PASSWORD).equals(password)) {
+                        return loginData.get(0).getId();
+                    } else {
+                        return null;
+                    }
+                } else {
                     return null;
                 }
-
-                if (userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD) == null) {
-                    Log.d(ProgramTags.DB_ERROR, "User does not have a password set. Is this a test account?");
-                    return null;
-                }
-
-                return userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD).equals(password);
             }
         })
                 .addOnSuccessListener(successListener)
@@ -358,23 +364,30 @@ public class DBHandler {
     public void addBook(Book bookToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) throws Exception {
         // <Field, Data>
         HashMap<String, Object> bookData = new HashMap<String, Object>();
+        List<String> tags = new ArrayList<>();
+
         if(bookToAdd.getTitle() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_TITLE, bookToAdd.getTitle());
+            tags.addAll(Arrays.asList(bookToAdd.getTitle().split(" ")));
         } else {
             bookData.put(FireStoreMapping.BOOK_FIELDS_TITLE, "");
         }
 
         if(bookToAdd.getAuthor() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_AUTHOR, bookToAdd.getAuthor());
+            tags.addAll(Arrays.asList(bookToAdd.getAuthor().split(" ")));
         } else {
             bookData.put(FireStoreMapping.BOOK_FIELDS_AUTHOR, "");
         }
 
         if(bookToAdd.getIsbn() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_ISBN, bookToAdd.getIsbn());
+            tags.add(bookToAdd.getIsbn());
         } else {
             throw new Exception("Cannot add book without ISBN.");
         }
+
+        bookData.put(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, tags);
 
         if(bookToAdd.getStatus() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_STATUS, bookToAdd.getStatus());
@@ -607,6 +620,35 @@ public class DBHandler {
 
                 Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s users.", users.size()));
                 return users;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Text based search function, returns result based on search terms
+     * @param terms
+     *      String array of terms to search by
+     * @param successListener
+     *      Listener for successful retrieval
+     * @param failureListener
+     *      Listener for failed retrieval
+     */
+    public void searchBooks(List<String> terms, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        Task<QuerySnapshot> searchTask = db
+                .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
+                .get();
+
+        searchTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
+            @Override
+            public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<Book> searchResult = new ArrayList<>();
+                for (DocumentSnapshot doc: task.getResult().getDocuments()) {
+                    searchResult.add(convertToBook(doc));
+                }
+                return searchResult;
             }
         })
                 .addOnSuccessListener(successListener)

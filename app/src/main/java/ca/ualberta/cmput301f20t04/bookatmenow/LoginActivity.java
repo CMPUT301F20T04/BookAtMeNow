@@ -79,57 +79,31 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String usernameOrEmail = logInUser.getText().toString();
+                final String password = logInPW.getText().toString();
                 // if username exists
                 loginBtn.setEnabled(false);
                 createAccBtn.setEnabled(false);
-                db.usernameExists(usernameOrEmail, new OnSuccessListener<String>() {
+                db.loginHandler(usernameOrEmail, password,
+                        new OnSuccessListener<String>() {
                             @Override
                             public void onSuccess(String s) {
                                 if (s != null) {
-                                    final String uuid = s;
-                                    db.getUser(uuid, new OnSuccessListener<User>() {
-                                        @Override
-                                        public void onSuccess(final User user) {
-                                            db.checkPassword(uuid, logInPW.getText().toString(), new OnSuccessListener<Boolean>() {
-                                                @Override
-                                                public void onSuccess(Boolean aBoolean) {
-                                                    if (aBoolean) {
-                                                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                                        i.putExtra("uuid", uuid);
-                                                        startActivity(i);
-                                                        finish();
-                                                    } else {
-                                                        clearField();
-                                                        invalidLoginDialog.show();
-                                                    }
-                                                }
-                                            }, new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    // DB retrieval failed
-                                                    databaseErrorDialog.show();
-                                                }
-                                            }); // end of checkPassword
-                                        }
-                                    }, new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            // DB retrieval failed
-                                            databaseErrorDialog.show();
-                                        }
-                                    }); // end of getUser
-                                } else { // end of not null
+                                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                    i.putExtra("uuid", s);
+                                    startActivity(i);
+                                    finish();
+                                } else {
                                     clearField();
                                     invalidLoginDialog.show();
                                 }
                             }
-                        }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // username doesn't exist, assume account doesn't exist
-                        databaseErrorDialog.show();
-                    }
-                }); // end of usernameExists
+                        },
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                databaseErrorDialog.show();
+                            }
+                        });
             }
         }); // end of setOnClickListener
 
