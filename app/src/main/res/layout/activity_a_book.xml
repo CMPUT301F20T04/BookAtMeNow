@@ -14,9 +14,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="20dp"
         android:text="Title"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,9 +26,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         android:text="Author"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/abook_title_textview" />
 
@@ -42,9 +38,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         android:text="ISBN"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/abook_author_textview" />
 
@@ -56,9 +50,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         android:text="Status"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/abook_isbn_textview" />
 
