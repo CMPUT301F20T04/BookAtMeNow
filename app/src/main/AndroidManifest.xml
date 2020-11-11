@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -14,9 +18,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AProfileActivity"></activity>
+        <activity android:name=".MainActivity2"></activity>
+        <activity android:name=".AProfileActivity" />
         <activity android:name=".ABookActivity" />
-        <activity android:name=".BookRequests"></activity>
+        <activity android:name=".BookRequests" />
         <activity android:name=".MyRequests" />
         <activity android:name=".MyBookActivity" />
         <activity android:name=".MyBook" />
@@ -33,8 +38,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".GeoLocation" />
-        <activity android:name=".ScanBook"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".ScanBook"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -53,10 +59,5 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 </manifest>
