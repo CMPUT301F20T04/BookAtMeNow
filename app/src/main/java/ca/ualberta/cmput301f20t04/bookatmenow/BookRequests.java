@@ -33,6 +33,13 @@ public class BookRequests extends AppCompatActivity {
 
     private String isbn;
 
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        this.finish();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
