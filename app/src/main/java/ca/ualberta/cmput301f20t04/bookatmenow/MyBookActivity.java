@@ -174,7 +174,6 @@ public class MyBookActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 // feature not included in current version
@@ -377,7 +376,6 @@ public class MyBookActivity extends AppCompatActivity {
                             selectedStatusButton = radioGroup.findViewById(i);
                             if (selectedStatusButton.isChecked()) {
                                 String status = selectedStatusButton.getText().toString();
-                                book.setStatus(status);
                                 Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", book.getStatus()));
                                 if (status.equals("Accepted")) {
                                     Intent intent = new Intent(MyBookActivity.this, BookRequests.class);
@@ -387,6 +385,8 @@ public class MyBookActivity extends AppCompatActivity {
                                     Intent intent = new Intent(MyBookActivity.this, ScanBook.class);
                                     intent.putExtra("ISBN", initIsbn);
                                     startActivity(intent);
+                                } else {
+                                    book.setStatus(status);
                                 }
                             }
                         }
@@ -400,7 +400,6 @@ public class MyBookActivity extends AppCompatActivity {
                             if (checkFields()) {
                                 book.setTitle(titleEditText.getText().toString().trim());
                                 book.setAuthor(authorEditText.getText().toString().trim());
-
                                 try {
                                     db.addBook(book, new OnSuccessListener<Boolean>() {
                                         @Override

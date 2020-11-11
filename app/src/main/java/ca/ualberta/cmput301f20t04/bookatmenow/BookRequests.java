@@ -19,7 +19,6 @@ import java.util.List;
 public class BookRequests extends AppCompatActivity {
 
     private ListView myBookReqsList;
-    private Button backButton;
 
     private BookAdapter booksAdapter;
     private ArrayList<Book> myBookRequests;
@@ -30,8 +29,9 @@ public class BookRequests extends AppCompatActivity {
 
     private Book myBook;
 
-
-    public void back(View view){
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
         this.finish();
     }
 
@@ -41,7 +41,6 @@ public class BookRequests extends AppCompatActivity {
         setContentView(R.layout.activity_book_requests);
 
         myBookReqsList = findViewById(R.id.myBookReqs_listView_BookRequests);
-        backButton = findViewById(R.id.back_button_BookRequests);
 
         myBookRequests = new ArrayList<>();
         booksAdapter = new BookAdapter(BookRequests.this, myBookRequests);

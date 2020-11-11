@@ -19,6 +19,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -32,6 +34,8 @@ public class ScanBook extends AppCompatActivity {
     private CameraSource cameraSource;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     private TextView isbnText;
+
+    private DBHandler db;
 
      // If the USE BARCODE button is clicked.
      // If no ISBN has been scanned, tell user to scan one.  Otherwise put the scanned ISBN in an
@@ -48,6 +52,17 @@ public class ScanBook extends AppCompatActivity {
                 // if book barcode matches scanned barcode
                 // allow barcode to be used to check out the book
                 if (passedIsbn.equals(bookISBN)) {
+                    db.getBook(bookISBN, new OnSuccessListener<Book>() {
+                        @Override
+                        public void onSuccess(Book book) {
+                            book.setStatus("Borrowed");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
                     this.finish();
                 } else {
                     Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);
