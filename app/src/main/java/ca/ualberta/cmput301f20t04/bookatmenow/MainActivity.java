@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -29,10 +30,10 @@ public class MainActivity extends AppCompatActivity {
     private Button addBookButton;
     private Button homeButton;
 
-    private Button editProfileButton;
-    private Button myBooksButton;
-    private Button borrowedButton;
-    private Button requestedButton;
+    private TextView editProfileButton;
+    private TextView myBooksButton;
+    private TextView borrowedButton;
+    private TextView requestedButton;
 
     private Button filterButton;
     private Button searchButton;
