@@ -141,15 +141,18 @@ public class Book {
     }
 
     /**
-     * Add a request to the requests list. If this is the first request then set the book status
-     * to "requested".
+     * Add a request to the requests list.   If the requests list contains the string "EMPTY", then
+     * this is the first request being added (so the uuid of the requester will be put at the start
+     * of the list and the book status will be set to "requested").
      * @param uuid of requesting user.
      */
     public void addRequest(String uuid) {
-        if(this.noRequests()) {
+        if(this.checkForRequest("EMPTY"))  {
+            requests.set(0, uuid);
             this.setStatus(ProgramTags.STATUS_REQUESTED);
+        } else {
+            this.requests.add(uuid);
         }
-        this.requests.add(uuid);
     }
 
     /**
@@ -160,8 +163,6 @@ public class Book {
     public boolean checkForRequest(String uuid) {
         return requests.contains(uuid);
     }
-
-    public boolean noRequests() {return (requests.size() == 1); }
 
     public Image getImage() {
         return image;
