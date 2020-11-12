@@ -20,22 +20,22 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="All Books" />
+            android:text="@string/mainActivity_all_books" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="My Books" />
+            android:text="@string/mainActivity_my_books" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Borrowed" />
+            android:text="@string/mainActivity_borrowed" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Requested" />
+            android:text="@string/mainActivity_requested" />
     </com.google.android.material.tabs.TabLayout>
 
     <EditText
@@ -46,12 +46,13 @@
         android:layout_marginLeft="@dimen/activity_main_margin"
         android:layout_marginTop="@dimen/activity_main_margin"
         android:ems="10"
-        android:hint="Search"
+        android:hint="@string/mainActivity_search"
         android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:textColor="@color/textColorHint"
         android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toStartOf="@+id/filter"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/filterTabs" />
 
@@ -61,13 +62,25 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/activity_main_margin"
         android:layout_marginRight="@dimen/activity_main_margin"
-        android:text="Search"
+        android:text="@string/mainActivity_search"
         app:layout_constraintBottom_toBottomOf="@+id/search_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/search_bar" />
 
+    <ImageButton
+        android:id="@+id/filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/mainActivity_filter"
+        android:scaleX="1"
+        android:scaleY="1"
+        app:layout_constraintBottom_toBottomOf="@+id/search_bar"
+        app:layout_constraintEnd_toStartOf="@+id/search_btn"
+        app:layout_constraintTop_toTopOf="@+id/search_bar"
+        app:srcCompat="@drawable/ic_baseline_filter_list_24" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/empty_constraint"
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
@@ -114,20 +127,9 @@
         android:id="@+id/book_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/empty_constraint"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_bar" />
-
-    <ImageButton
-        android:id="@+id/filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleX="1"
-        android:scaleY="1"
-        app:layout_constraintBottom_toBottomOf="@+id/search_bar"
-        app:layout_constraintEnd_toStartOf="@+id/search_btn"
-        app:layout_constraintTop_toTopOf="@+id/search_bar"
-        app:srcCompat="@drawable/ic_baseline_filter_list_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

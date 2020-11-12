@@ -44,4 +44,11 @@
     <string name="myBook_isbn_hint">ISBN</string>
     <string name="myBook_remove_button">REMOVE</string>
     <string name="myBook_unavailable_radiobutton">Unavailable</string>
+
+    <string name="mainActivity_all_books">ALL BOOKS</string>
+    <string name="mainActivity_my_books">MY BOOKS</string>
+    <string name="mainActivity_borrowed">BORROWED</string>
+    <string name="mainActivity_requested">REQUESTED</string>
+    <string name="mainActivity_search">Search</string>
+    <string name="mainActivity_filter">FILTER</string>
 </resources>
