@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton editProfileButton;
     private ImageButton filterButton;
     private Button searchButton;
+
+    private Animation slideUp;
+    private Animation slideDown;
 
     private EditText searchEditText;
 
@@ -104,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
         bookList.setAdapter(allBooksAdapter);
         uuid = getIntent().getStringExtra("uuid");
 
+        // animation adapted from https://stackoverflow.com/a/44145485
+        slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up);
+        slideDown = AnimationUtils.loadAnimation(this, R.anim.slide_down);
+
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                            @Override
                            public void onSuccess(List<Book> books) {
@@ -133,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         filterTabs = findViewById(R.id.filterTabs);
 
         addBookButton = findViewById(R.id.floating_add);
-        addBookButton.setVisibility(View.GONE);
+        addBookButton.setVisibility(View.INVISIBLE);
 
         filterButton = findViewById(R.id.filter);
 
@@ -198,6 +207,8 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(List<Book> books) {
                                         addBookButton.setVisibility(View.VISIBLE);
+                                        addBookButton.startAnimation(slideUp);
+                                        addBookButton.setEnabled(true);
                                         setViewMode(BookAdapter.ViewMode.OWNED, books);
                                     }
                                 },
@@ -237,7 +248,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 if (tab.getPosition() == 1) {
-                    addBookButton.setVisibility(View.GONE);
+                    addBookButton.setEnabled(false);
+                    addBookButton.startAnimation(slideDown);
+                    addBookButton.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -316,7 +329,9 @@ public class MainActivity extends AppCompatActivity {
                                 setViewMode(BookAdapter.ViewMode.OWNED, books);
                             } else {
                                 setViewMode(BookAdapter.ViewMode.ALL, books);
-                                addBookButton.setVisibility(View.GONE);
+                                addBookButton.setEnabled(false);
+                                addBookButton.startAnimation(slideDown);
+                                addBookButton.setVisibility(View.INVISIBLE);
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
                         } catch (Exception e) {
