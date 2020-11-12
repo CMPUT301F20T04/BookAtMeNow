@@ -43,7 +43,7 @@
 
     <EditText
         android:id="@+id/search_bar"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
@@ -53,14 +53,11 @@
         android:inputType="textPersonName"
         android:textColor="@color/textColorHint"
         android:textColorHint="@color/textColorHint"
+        app:layout_constraintEnd_toStartOf="@+id/filter"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filterTabs" /><![CDATA[
-
-    =======
-        app:layout_constraintTop_toBottomOf="@+id/filterTabs" />
->>>>>>> Stashed changes
-
-    ]]>
+        app:layout_constraintTop_toBottomOf="@+id/filterTabs"
+        android:importantForAutofill="no" />
 
     <Button
         android:id="@+id/filter"
@@ -68,7 +65,7 @@
         android:layout_height="wrap_content"
         android:text="Filter"
         app:layout_constraintBottom_toBottomOf="@+id/search_bar"
-        app:layout_constraintStart_toEndOf="@+id/search_bar"
+        app:layout_constraintEnd_toStartOf="@+id/search_btn"
         app:layout_constraintTop_toTopOf="@+id/search_bar" />
 
     <Button
@@ -80,8 +77,6 @@
         android:text="Search"
         app:layout_constraintBottom_toBottomOf="@+id/filter"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/filter"
         app:layout_constraintTop_toTopOf="@+id/filter" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -123,7 +118,8 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/floating_edit_profile"
             app:layout_constraintTop_toTopOf="@+id/floating_edit_profile"
-            app:srcCompat="@drawable/ic_baseline_add_48" />
+            app:srcCompat="@drawable/ic_baseline_add_48"
+            android:focusable="true" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

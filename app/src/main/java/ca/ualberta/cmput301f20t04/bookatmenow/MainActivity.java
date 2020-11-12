@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,10 +40,32 @@ public class MainActivity extends AppCompatActivity {
     private String uuid;
 
     private enum MainActivityViews{
-        HOME,
+        ALL_BOOKS,
         MY_BOOKS,
         BORROWED,
-        REQUESTED,
+        REQUESTED;
+
+        /**
+         * Allow this enum to be used like a C enum.
+         *
+         * @param i
+         *      The equivalent integer to the MainActivityView
+         * @return
+         *      The corresponding enum value
+         */
+        public static MainActivityViews fromInt(int i) {
+            switch (i) {
+                default:
+                case 0:
+                    return ALL_BOOKS;
+                case 1:
+                    return MY_BOOKS;
+                case 2:
+                    return BORROWED;
+                case 3:
+                    return REQUESTED;
+            }
+        }
     }
     private MainActivityViews currentView;
 
@@ -57,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d(ProgramTags.TEST_TAG, String.valueOf(MainActivityViews.MY_BOOKS));
 
         db = new DBHandler();
 
@@ -90,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.search_btn);
         searchEditText = findViewById(R.id.search_bar);
 
-        currentView = MainActivityViews.HOME;
+        currentView = MainActivityViews.ALL_BOOKS;
 
         filterTabs = findViewById(R.id.filterTabs);
 
@@ -113,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String search = searchEditText.getText().toString().trim();
-                if (search.length() > 0 && currentView == MainActivityViews.HOME) {
+                if (search.length() > 0 && currentView == MainActivityViews.ALL_BOOKS) {
                     List<String> searchTerms = Arrays.asList(search.split(" "));
                     db.searchBooks(searchTerms,
                             new OnSuccessListener<List<Book>>() {
@@ -136,8 +159,8 @@ public class MainActivity extends AppCompatActivity {
         filterTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                switch (tab.getPosition()) {
-                    case 0:
+                switch (MainActivityViews.fromInt(tab.getPosition())) {
+                    case ALL_BOOKS:
                         db.getAllBooks(
                                 new OnSuccessListener<List<Book>>() {
                                     @Override
@@ -154,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                         );
                         break;
 
-                    case 1:
+                    case MY_BOOKS:
                         db.getAllBooks(
                                 new OnSuccessListener<List<Book>>() {
                                     @Override
@@ -172,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                         );
                        break;
 
-                    case 2:
+                    case BORROWED:
                         db.getAllBooks(
                                 new OnSuccessListener<List<Book>>() {
                                     @Override
@@ -189,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                         );
                        break;
 
-                    case 3:
+                    case REQUESTED:
                         Intent intent = new Intent(MainActivity.this, MyRequests.class);
                         intent.putExtra("uuid", uuid);
                         startActivityForResult(intent, MyRequests.REQUEST_ACTIVITY);
