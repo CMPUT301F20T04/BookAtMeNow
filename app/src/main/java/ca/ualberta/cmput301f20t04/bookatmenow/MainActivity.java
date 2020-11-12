@@ -66,6 +66,20 @@ public class MainActivity extends AppCompatActivity {
                     return REQUESTED;
             }
         }
+
+        public int toInt() {
+            switch (this) {
+                default:
+                case ALL_BOOKS:
+                    return 0;
+                case MY_BOOKS:
+                    return 1;
+                case BORROWED:
+                    return 2;
+                case REQUESTED:
+                    return 3;
+            }
+        }
     }
     private MainActivityViews currentView;
 
@@ -240,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(MainActivity.this, MyBookActivity.class);
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
                     i.putExtra(ProgramTags.PASSED_UUID, uuid);
-                    if (!filterTabs.getChildAt(1).isSelected()) {
+                    if (!filterTabs.getTabAt(MainActivityViews.MY_BOOKS.toInt()).isSelected()) {
                         startActivityForResult(i, MyBookActivity.CHANGE_BOOK_FROM_MYBOOKS);
                     } else {
                         startActivityForResult(i, MyBookActivity.CHANGE_BOOK_FROM_MAIN);
