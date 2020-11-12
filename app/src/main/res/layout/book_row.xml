@@ -13,8 +13,8 @@
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginEnd="@dimen/activity_main_margin"
+            android:layout_marginRight="@dimen/activity_main_margin"
             android:text="@string/default_title"
             android:textColor="@color/textColorPrimary"
             android:textSize="18sp"
@@ -40,14 +40,13 @@
             android:id="@+id/status_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:text="@string/default_status"
             android:textColor="@color/textColorPrimary"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/title_text" />
 
         <TextView
             android:id="@+id/isbn_text"

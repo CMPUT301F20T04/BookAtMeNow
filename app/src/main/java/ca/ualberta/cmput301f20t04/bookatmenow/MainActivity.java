@@ -133,7 +133,9 @@ public class MainActivity extends AppCompatActivity {
         filterTabs = findViewById(R.id.filterTabs);
 
         addBookButton = findViewById(R.id.floating_add);
-        addBookButton.setVisibility(View.INVISIBLE);
+        addBookButton.setVisibility(View.GONE);
+
+        filterButton = findViewById(R.id.filter);
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,9 +145,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
-        final FloatingActionButton addBookButton = findViewById(R.id.floating_add);
-        addBookButton.setVisibility(View.INVISIBLE);
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -238,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 if (tab.getPosition() == 1) {
-                    addBookButton.setVisibility(View.INVISIBLE);
+                    addBookButton.setVisibility(View.GONE);
                 }
             }
 
@@ -276,8 +275,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
-
-        final ImageButton filterButton = findViewById(R.id.filter);
 
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -319,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
                                 setViewMode(BookAdapter.ViewMode.OWNED, books);
                             } else {
                                 setViewMode(BookAdapter.ViewMode.ALL, books);
-                                addBookButton.setVisibility(View.INVISIBLE);
+                                addBookButton.setVisibility(View.GONE);
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
                         } catch (Exception e) {
