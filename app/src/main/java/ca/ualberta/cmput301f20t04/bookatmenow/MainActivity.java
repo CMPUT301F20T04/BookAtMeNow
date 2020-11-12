@@ -110,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
         uuid = getIntent().getStringExtra("uuid");
 
         // animation adapted from https://stackoverflow.com/a/44145485
-        slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up);
-        slideDown = AnimationUtils.loadAnimation(this, R.anim.slide_down);
+        slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_left);
+        slideDown = AnimationUtils.loadAnimation(this, R.anim.slide_right);
 
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                            @Override
@@ -182,7 +182,9 @@ public class MainActivity extends AppCompatActivity {
         filterTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                switch (MainActivityViews.fromInt(tab.getPosition())) {
+                currentView = MainActivityViews.fromInt(tab.getPosition());
+
+                switch (currentView) {
                     default:
                     case ALL_BOOKS:
                         db.getAllBooks(
@@ -266,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(MainActivity.this, MyBookActivity.class);
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
                     i.putExtra(ProgramTags.PASSED_UUID, uuid);
-                    if (!filterTabs.getTabAt(MainActivityViews.MY_BOOKS.toInt()).isSelected()) {
+                    if (currentView == MainActivityViews.MY_BOOKS) {
                         startActivityForResult(i, MyBookActivity.CHANGE_BOOK_FROM_MYBOOKS);
                     } else {
                         startActivityForResult(i, MyBookActivity.CHANGE_BOOK_FROM_MAIN);

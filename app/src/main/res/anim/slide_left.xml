@@ -3,6 +3,6 @@
     <!-- Animation adapted from https://stackoverflow.com/a/44145485 -->
     <translate
         android:duration="300"
-        android:fromYDelta="0"
-        android:toYDelta="100%" />
+        android:fromXDelta="100%"
+        android:toXDelta="0" />
 </set>
