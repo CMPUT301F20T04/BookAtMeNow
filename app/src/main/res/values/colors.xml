@@ -5,9 +5,10 @@
     <color name="textColorSecondary">#737373</color>
     <color name="textColorHint">#9B9B9B</color>
 
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorPrimary">#0277BD</color>
+    <color name="colorPrimaryDark">#105098</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="colorSecondary">#6200EE</color>
 
     <color name="windowBackground">#FFFFFF</color>
 

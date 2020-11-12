@@ -14,7 +14,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabIndicatorColor="@color/confirm">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -46,23 +47,13 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Search"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:textColor="@color/textColorHint"
         android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toStartOf="@+id/filter"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filterTabs"
-        android:importantForAutofill="no" />
-
-    <Button
-        android:id="@+id/filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Filter"
-        app:layout_constraintBottom_toBottomOf="@+id/search_bar"
-        app:layout_constraintEnd_toStartOf="@+id/search_btn"
-        app:layout_constraintTop_toTopOf="@+id/search_bar" />
+        app:layout_constraintTop_toBottomOf="@+id/filterTabs" />
 
     <Button
         android:id="@+id/search_btn"
@@ -71,15 +62,15 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:text="Search"
-        app:layout_constraintBottom_toBottomOf="@+id/filter"
+        app:layout_constraintBottom_toBottomOf="@+id/search_bar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/filter" />
+        app:layout_constraintTop_toTopOf="@+id/search_bar" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/empty_constraint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0277BD"
+        android:background="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -90,8 +81,8 @@
             android:id="@+id/floating_edit_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:clickable="true"
             android:focusable="true"
             app:backgroundTint="#4527A0"
@@ -108,14 +99,14 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:clickable="true"
+            android:focusable="true"
             app:backgroundTint="@color/confirm"
             app:layout_constraintBottom_toBottomOf="@+id/floating_edit_profile"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/floating_edit_profile"
             app:layout_constraintTop_toTopOf="@+id/floating_edit_profile"
-            app:srcCompat="@drawable/ic_baseline_add_48"
-            android:focusable="true" />
+            app:srcCompat="@drawable/ic_baseline_add_48" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -123,14 +114,20 @@
         android:id="@+id/book_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         app:layout_constraintBottom_toTopOf="@+id/empty_constraint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filter"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/search_bar" />
+
+    <ImageButton
+        android:id="@+id/filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleX="1"
+        android:scaleY="1"
+        app:layout_constraintBottom_toBottomOf="@+id/search_bar"
+        app:layout_constraintEnd_toStartOf="@+id/search_btn"
+        app:layout_constraintTop_toTopOf="@+id/search_bar"
+        app:srcCompat="@drawable/ic_baseline_filter_list_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

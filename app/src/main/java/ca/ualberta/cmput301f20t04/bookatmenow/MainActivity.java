@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addBookButton;
     private FloatingActionButton editProfileButton;
-    private Button filterButton;
+    private ImageButton filterButton;
     private Button searchButton;
 
     private EditText searchEditText;
@@ -174,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (MainActivityViews.fromInt(tab.getPosition())) {
+                    default:
                     case ALL_BOOKS:
                         db.getAllBooks(
                                 new OnSuccessListener<List<Book>>() {
@@ -230,8 +232,6 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(MainActivity.this, MyRequests.class);
                         intent.putExtra("uuid", uuid);
                         startActivityForResult(intent, MyRequests.REQUEST_ACTIVITY);
-
-                    default:
                 }
             }
 
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final Button filterButton = findViewById(R.id.filter);
+        final ImageButton filterButton = findViewById(R.id.filter);
 
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
