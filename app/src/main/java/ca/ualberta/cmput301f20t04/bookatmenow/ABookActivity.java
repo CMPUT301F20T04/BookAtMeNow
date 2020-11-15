@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -13,11 +16,14 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +47,10 @@ public class ABookActivity extends AppCompatActivity {
     private String owner_uuid;
     private String uuid;
 
+    private StorageReference storageReference;
+    private StorageReference getImageRef;
+    private final long FILE_SIZE = 5120*5120;
+
     DBHandler db;
 
     @Override
@@ -61,10 +71,46 @@ public class ABookActivity extends AppCompatActivity {
         requestButton.setEnabled(false);
 
         db = new DBHandler();
+        storageReference = FirebaseStorage.getInstance().getReference();
 
         db.getBook(isbn, new OnSuccessListener<Book>() {
             @Override
             public void onSuccess(Book book) {
+
+                String currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
+
+
+                getImageRef = storageReference.child(currentBookImage);//try to get image
+
+                getImageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        // file exists. Get image and paste it in imageview
+
+                        getImageRef.getBytes(FILE_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+                                Log.i("AppInfo", "SUCCEED");
+                                ImageView myImg = (ImageView) findViewById(R.id.aBook_imageView); //need to redefine it before changing it
+                                Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                myImg.setImageBitmap(myBitmap);
+                                myImg.setRotation(90);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {//if error = 404, then book does not have an image. Set currentBookImage to null
+                                Log.i("AppInfo", "FAILED: " + e.toString());
+                            }
+                        });
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // File not found. Do nothing
+                    }
+                });
+
                 owner_uuid = book.getOwner();
 
                 String title = "Title: ";

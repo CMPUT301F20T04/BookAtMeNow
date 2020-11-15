@@ -113,20 +113,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/action_pending_requests"
         app:layout_constraintBottom_toTopOf="@+id/myBook_current_borrower_textview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_status_radiogroup" />
+        app:layout_constraintTop_toBottomOf="@+id/myBook_take_picture_button" />
 
     <TextView
         android:id="@+id/myBook_current_borrower_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/default_current_borrower"
         android:textColor="@color/textColorSecondary"
         app:layout_constraintBottom_toTopOf="@+id/myBook_remove_button"
@@ -148,12 +148,13 @@
         android:id="@+id/myBook_take_picture_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="56dp"
+        android:layout_marginRight="56dp"
         android:onClick="takePicture"
         android:text="@string/action_take_picture"
-        app:layout_constraintBottom_toBottomOf="@+id/myBook_imageview"
-        app:layout_constraintEnd_toEndOf="@+id/myBook_imageview"
-        app:layout_constraintStart_toStartOf="@+id/myBook_imageview"
-        app:layout_constraintTop_toTopOf="@+id/myBook_imageview" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myBook_imageview" />
 
     <Button
         android:id="@+id/myBook_save_change_button"
@@ -184,7 +185,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/myBook_remove_button"
         app:layout_constraintBottom_toTopOf="@+id/myBook_save_change_button"
         app:layout_constraintEnd_toEndOf="parent"
