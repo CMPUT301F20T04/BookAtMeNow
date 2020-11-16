@@ -1,21 +1,20 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
-import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class MainActivityTest {
     private Solo solo;
@@ -45,35 +44,38 @@ public class MainActivityTest {
     }
 
     /**
-     * Check that Home and MyBooks are the same activity
+     * Check that tabs are the same activity (except requests).
      */
     @Test
-    public void clickMyBooksHomeAdd() {
+    public void clickMenuItems() {
+        solo.clickOnMenuItem("MY BOOKS");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("My Books");
-
+        solo.clickOnMenuItem("BORROWED");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("Home");
-
+        solo.clickOnMenuItem("ALL BOOKS");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("My Books");
-
-        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("Add");
-
-        solo.waitForActivity("MyBookActivity");
-        solo.assertCurrentActivity("Wrong Activity", MyBookActivity.class);
     }
 
     /**
-     * Check nav to Profile
+     * Checks that Requested menu item goes to my requests activity.
      */
     @Test
-    public void clickProfile() {
+    public void clickRequested() {
+        solo.clickOnMenuItem("REQUESTED");
+        solo.assertCurrentActivity("Wrong Activity", MyRequests.class);
+    }
+
+    /**
+     * Checks that addBook button goes to my book activity.
+     */
+    @Test
+    public void addBook() {
+        solo.clickOnMenuItem("MY BOOKS");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("Profile");
-        solo.waitForActivity("ProfileActivity");
-        solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
+        FloatingActionButton add = (FloatingActionButton) solo.getView(R.id.floating_add);
+        solo.clickOnView(add);
+        solo.waitForActivity("MyBookActivity");
+        solo.assertCurrentActivity("Wrong Activity", MyBookActivity.class);
     }
 
     /**

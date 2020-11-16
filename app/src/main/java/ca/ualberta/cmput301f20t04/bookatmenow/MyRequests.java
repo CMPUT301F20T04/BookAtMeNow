@@ -57,25 +57,27 @@ public class MyRequests extends AppCompatActivity {
         final Intent intent = getIntent();
         uuid = intent.getStringExtra("uuid");
 
-        //get all books that current user has requested to borrow
-        db.userRequests(uuid, new OnSuccessListener<List<Book>>() {
-                    @Override
-                    public void onSuccess(List<Book> books) {
-                        myRequestedBooks.addAll(books);
-                        booksAdapter.notifyDataSetChanged();
-                        Log.d(ProgramTags.DB_ALL_FOUND, "Found all user requested books.");
-                        if(myRequestedBooks.size() == 0){//there are no books that this user requested to borrow
-                            requestBookList.setVisibility(View.GONE);
-                            noRequests.setVisibility(View.VISIBLE);
+        if (uuid != null) {
+            //get all books that current user has requested to borrow
+            db.userRequests(uuid, new OnSuccessListener<List<Book>>() {
+                        @Override
+                        public void onSuccess(List<Book> books) {
+                            myRequestedBooks.addAll(books);
+                            booksAdapter.notifyDataSetChanged();
+                            Log.d(ProgramTags.DB_ALL_FOUND, "Found all user requested books.");
+                            if(myRequestedBooks.size() == 0){//there are no books that this user requested to borrow
+                                requestBookList.setVisibility(View.GONE);
+                                noRequests.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(ProgramTags.DB_ERROR, "Failed to load all user requested books. " + e.toString());
                         }
                     }
-                }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(ProgramTags.DB_ERROR, "Failed to load all user requested books. " + e.toString());
-                    }
-                }
-        );
+            );
+        }
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,16 +1,11 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
-import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 
-import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.robotium.solo.Solo;
 
 import org.junit.After;

@@ -183,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 currentView = MainActivityViews.fromInt(tab.getPosition());
+                Log.i("INDEX->", "Selected TAB Index - "+ tab.getPosition());
 
                 switch (currentView) {
                     default:

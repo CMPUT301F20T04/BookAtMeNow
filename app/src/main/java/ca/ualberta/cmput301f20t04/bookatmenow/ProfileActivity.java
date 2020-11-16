@@ -258,7 +258,6 @@ public class ProfileActivity extends AppCompatActivity {
                     invalidEmailDialog.show();
                 }
 
-                // assumes full user profile
                 if (username.length() > 0 && password.length() > 0
                         && password.equals(passwordConfirm)
                         && validEmail(email) && validPassword(password)) {
@@ -287,40 +286,39 @@ public class ProfileActivity extends AppCompatActivity {
                                         databaseErrorDialog.show();
                                     }
                                 });
-                            } else {
+                            } else if (s == uuid) {
                                 // user is logged in and wants to edit
                                 /**
                                  * updateUser doesn't work yet
                                  */
-                                if (s == uuid) {
-                                    db.getUser(s, new OnSuccessListener<User>() {
-                                        @Override
-                                        public void onSuccess(User user) {
-                                            db.updateUser(user, new OnSuccessListener<Boolean>() {
-                                                @Override
-                                                public void onSuccess(Boolean aBoolean) {
-                                                    if (aBoolean) {
-                                                        myUser.setUsername(username);
-                                                        myUser.setEmail(email);
-                                                        myUser.setPhone(phone);
-                                                        myUser.setAddress(address);
-                                                        startActivity(new Intent(ProfileActivity.this, MainActivity.class));
-                                                    }
+                                db.getUser(s, new OnSuccessListener<User>() {
+                                    @Override
+                                    public void onSuccess(User user) {
+                                        final User updatedUser = user;
+                                        db.updateUser(user, new OnSuccessListener<Boolean>() {
+                                            @Override
+                                            public void onSuccess(Boolean aBoolean) {
+                                                if (aBoolean) {
+                                                    updatedUser.setUsername(username);
+                                                    updatedUser.setEmail(email);
+                                                    updatedUser.setPhone(phone);
+                                                    updatedUser.setAddress(address);
+                                                    startActivity(new Intent(ProfileActivity.this, MainActivity.class));
                                                 }
-                                            }, new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    databaseErrorDialog.show();
-                                                }
-                                            });
-                                        }
-                                    }, new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            databaseErrorDialog.show();
-                                        }
-                                    });
-                                }
+                                            }
+                                        }, new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                databaseErrorDialog.show();
+                                            }
+                                        });
+                                    }
+                                }, new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        databaseErrorDialog.show();
+                                    }
+                                });
                             }
                         }
                     }, new OnFailureListener() {
