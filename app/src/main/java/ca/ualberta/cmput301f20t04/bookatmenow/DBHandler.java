@@ -195,60 +195,75 @@ public class DBHandler {
      * @param failureListener
      *      Listener to act on failed update
      */
-    public void updateUser(User userToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
-        HashMap<String, Object> userData = new HashMap<>();
-
+    public void updateUser(final User userToAdd, final OnSuccessListener<Boolean> successListener, final OnFailureListener failureListener) {
         if (userToAdd.getUserId() == null) {
             Log.d(ProgramTags.DB_ERROR, "Received empty UUID string, failed to add user, terminating operation.");
             return;
         }
 
-        userData.put(FireStoreMapping.USER_FIELDS_ID, userToAdd.getUserId());
+        getUser(
+                userToAdd.getUserId(),
+                new OnSuccessListener<User>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        HashMap<String, Object> userData = new HashMap<>();
 
-        if(userToAdd.getUsername() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, "");
-        }
+                        userData.put(FireStoreMapping.USER_FIELDS_ID, userToAdd.getUserId());
 
-        if(userToAdd.getPassword() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, "");
-        }
+                        if(!userToAdd.getUsername().equals(user.getUsername())) {
+                            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
+                        } else {
+                            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, user.getUsername());
+                        }
 
-        if(userToAdd.getPhone() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_PHONE, userToAdd.getPhone());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_PHONE, "");
-        }
+                        if(!userToAdd.getPassword().equals(user.getPassword()) && userToAdd.getPassword().trim().length() > 0) {
+                            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
+                        } else {
+                            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, user.getPassword());
+                            Log.d(ProgramTags.DB_MESSAGE, "User password not changed.");
+                        }
 
-        if(userToAdd.getEmail() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, "");
-        }
+                        if(!userToAdd.getPhone().equals(user.getPhone())) {
+                            userData.put(FireStoreMapping.USER_FIELDS_PHONE, userToAdd.getPhone());
+                        } else {
+                            userData.put(FireStoreMapping.USER_FIELDS_PHONE, user.getPhone());
+                        }
 
-        if(userToAdd.getAddress() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, userToAdd.getAddress());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, "");
-        }
+                        if(!userToAdd.getEmail().equals(user.getEmail())) {
+                            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
+                        } else {
+                            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, user.getEmail());
+                        }
 
-        Task<Void> updateTask = db
-                .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(userToAdd.getUserId())
-                .set(userData);
+                        if(!userToAdd.getAddress().equals(user.getAddress())) {
+                            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, userToAdd.getAddress());
+                        } else {
+                            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, user.getAddress());
+                        }
 
-        updateTask.continueWith(new Continuation<Void, Boolean>() {
-            @Override
-            public Boolean then(@NonNull Task<Void> task) throws Exception {
-                Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
-                return true;
-            }
-        })
-                .addOnSuccessListener(successListener)
-                .addOnFailureListener(failureListener);
+                        Task<Void> updateTask = db
+                                .collection(FireStoreMapping.COLLECTIONS_USER)
+                                .document(userToAdd.getUserId())
+                                .set(userData);
+
+                        updateTask.continueWith(new Continuation<Void, Boolean>() {
+                            @Override
+                            public Boolean then(@NonNull Task<Void> task) throws Exception {
+                                Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
+                                return true;
+                            }
+                        })
+                                .addOnSuccessListener(successListener)
+                                .addOnFailureListener(failureListener);
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(ProgramTags.DB_ERROR, "Failed to retrieve existing profile, terminating.");
+                    }
+                });
+
     }
 
     /**
@@ -368,14 +383,14 @@ public class DBHandler {
 
         if(bookToAdd.getTitle() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_TITLE, bookToAdd.getTitle());
-            tags.addAll(Arrays.asList(bookToAdd.getTitle().split(" ")));
+            tags.addAll(Arrays.asList(bookToAdd.getTitle().toLowerCase().split(" ")));
         } else {
             bookData.put(FireStoreMapping.BOOK_FIELDS_TITLE, "");
         }
 
         if(bookToAdd.getAuthor() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_AUTHOR, bookToAdd.getAuthor());
-            tags.addAll(Arrays.asList(bookToAdd.getAuthor().split(" ")));
+            tags.addAll(Arrays.asList(bookToAdd.getAuthor().toLowerCase().split(" ")));
         } else {
             bookData.put(FireStoreMapping.BOOK_FIELDS_AUTHOR, "");
         }
@@ -413,12 +428,6 @@ public class DBHandler {
             bookData.put(FireStoreMapping.BOOK_FIELDS_REQUESTS, Collections.singletonList("EMPTY"));
         }
 
-        if(bookToAdd.getImage() != null) {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_IMAGE, bookToAdd.getImage());
-        } else {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_IMAGE, "");
-        }
-
         Task<Void> addTask = db
                 .collection(FireStoreMapping.COLLECTIONS_BOOK)
                 .document(bookToAdd.getIsbn())
@@ -451,8 +460,6 @@ public class DBHandler {
         String borrower = data.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
         String owner = data.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
         List<String> requests = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_REQUESTS);
-        String image = data.getString(FireStoreMapping.BOOK_FIELDS_IMAGE);
-
 
         finalBook.setTitle(title);
         finalBook.setAuthor(author);
@@ -636,6 +643,9 @@ public class DBHandler {
      *      Listener for failed retrieval
      */
     public void searchBooks(List<String> terms, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        for (String i: terms) {
+            terms.set(terms.indexOf(i), i.toLowerCase());
+        }
         Task<QuerySnapshot> searchTask = db
                 .collection(FireStoreMapping.COLLECTIONS_BOOK)
                 .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)

@@ -10,6 +10,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,7 +29,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -70,8 +75,13 @@ public class MyBookActivity extends AppCompatActivity {
     private Uri myUri;
     private Boolean pictureTaken;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
+    private File photoFile;
+    private String currentBookImage;
 
-    StorageReference storageReference;
+    private StorageReference storageReference;
+    private StorageReference getImageRef;
+
+    private final long FILE_SIZE = 5120*5120;
 /**
     private EditText title;
     private EditText author;
@@ -98,7 +108,7 @@ public class MyBookActivity extends AppCompatActivity {
             // Ensure that there's a camera activity to handle the intent
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                 // Create the File where the photo should go
-                File photoFile = null;
+                photoFile = null;
                 try {
                     photoFile = createImageFile();
                 } catch (IOException ex) {
@@ -134,40 +144,65 @@ public class MyBookActivity extends AppCompatActivity {
         return image;
     }
 
-    public void saveImg(View view) {
+    public void saveImg() {
 
-        if(pictureTaken == false){
-            Toast toast = Toast.makeText(this, "Take a picture first", Toast.LENGTH_SHORT);
-            toast.show();
-
-        } else {
+        if(pictureTaken == true){//picture was taken. Save it
             Toast toast1 = Toast.makeText(this, "Uploading image", Toast.LENGTH_SHORT);
             toast1.show();
 
             Uri file = myUri;
-            StorageReference riversRef = storageReference.child("images/myImage.jpg");
+            final StorageReference riversRef = storageReference.child("images/myImage.jpg");
 
-            riversRef.putFile(file)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            // Get a URL to the uploaded content
-                            Uri downloadUrl = taskSnapshot.getUploadSessionUri();
-                            Log.i("AppInfo", "Uri is; " + downloadUrl.toString());
-                            Toast toast = Toast.makeText(MyBookActivity.this, "Upload successful", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-                            // ...
-                            Toast toast = Toast.makeText(MyBookActivity.this, "Upload failed", Toast.LENGTH_SHORT);
-                            toast.show();
-                            Log.i("AppInfo", "FAIL: " + exception.toString());
-                        }
-                    });
+            final long FILE_SIZE = 5120*5120;
+            riversRef.getBytes(FILE_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Log.i("AppInfo", "SUCCEED");
+                    ImageView myImg = (ImageView) findViewById(R.id.myBook_imageview); //need to redefine it before changing it
+                    Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    myImg.setImageBitmap(myBitmap);
+                    myImg.setRotation(90);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.i("AppInfo", "FAILED: " + e.toString());
+                }
+            });
+
+            UploadTask uploadTask = riversRef.putFile(file);//uploading a file
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // Get a URL to the uploaded content
+                    Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
+                    Log.i("AppInfo", "URL is: " + downloadUri.toString());
+                    Toast toast = Toast.makeText(MyBookActivity.this, "Upload successful", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                    // ...
+                    Toast toast = Toast.makeText(MyBookActivity.this, "Upload failed", Toast.LENGTH_SHORT);
+                    toast.show();
+                    Log.i("AppInfo", "FAIL: " + exception.toString());
+                }
+            });
+
+            riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Log.i("AppInfo", "url is: " + uri.toString());
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
         }
     }
 
@@ -176,14 +211,13 @@ public class MyBookActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                // feature not included in current version
-//                case REQUEST_IMAGE_CAPTURE: // if user took photo, set it in imageview
-//                    myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay); //need to redefine it before changing it
-//                    Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-//                    myImg.setImageBitmap(myBitmap);
-//                    myImg.setRotation(90);
-//                    pictureTaken = true;
-//                    break;
+                case REQUEST_IMAGE_CAPTURE: // if user took photo, set it in imageview
+                    ImageView myImg = (ImageView) findViewById(R.id.myBook_imageview); //need to redefine it before changing it
+                    Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                    myImg.setImageBitmap(myBitmap);
+                    myImg.setRotation(90);
+                    pictureTaken = true;
+                    break;
 
                 case REQUEST_ISBN_SCAN:
                     String newIsbn = data.getStringExtra("isbn");
@@ -201,7 +235,7 @@ public class MyBookActivity extends AppCompatActivity {
 
     private boolean getCameraPermissions() {
         /*
-         * Request location permission, so that we can get the location of the
+         * Request camera permission, so that we can get the location of the
          * device. The result of the permission request is handled by a callback,
          * onRequestPermissionsResult.
          */
@@ -292,6 +326,9 @@ public class MyBookActivity extends AppCompatActivity {
         final Intent main = getIntent();
         db = new DBHandler();
 
+        pictureTaken = false;
+        storageReference = FirebaseStorage.getInstance().getReference();
+
         scanButton = findViewById(R.id.myBook_scan_button);
         saveChangesButton = findViewById(R.id.myBook_save_change_button);
         cancelButton = findViewById(R.id.myBook_cancel_button);
@@ -318,12 +355,46 @@ public class MyBookActivity extends AppCompatActivity {
             //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
             //save = findViewById(R.id.MBA_button_savePic);
 
-            db.getBook(initIsbn, new OnSuccessListener<Book>() {
+            db.getBook(initIsbn, new OnSuccessListener<Book>() {//not adding a book. editing a pre-existing book
                 @Override
                 public void onSuccess(final Book book) {
                     titleEditText.setText(book.getTitle());
                     authorEditText.setText(book.getAuthor());
                     isbnEditText.setText(book.getIsbn());
+                    currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
+
+
+                    getImageRef = storageReference.child(currentBookImage);//try to get image
+
+                    getImageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            // file exists. Get image and paste it in imageview
+
+                            getImageRef.getBytes(FILE_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                @Override
+                                public void onSuccess(byte[] bytes) {
+                                    Log.i("AppInfo", "SUCCEED");
+                                    ImageView myImg = (ImageView) findViewById(R.id.myBook_imageview); //need to redefine it before changing it
+                                    Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    myImg.setImageBitmap(myBitmap);
+                                    myImg.setRotation(90);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {//if error = 404, then book does not have an image. Set currentBookImage to null
+                                    Log.i("AppInfo", "FAILED: " + e.toString());
+                                }
+                            });
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            // File not found
+                            currentBookImage = null;
+                        }
+                    });
 
                     String status = book.getStatus();
                     switch (status) {
@@ -352,7 +423,36 @@ public class MyBookActivity extends AppCompatActivity {
                                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                            db.removeBook(initIsbn,
+
+                                            if(currentBookImage != null){//there is a book image to delete
+                                                getImageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {//bok image has deleted. Now remove book from db
+
+                                                        db.removeBook(initIsbn,
+                                                            new OnSuccessListener<Boolean>() {
+                                                                @Override
+                                                                public void onSuccess(Boolean aBoolean) {
+                                                                    setResult(RESULT_OK, main);
+                                                                    finish();
+                                                                }
+                                                            },
+                                                            new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    e.printStackTrace();
+                                                                }
+                                                            });
+
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.e("Error", e.toString());
+                                                    }
+                                                });
+                                            } else {//no book image to delete. Just remove from db
+                                                db.removeBook(initIsbn,
                                                     new OnSuccessListener<Boolean>() {
                                                         @Override
                                                         public void onSuccess(Boolean aBoolean) {
@@ -366,6 +466,7 @@ public class MyBookActivity extends AppCompatActivity {
                                                             e.printStackTrace();
                                                         }
                                                     });
+                                            }
                                         }
                                     })
                                     .setNegativeButton(android.R.string.no, null)
@@ -398,43 +499,107 @@ public class MyBookActivity extends AppCompatActivity {
                     saveChangesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            toggleAllFields(1);
 
-                            if (checkFields()) {
-                                book.setTitle(titleEditText.getText().toString().trim());
-                                book.setAuthor(authorEditText.getText().toString().trim());
-                                try {
-                                    db.addBook(book, new OnSuccessListener<Boolean>() {
-                                        @Override
-                                        public void onSuccess(Boolean aBoolean) {
-                                            // send data back to main
 
-                                            setResult(RESULT_OK, main);
-                                            finish();
-                                        }
-                                    }, new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
-                                            setResult(RESULT_CANCELED, main);
-                                            finish();
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                            if(pictureTaken == true){//picture was taken. Save it
+                                Uri file = myUri;
+                                currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
+                                final StorageReference riversRef = storageReference.child(currentBookImage);
 
-                            } else {
-                                new AlertDialog.Builder(MyBookActivity.this)
-                                        .setTitle("Error!")
-                                        .setMessage("Please fill in all the required fields!")
-                                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                toggleAllFields(1);
+                                UploadTask uploadTask = riversRef.putFile(file);//uploading a file
+                                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {//image uploaded. Now update db
+
+                                        toggleAllFields(1);
+
+                                        if (checkFields()) {
+                                            book.setTitle(titleEditText.getText().toString().trim());
+                                            book.setAuthor(authorEditText.getText().toString().trim());
+                                            try {
+                                                db.addBook(book, new OnSuccessListener<Boolean>() {
+                                                    @Override
+                                                    public void onSuccess(Boolean aBoolean) {
+                                                        // send data back to main
+
+                                                        setResult(RESULT_OK, main);
+                                                        finish();
+                                                    }
+                                                }, new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
+                                                        setResult(RESULT_CANCELED, main);
+                                                        finish();
+                                                    }
+                                                });
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                        }).show();
+
+                                        } else {
+                                            new AlertDialog.Builder(MyBookActivity.this)
+                                                    .setTitle("Error!")
+                                                    .setMessage("Please fill in all the required fields!")
+                                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            toggleAllFields(1);
+                                                        }
+                                                    }).show();
+                                        }
+
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        // Handle unsuccessful uploads
+                                        // ...
+                                        Log.i("AppInfo", "FAIL: " + exception.toString());
+                                    }
+                                });
+
+                            } else {//no picture was takes. Update book data normally
+                                toggleAllFields(1);
+
+                                if (checkFields()) {
+                                    book.setTitle(titleEditText.getText().toString().trim());
+                                    book.setAuthor(authorEditText.getText().toString().trim());
+                                    try {
+                                        db.addBook(book, new OnSuccessListener<Boolean>() {
+                                            @Override
+                                            public void onSuccess(Boolean aBoolean) {
+                                                // send data back to main
+
+                                                setResult(RESULT_OK, main);
+                                                finish();
+                                            }
+                                        }, new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
+                                                setResult(RESULT_CANCELED, main);
+                                                finish();
+                                            }
+                                        });
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                } else {
+                                    new AlertDialog.Builder(MyBookActivity.this)
+                                            .setTitle("Error!")
+                                            .setMessage("Please fill in all the required fields!")
+                                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    toggleAllFields(1);
+                                                }
+                                            }).show();
+                                }
                             }
+
                         }
                     });
 
@@ -451,8 +616,6 @@ public class MyBookActivity extends AppCompatActivity {
 
                     authorEditText.setText(book.getAuthor());
 
-                    storageReference = FirebaseStorage.getInstance().getReference();
-
                     pictureTaken = false;
                 }
             }, new OnFailureListener() {
@@ -461,7 +624,7 @@ public class MyBookActivity extends AppCompatActivity {
                     Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
                 }
             });
-        } else {
+        } else {//adding a new book
             final String uuid = main.getStringExtra(ProgramTags.PASSED_UUID);
             final Book newBook = new Book();
 
@@ -493,52 +656,122 @@ public class MyBookActivity extends AppCompatActivity {
             saveChangesButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    toggleAllFields(0);
-                    if (checkFields()) {
 
-                        newBook.setTitle(titleEditText.getText().toString().trim());
-                        Log.d(ProgramTags.BOOK_DATA, String.format("Book title set to %s", newBook.getTitle()));
+                    if(pictureTaken == true && checkFields()){//picture was taken. Save it
+                        Uri file = myUri;
+                        currentBookImage = String.valueOf("images/" + isbnEditText.getText().toString().trim() + ".jpg");
+                        final StorageReference riversRef = storageReference.child(currentBookImage);
 
-                        newBook.setAuthor(authorEditText.getText().toString().trim());
-                        Log.d(ProgramTags.BOOK_DATA, String.format("Book author set to %s", newBook.getAuthor()));
+                        UploadTask uploadTask = riversRef.putFile(file);//uploading a file
+                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                // Get a URL to the uploaded content
+                                toggleAllFields(0);
+                                if (checkFields()) {
 
-                        newBook.setIsbn(isbnEditText.getText().toString().trim());
-                        Log.d(ProgramTags.BOOK_DATA, String.format("Book isbn set to %s", newBook.getIsbn()));
+                                    newBook.setTitle(titleEditText.getText().toString().trim());
+                                    Log.d(ProgramTags.BOOK_DATA, String.format("Book title set to %s", newBook.getTitle()));
 
-                        newBook.setOwner(uuid);
-                        Log.d(ProgramTags.BOOK_DATA, String.format("Book owner set to %s", newBook.getOwner()));
+                                    newBook.setAuthor(authorEditText.getText().toString().trim());
+                                    Log.d(ProgramTags.BOOK_DATA, String.format("Book author set to %s", newBook.getAuthor()));
 
+                                    newBook.setIsbn(isbnEditText.getText().toString().trim());
+                                    Log.d(ProgramTags.BOOK_DATA, String.format("Book isbn set to %s", newBook.getIsbn()));
 
-                        try {
-                            db.addBook(newBook,
-                                    new OnSuccessListener<Boolean>() {
-                                        @Override
-                                        public void onSuccess(Boolean aBoolean) {
-                                            Toast.makeText(getApplicationContext(), "Book added.", Toast.LENGTH_LONG).show();
-                                            setResult(RESULT_OK, main);
-                                            finish();
-                                        }
-                                    },
-                                    new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(getApplicationContext(), "Failed to save data, please try again.", Toast.LENGTH_LONG).show();
-                                            Log.d(ProgramTags.DB_ERROR, "Failed to add new book from MyBookActivity.");
-                                        }
-                                    });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        new AlertDialog.Builder(MyBookActivity.this)
-                                .setTitle("Error!")
-                                .setMessage("Please fill in all the required fields!")
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        toggleAllFields(0);
+                                    newBook.setOwner(uuid);
+                                    Log.d(ProgramTags.BOOK_DATA, String.format("Book owner set to %s", newBook.getOwner()));
+
+                                    try {
+                                        db.addBook(newBook,
+                                                new OnSuccessListener<Boolean>() {
+                                                    @Override
+                                                    public void onSuccess(Boolean aBoolean) {
+                                                        Toast.makeText(getApplicationContext(), "Book added.", Toast.LENGTH_LONG).show();
+                                                        setResult(RESULT_OK, main);
+                                                        finish();
+                                                    }
+                                                },
+                                                new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getApplicationContext(), "Failed to save data, please try again.", Toast.LENGTH_LONG).show();
+                                                        Log.d(ProgramTags.DB_ERROR, "Failed to add new book from MyBookActivity.");
+                                                    }
+                                                });
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
-                                }).show();
+                                } else {
+                                    new AlertDialog.Builder(MyBookActivity.this)
+                                            .setTitle("Error!")
+                                            .setMessage("Please fill in all the required fields!")
+                                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    toggleAllFields(0);
+                                                }
+                                            }).show();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                // ...
+                                Log.i("AppInfo", "FAIL: " + exception.toString());
+                            }
+                        });
+
+                    } else {//no picture taken. Update db normally
+                        toggleAllFields(0);
+                        if (checkFields()) {
+
+                            newBook.setTitle(titleEditText.getText().toString().trim());
+                            Log.d(ProgramTags.BOOK_DATA, String.format("Book title set to %s", newBook.getTitle()));
+
+                            newBook.setAuthor(authorEditText.getText().toString().trim());
+                            Log.d(ProgramTags.BOOK_DATA, String.format("Book author set to %s", newBook.getAuthor()));
+
+                            newBook.setIsbn(isbnEditText.getText().toString().trim());
+                            Log.d(ProgramTags.BOOK_DATA, String.format("Book isbn set to %s", newBook.getIsbn()));
+
+                            newBook.setOwner(uuid);
+                            Log.d(ProgramTags.BOOK_DATA, String.format("Book owner set to %s", newBook.getOwner()));
+
+
+                            try {
+                                db.addBook(newBook,
+                                        new OnSuccessListener<Boolean>() {
+                                            @Override
+                                            public void onSuccess(Boolean aBoolean) {
+                                                Toast.makeText(getApplicationContext(), "Book added.", Toast.LENGTH_LONG).show();
+                                                setResult(RESULT_OK, main);
+                                                finish();
+                                            }
+                                        },
+                                        new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getApplicationContext(), "Failed to save data, please try again.", Toast.LENGTH_LONG).show();
+                                                Log.d(ProgramTags.DB_ERROR, "Failed to add new book from MyBookActivity.");
+                                            }
+                                        });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            new AlertDialog.Builder(MyBookActivity.this)
+                                    .setTitle("Error!")
+                                    .setMessage("Please fill in all the required fields!")
+                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            toggleAllFields(0);
+                                        }
+                                    }).show();
+                        }
                     }
                 }
             });

@@ -7,12 +7,9 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.robotium.solo.Solo;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-
 
 public class ScanBookActivityTest {
     private Solo solo;
@@ -42,9 +39,12 @@ public class ScanBookActivityTest {
         Activity activity = rule.getActivity();
     }
 
+    /**
+     * Checks that scanner launches
+     */
     @Test
     public void launchScannerTest() {
-
+        solo.assertCurrentActivity("Scan Book", ScanBook.class);
     }
 
 }

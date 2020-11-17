@@ -31,7 +31,6 @@ public class Book {
     private String borrower;
     private String owner;
     private List<String> requests;
-    private Image image;
 
     /**
      * constructs basic Book
@@ -162,12 +161,4 @@ public class Book {
     }
 
     public boolean noRequests() {return (requests.size() == 1); }
-
-    public Image getImage() {
-        return image;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
 }
