@@ -76,7 +76,7 @@ public class RequestAdapter extends ArrayAdapter<User> {
             @Override
             public void onClick(View v) {
                 if (context instanceof BookRequests) {
-                    ((BookRequests) context).acceptRequest(position);
+                    ((BookRequests) context).clickedAccept(position);
                 }
             }
         });

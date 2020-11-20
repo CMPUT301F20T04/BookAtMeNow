@@ -16,6 +16,7 @@ public class ProgramTags {
     static final String BOOK_POS = "BookPosition";
     static final String PASSED_ISBN = "PassedISBN";
     static final String PASSED_UUID = "PassedUUID";
+    static final String PASSED_USERNAME = "PassedUsername";
 
     static final String STATUS_AVAILABLE = "Available";
     static final String STATUS_REQUESTED = "Requested";

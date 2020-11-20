@@ -162,21 +162,15 @@ public class Book {
         this.requests.add(uuid);
     }
 
-    public void setBorrower(String uuid) {
-        if(checkForRequest(uuid)) {
-
-        }
+    public void clearRequests() {
         for(String request : this.requests) {
-            if(!request.equals("EMPTY")) {
-                this.requests.remove(request);
-            }
+            if(!request.equals("EMPTY")) this.requests.remove(request);
         }
     }
 
     public void deleteRequest(String uuid) {
         if(this.checkForRequest(uuid)) {
             this.requests.remove(uuid);
-            if(this.noRequests()) this.setStatus(ProgramTags.STATUS_AVAILABLE);
         } else {
             Log.e(ProgramTags.BOOK_ERROR, "Tried to delete non-existent request.");
         }

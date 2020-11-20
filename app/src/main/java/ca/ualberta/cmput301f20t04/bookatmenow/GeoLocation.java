@@ -90,6 +90,7 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public void cancel(View view) {//cancel setting pickup location, or pressing back on location view screen
+        setResult(RESULT_CANCELED);
         this.finish();//close activity
     }
 
