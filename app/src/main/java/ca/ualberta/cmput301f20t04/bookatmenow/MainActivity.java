@@ -242,9 +242,21 @@ public class MainActivity extends AppCompatActivity {
                        break;
 
                     case REQUESTED:
-                        Intent intent = new Intent(MainActivity.this, MyRequests.class);
-                        intent.putExtra("uuid", uuid);
-                        startActivityForResult(intent, MyRequests.REQUEST_ACTIVITY);
+                        db.userRequests(
+                                uuid,
+                                new OnSuccessListener<List<Book>>() {
+                                    @Override
+                                    public void onSuccess(List<Book> books) {
+                                        setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                                    }
+                                },
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                        );
                 }
             }
 
