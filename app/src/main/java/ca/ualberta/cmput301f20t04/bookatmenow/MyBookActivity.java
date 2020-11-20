@@ -39,7 +39,9 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 //import static ca.ualberta.cmput301f20t04.bookatmenow.R.id.editTextAuthor;
 
@@ -679,7 +681,19 @@ public class MyBookActivity extends AppCompatActivity {
                                     newBook.setIsbn(isbnEditText.getText().toString().trim());
                                     Log.d(ProgramTags.BOOK_DATA, String.format("Book isbn set to %s", newBook.getIsbn()));
 
-                                    newBook.setOwner(uuid);
+                                    db.getUser(uuid, new OnSuccessListener<User>() {
+                                        @Override
+                                        public void onSuccess(User user) {
+                                            List owner = Arrays.asList(uuid, user.getUsername());
+                                            newBook.setOwner(owner);
+                                        }
+                                    }, new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+
+                                        }
+                                    });
+
                                     Log.d(ProgramTags.BOOK_DATA, String.format("Book owner set to %s", newBook.getOwner()));
 
                                     try {
@@ -737,7 +751,19 @@ public class MyBookActivity extends AppCompatActivity {
                             newBook.setIsbn(isbnEditText.getText().toString().trim());
                             Log.d(ProgramTags.BOOK_DATA, String.format("Book isbn set to %s", newBook.getIsbn()));
 
-                            newBook.setOwner(uuid);
+                            db.getUser(uuid, new OnSuccessListener<User>() {
+                                @Override
+                                public void onSuccess(User user) {
+                                    List owner = Arrays.asList(uuid, user.getUsername());
+                                    newBook.setOwner(owner);
+                                }
+                            }, new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                }
+                            });
+
                             Log.d(ProgramTags.BOOK_DATA, String.format("Book owner set to %s", newBook.getOwner()));
 
 

@@ -111,7 +111,7 @@ public class ABookActivity extends AppCompatActivity {
                     }
                 });
 
-                owner_uuid = book.getOwner();
+                owner_uuid = book.getOwner().get(0);
 
                 String title = "Title: ";
                 SpannableString titleString = new SpannableString(title + book.getTitle());

@@ -189,7 +189,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
     }
 
     private void setBookData(final View convertView, final Book book) {
-        db.getUser(book.getOwner(), new OnSuccessListener<User>() {
+        db.getUser(book.getOwner().get(0), new OnSuccessListener<User>() {
             @Override
             public void onSuccess(User user) {
                 final String ownerDisplayName = getDisplayName(user);
