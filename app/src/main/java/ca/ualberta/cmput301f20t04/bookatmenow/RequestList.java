@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -141,7 +142,28 @@ public class RequestList extends BookList {
             @Override
             public void onClick(View view) {
                 book.setStatus(Book.StatusEnum.Borrowed.toString());
-                book.setBorrower(borrower);
+                db.usernameExists(borrower, new OnSuccessListener<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        db.getUser(s, new OnSuccessListener<User>() {
+                            @Override
+                            public void onSuccess(User user) {
+                                List borrower = Arrays.asList(user.getUserId(), user.getUsername());
+                                book.setBorrower(borrower);
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
 //                db.addBook(book);
 
                 refreshRequests();

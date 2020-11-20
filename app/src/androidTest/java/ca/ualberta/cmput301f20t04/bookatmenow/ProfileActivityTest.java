@@ -13,8 +13,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 public class ProfileActivityTest {
     private Solo solo;
     DBHandler db = new DBHandler();
@@ -50,7 +48,6 @@ public class ProfileActivityTest {
     public void clickCancel() {
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         solo.clickOnButton("Cancel");
-        solo.waitForActivity("MainActivity"); // checks if ProfileActivity finished
     }
 
     /**
