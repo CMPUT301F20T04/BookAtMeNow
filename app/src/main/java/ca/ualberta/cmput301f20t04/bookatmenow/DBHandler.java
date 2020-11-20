@@ -414,10 +414,16 @@ public class DBHandler {
             bookData.put(FireStoreMapping.BOOK_FIELDS_STATUS, "");
         }
 
+        if(bookToAdd.getLocation() != null) {
+            bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, bookToAdd.getLocation());
+        } else {
+            bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, "");
+        }
+
         if(bookToAdd.getBorrower() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_BORROWER, bookToAdd.getBorrower());
         } else {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_BORROWER, "");
+            bookData.put(FireStoreMapping.BOOK_FIELDS_BORROWER, new ArrayList<String>());
         }
 
         if(bookToAdd.getOwner() != null) {
@@ -461,8 +467,9 @@ public class DBHandler {
         String title = data.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
         String author = data.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
         String status = data.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
-        String borrower = data.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
-        String owner = data.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
+        String location = data.getString(FireStoreMapping.BOOK_FIELDS_LOCATION);
+        List<String> borrower = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_BORROWER);
+        List<String> owner = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_OWNER);
         List<String> requests = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_REQUESTS);
 
         finalBook.setTitle(title);
@@ -472,6 +479,7 @@ public class DBHandler {
         finalBook.setBorrower(borrower);
         finalBook.setOwner(owner);
         finalBook.setRequests(requests);
+        finalBook.setLocation(location);
 
         return finalBook;
     }

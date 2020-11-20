@@ -22,14 +22,17 @@ public class Book {
         Accepted,
         Borrowed,
         Unavailable,
+        AcceptBorrow,
+        AcceptReturn
     }
 
     private String title;
     private String author;
     private String isbn;
     private String status;
-    private String borrower;
-    private String owner;
+    private String location;
+    private List<String> borrower;
+    private List<String> owner;
     private List<String> requests;
 
     /**
@@ -40,7 +43,7 @@ public class Book {
      * @param status
      * @param owner
      */
-    public Book(String title, String author, String isbn, String status, String owner) {
+    public Book(String title, String author, String isbn, String status, List<String> owner) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
@@ -63,7 +66,7 @@ public class Book {
      * @param owner
      * @param borrower
      */
-    public Book(String title, String author, String isbn, String status, String owner, String borrower) {
+    public Book(String title, String author, String isbn, String status, List<String> owner, List<String> borrower) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
@@ -115,19 +118,27 @@ public class Book {
         this.status = status;
     }
 
-    public String getBorrower() {
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getLocation() {
+        return this.location;
+    }
+
+    public List<String> getBorrower() {
         return borrower;
     }
 
-    public void setBorrower(String borrower) {
+    public void setBorrower(List<String> borrower) {
         this.borrower = borrower;
     }
 
-    public String getOwner() {
+    public List<String> getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(List<String> owner) {
         this.owner = owner;
     }
 
