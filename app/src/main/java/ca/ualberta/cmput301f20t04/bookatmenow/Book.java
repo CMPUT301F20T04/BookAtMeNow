@@ -151,6 +151,26 @@ public class Book {
         this.requests.add(uuid);
     }
 
+    public void setBorrower(String uuid) {
+        if(checkForRequest(uuid)) {
+
+        }
+        for(String request : this.requests) {
+            if(!request.equals("EMPTY")) {
+                this.requests.remove(request);
+            }
+        }
+    }
+
+    public void deleteRequest(String uuid) {
+        if(this.checkForRequest(uuid)) {
+            this.requests.remove(uuid);
+            if(this.noRequests()) this.setStatus(ProgramTags.STATUS_AVAILABLE);
+        } else {
+            Log.e(ProgramTags.BOOK_ERROR, "Tried to delete non-existent request.");
+        }
+    }
+
     /**
      * Check if a user uuid is present in the requests list.
      * @param uuid of user being checked.
@@ -160,5 +180,5 @@ public class Book {
         return requests.contains(uuid);
     }
 
-    public boolean noRequests() {return (requests.size() == 1); }
+    public boolean noRequests() {return (requests.size() == 1 && requests.get(0).equals("EMPTY")); }
 }
