@@ -206,55 +206,59 @@ public class DBHandler {
                 new OnSuccessListener<User>() {
                     @Override
                     public void onSuccess(User user) {
-                        HashMap<String, Object> userData = new HashMap<>();
+                        if (user != null) {
+                            HashMap<String, Object> userData = new HashMap<>();
 
-                        userData.put(FireStoreMapping.USER_FIELDS_ID, userToAdd.getUserId());
+                            userData.put(FireStoreMapping.USER_FIELDS_ID, userToAdd.getUserId());
 
-                        if(!userToAdd.getUsername().equals(user.getUsername())) {
-                            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
-                        } else {
-                            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, user.getUsername());
-                        }
-
-                        if(!userToAdd.getPassword().equals(user.getPassword()) && userToAdd.getPassword().trim().length() > 0) {
-                            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
-                        } else {
-                            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, user.getPassword());
-                            Log.d(ProgramTags.DB_MESSAGE, "User password not changed.");
-                        }
-
-                        if(!userToAdd.getPhone().equals(user.getPhone())) {
-                            userData.put(FireStoreMapping.USER_FIELDS_PHONE, userToAdd.getPhone());
-                        } else {
-                            userData.put(FireStoreMapping.USER_FIELDS_PHONE, user.getPhone());
-                        }
-
-                        if(!userToAdd.getEmail().equals(user.getEmail())) {
-                            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
-                        } else {
-                            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, user.getEmail());
-                        }
-
-                        if(!userToAdd.getAddress().equals(user.getAddress())) {
-                            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, userToAdd.getAddress());
-                        } else {
-                            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, user.getAddress());
-                        }
-
-                        Task<Void> updateTask = db
-                                .collection(FireStoreMapping.COLLECTIONS_USER)
-                                .document(userToAdd.getUserId())
-                                .set(userData);
-
-                        updateTask.continueWith(new Continuation<Void, Boolean>() {
-                            @Override
-                            public Boolean then(@NonNull Task<Void> task) throws Exception {
-                                Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
-                                return true;
+                            if (!userToAdd.getUsername().equals(user.getUsername())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_USERNAME, user.getUsername());
                             }
-                        })
-                                .addOnSuccessListener(successListener)
-                                .addOnFailureListener(failureListener);
+
+                            if (!userToAdd.getPassword().equals(user.getPassword()) && userToAdd.getPassword().trim().length() > 0) {
+                                userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, user.getPassword());
+                                Log.d(ProgramTags.DB_MESSAGE, "User password not changed.");
+                            }
+
+                            if (!userToAdd.getPhone().equals(user.getPhone())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_PHONE, userToAdd.getPhone());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_PHONE, user.getPhone());
+                            }
+
+                            if (!userToAdd.getEmail().equals(user.getEmail())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_EMAIL, user.getEmail());
+                            }
+
+                            if (!userToAdd.getAddress().equals(user.getAddress())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, userToAdd.getAddress());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, user.getAddress());
+                            }
+
+                            Task<Void> updateTask = db
+                                    .collection(FireStoreMapping.COLLECTIONS_USER)
+                                    .document(userToAdd.getUserId())
+                                    .set(userData);
+
+                            updateTask.continueWith(new Continuation<Void, Boolean>() {
+                                @Override
+                                public Boolean then(@NonNull Task<Void> task) throws Exception {
+                                    Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
+                                    return true;
+                                }
+                            })
+                                    .addOnSuccessListener(successListener)
+                                    .addOnFailureListener(failureListener);
+                        } else {
+                            Log.d(ProgramTags.DB_ERROR, "Unable to update user. Original user does no exist.");
+                        }
                     }
                 },
                 new OnFailureListener() {
