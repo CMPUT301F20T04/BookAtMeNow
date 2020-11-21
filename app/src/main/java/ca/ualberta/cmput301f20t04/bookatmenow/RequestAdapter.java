@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,7 +57,7 @@ public class RequestAdapter extends ArrayAdapter<User> {
      */
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if(convertView == null){
             convertView = LayoutInflater.from(context).inflate(R.layout.request_row, parent,false);
         }
@@ -70,6 +71,24 @@ public class RequestAdapter extends ArrayAdapter<User> {
         } else {
             displayName.setText(requester.getEmail());
         }
+
+        convertView.findViewById(R.id.confirm_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (context instanceof BookRequests) {
+                    ((BookRequests) context).clickedAccept(position);
+                }
+            }
+        });
+
+        convertView.findViewById(R.id.reject_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (context instanceof BookRequests) {
+                    ((BookRequests) context).removeRequest(position);
+                }
+            }
+        });
 
         return convertView;
     }

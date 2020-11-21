@@ -3,20 +3,29 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +34,9 @@ public class BookRequests extends AppCompatActivity {
     private ListView requesterList;
     private TextView noRequests;
     private TextView bookRequestsTitle;
+    private Context context;
+    private boolean gotIsbn;
+    private boolean gotLocation;
 
     private RequestAdapter requestAdapter;
     private LinkedList<User> bookRequests;
@@ -32,6 +44,13 @@ public class BookRequests extends AppCompatActivity {
     private DBHandler db;
 
     private String isbn;
+
+    final private static int REQUEST_ISBN_SCAN = 0;
+    final private static int REQUEST_LOCATION = 1;
+
+    Geocoder geocoder;
+    List<Address> addresses;
+    List<String> location;
 
 
     @Override
@@ -44,6 +63,7 @@ public class BookRequests extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_requests);
+        context = this;
 
         requesterList = findViewById(R.id.myBookReqs_listView_BookRequests);
         noRequests = findViewById(R.id.noRequested_TextView_BookRequests);
@@ -97,5 +117,146 @@ public class BookRequests extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void clickedAccept(int position) {
+        gotIsbn = false;
+        gotLocation = false;
+
+        checkIsbn();
+        getLocation();
+
+        if(gotIsbn && gotLocation) {
+            acceptRequest(position);
+        }
+
+    }
+
+    public void removeRequest(int position) {
+        final String requestUuid = bookRequests.get(position).getUserId();
+        final String requestUsername = bookRequests.get(position).getUsername();
+        Toast.makeText(context, "Removed request by " + requestUsername, Toast.LENGTH_SHORT).show();
+        bookRequests.remove(position);
+        requestAdapter.notifyDataSetChanged();
+
+        db.getBook(isbn, new OnSuccessListener<Book>() {
+                @Override
+                public void onSuccess(Book book) {
+                    book.deleteRequest(requestUuid);
+
+                    if(book.noRequests()){
+                        requesterList.setVisibility(View.GONE);
+                        bookRequestsTitle.setVisibility(View.GONE);
+                        noRequests.setVisibility(View.VISIBLE);
+                        book.setStatus(ProgramTags.STATUS_AVAILABLE);
+                    }
+
+                    try {
+                        db.addBook(book, new OnSuccessListener<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void acceptRequest(int position) {
+        final String borrowerUuid = bookRequests.get(position).getUserId();
+        final String borrowerUsername = bookRequests.get(position).getUsername();
+        final List<String> borrower = Arrays.asList(borrowerUuid, borrowerUsername);
+        bookRequests.clear();
+        requestAdapter.notifyDataSetChanged();
+        requesterList.setVisibility(View.GONE);
+        bookRequestsTitle.setVisibility(View.GONE);
+        noRequests.setVisibility(View.VISIBLE);
+
+        db.getBook(isbn, new OnSuccessListener<Book>() {
+            @Override
+            public void onSuccess(Book book) {
+
+                book.setBorrower(borrower);
+                book.setStatus(ProgramTags.STATUS_ACCEPTED);
+                book.clearRequests();
+
+                try {
+                    db.addBook(book, new OnSuccessListener<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean aBoolean) {
+
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+    public void checkIsbn() {
+        Intent i = new Intent(BookRequests.this, ScanBook.class);
+        i.putExtra(ProgramTags.PASSED_ISBN, isbn);
+        startActivityForResult(i, REQUEST_ISBN_SCAN);
+    }
+
+    public void getLocation() {
+        Intent i = new Intent(BookRequests.this, GeoLocation.class);
+        startActivityForResult(i, REQUEST_LOCATION);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_LOCATION:
+                    String lat = data.getStringExtra("lat");
+                    String lng = data.getStringExtra("lng");
+                    try {
+                        addresses = geocoder.getFromLocation(Double.parseDouble(lat), Double.parseDouble(lng), 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    location = Arrays.asList(addresses.get(0).getAddressLine(0), lat, lng);
+
+                    Log.i("AppInfo", "address is: " + String.valueOf(addresses.get(0).getAddressLine(0)));
+
+                    gotLocation = true;
+                    break;
+
+                case REQUEST_ISBN_SCAN:
+                    gotIsbn = true;
+                    break;
+            }
+
+        } else if (resultCode == RESULT_CANCELED) {
+            gotIsbn = false;
+            gotLocation = false;
+        }
     }
 }

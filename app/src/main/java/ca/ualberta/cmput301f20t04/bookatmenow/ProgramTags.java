@@ -9,11 +9,14 @@ public class ProgramTags {
     static final String DB_ALL_FOUND = "AllFound";
     static final String DB_USER_FOUND = "UserFound";
 
+    static final String BOOK_ERROR = "BookError";
+
     static final String BOOK_CHANGED = "BookChanged";
     static final String BOOK_DATA = "BookData";
     static final String BOOK_POS = "BookPosition";
     static final String PASSED_ISBN = "PassedISBN";
     static final String PASSED_UUID = "PassedUUID";
+    static final String PASSED_USERNAME = "PassedUsername";
 
     static final String STATUS_AVAILABLE = "Available";
     static final String STATUS_REQUESTED = "Requested";

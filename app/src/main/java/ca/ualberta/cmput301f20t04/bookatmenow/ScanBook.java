@@ -46,23 +46,12 @@ public class ScanBook extends AppCompatActivity {
             toast.show();
         } else {
             final Intent main = getIntent();
-            String passedIsbn = main.getStringExtra("ISBN");
+            String passedIsbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
 
             if (passedIsbn != null) {
                 // if book barcode matches scanned barcode
                 // allow barcode to be used to check out the book
                 if (passedIsbn.equals(bookISBN)) {
-                    db.getBook(bookISBN, new OnSuccessListener<Book>() {
-                        @Override
-                        public void onSuccess(Book book) {
-                            book.setStatus("Borrowed");
-                        }
-                    }, new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                        }
-                    });
                     this.finish();
                 } else {
                     Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);
