@@ -112,12 +112,12 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
         viewingMap = false;
         setAddress = false;
 
-        if (mapType.getStringExtra("purpose").equals("view") ){//we are viewing the map, not setting a location
+        if (mapType.getStringExtra(ProgramTags.LOCATION_PURPOSE).equals("view") ){//we are viewing the map, not setting a location
             setGeoLocPickup.setVisibility(View.GONE);
             cancelPickupLocSet.setText("BACK");
             viewingMap = true;
             pickupLocationViewing = new LatLng(Double.valueOf(mapType.getStringExtra("lat")), Double.valueOf(mapType.getStringExtra("lng")));
-        } else if(mapType.getStringExtra("purpose").equals("profile")) {//selecting address for profile
+        } else if(mapType.getStringExtra(ProgramTags.LOCATION_PURPOSE).equals("getLocation")) {//selecting address for profile or pickup
             setGeoLocPickup.setText("SET ADDRESS");
             setAddress = true;
         }

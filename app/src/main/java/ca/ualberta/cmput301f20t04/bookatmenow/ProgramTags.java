@@ -9,6 +9,8 @@ public class ProgramTags {
     static final String DB_ALL_FOUND = "AllFound";
     static final String DB_USER_FOUND = "UserFound";
 
+    static final String LOCATION_PURPOSE = "LocationPurpose";
+
     static final String BOOK_ERROR = "BookError";
 
     static final String BOOK_CHANGED = "BookChanged";
