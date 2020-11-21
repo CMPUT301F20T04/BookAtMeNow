@@ -52,6 +52,7 @@ public class ScanBook extends AppCompatActivity {
                 // if book barcode matches scanned barcode
                 // allow barcode to be used to check out the book
                 if (passedIsbn.equals(bookISBN)) {
+                    setResult(Activity.RESULT_OK);
                     this.finish();
                 } else {
                     Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);

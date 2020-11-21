@@ -177,7 +177,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, GeoLocation.class);
-                intent.putExtra("purpose", "profile");
+                intent.putExtra(ProgramTags.LOCATION_PURPOSE, "getLocation");
                 startActivityForResult(intent, 1);
             }
         });

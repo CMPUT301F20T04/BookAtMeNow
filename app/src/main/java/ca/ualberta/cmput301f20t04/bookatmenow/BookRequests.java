@@ -51,6 +51,7 @@ public class BookRequests extends AppCompatActivity {
     Geocoder geocoder;
     List<Address> addresses;
     List<String> location;
+    int acceptPosition;
 
 
     @Override
@@ -86,10 +87,10 @@ public class BookRequests extends AppCompatActivity {
 
                 String requestsFor = "Requests for: ";
                 SpannableString requestTitleString = new SpannableString(requestsFor + book.getTitle());
-                requestTitleString.setSpan(new StyleSpan(Typeface.ITALIC), requestsFor.length() -1, requestsFor.length() + book.getTitle().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                requestTitleString.setSpan(new StyleSpan(Typeface.ITALIC), requestsFor.length() - 1, requestsFor.length() + book.getTitle().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 bookRequestsTitle.setText(requestTitleString);
 
-                if(book.noRequests()){//there are users requesting this book
+                if (book.noRequests()) {//there are users requesting this book
                     requesterList.setVisibility(View.GONE);
                     noRequests.setVisibility(View.VISIBLE);
                 } else {//no one is requesting this book
@@ -120,16 +121,9 @@ public class BookRequests extends AppCompatActivity {
     }
 
     public void clickedAccept(int position) {
-        gotIsbn = false;
-        gotLocation = false;
-
+        acceptPosition = position;
         checkIsbn();
         getLocation();
-
-        if(gotIsbn && gotLocation) {
-            acceptRequest(position);
-        }
-
     }
 
     public void removeRequest(int position) {
@@ -140,32 +134,32 @@ public class BookRequests extends AppCompatActivity {
         requestAdapter.notifyDataSetChanged();
 
         db.getBook(isbn, new OnSuccessListener<Book>() {
-                @Override
-                public void onSuccess(Book book) {
-                    book.deleteRequest(requestUuid);
+            @Override
+            public void onSuccess(Book book) {
+                book.deleteRequest(requestUuid);
 
-                    if(book.noRequests()){
-                        requesterList.setVisibility(View.GONE);
-                        bookRequestsTitle.setVisibility(View.GONE);
-                        noRequests.setVisibility(View.VISIBLE);
-                        book.setStatus(ProgramTags.STATUS_AVAILABLE);
-                    }
-
-                    try {
-                        db.addBook(book, new OnSuccessListener<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean aBoolean) {
-                            }
-                        }, new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                if (book.noRequests()) {
+                    requesterList.setVisibility(View.GONE);
+                    bookRequestsTitle.setVisibility(View.GONE);
+                    noRequests.setVisibility(View.VISIBLE);
+                    book.setStatus(ProgramTags.STATUS_AVAILABLE);
                 }
+
+                try {
+                    db.addBook(book, new OnSuccessListener<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean aBoolean) {
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -196,12 +190,12 @@ public class BookRequests extends AppCompatActivity {
                     db.addBook(book, new OnSuccessListener<Boolean>() {
                         @Override
                         public void onSuccess(Boolean aBoolean) {
-
+                            Log.e(ProgramTags.DB_ERROR, "Requested book could be re-added to database!");
                         }
                     }, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
+                            Log.e(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
                         }
                     });
                 } catch (Exception e) {
@@ -225,6 +219,7 @@ public class BookRequests extends AppCompatActivity {
 
     public void getLocation() {
         Intent i = new Intent(BookRequests.this, GeoLocation.class);
+        i.putExtra(ProgramTags.LOCATION_PURPOSE, "getLocation");
         startActivityForResult(i, REQUEST_LOCATION);
     }
 
@@ -236,27 +231,14 @@ public class BookRequests extends AppCompatActivity {
                 case REQUEST_LOCATION:
                     String lat = data.getStringExtra("lat");
                     String lng = data.getStringExtra("lng");
-                    try {
-                        addresses = geocoder.getFromLocation(Double.parseDouble(lat), Double.parseDouble(lng), 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    location = Arrays.asList(lat, lng);
 
-                    location = Arrays.asList(addresses.get(0).getAddressLine(0), lat, lng);
-
-                    Log.i("AppInfo", "address is: " + String.valueOf(addresses.get(0).getAddressLine(0)));
-
-                    gotLocation = true;
                     break;
 
                 case REQUEST_ISBN_SCAN:
-                    gotIsbn = true;
+                    acceptRequest(acceptPosition);
                     break;
             }
-
-        } else if (resultCode == RESULT_CANCELED) {
-            gotIsbn = false;
-            gotLocation = false;
         }
     }
 }
