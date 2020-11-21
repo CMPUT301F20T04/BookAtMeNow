@@ -312,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, MyBookActivity.class);
                 i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                i.putExtra(ProgramTags.PASSED_USERNAME, username);
                 startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });

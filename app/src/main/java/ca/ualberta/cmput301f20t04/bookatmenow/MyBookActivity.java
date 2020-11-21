@@ -589,6 +589,7 @@ public class MyBookActivity extends AppCompatActivity {
         } else {//adding a new book
             final String uuid = main.getStringExtra(ProgramTags.PASSED_UUID);
             final String username = main.getStringExtra(ProgramTags.PASSED_USERNAME);
+            Log.e("Josh error", String.format("Username is %s", username));
             final Book newBook = new Book();
 
             pendingRequestButton.setVisibility(View.INVISIBLE);
