@@ -71,7 +71,6 @@ public class ScanBook extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.getSupportActionBar().hide();
         setContentView(R.layout.activity_scan_book);
         cameraView = findViewById(R.id.scanbook_camera_view);
         isbnText = findViewById(R.id.scanbook_isbn);
