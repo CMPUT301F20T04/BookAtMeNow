@@ -138,6 +138,12 @@ public class BookAdapter extends ArrayAdapter<Book> {
             return true;
         }
 
+        if ((Book.StatusEnum.valueOf(book.getStatus()) == Book.StatusEnum.Unavailable) &&
+            !uuid.equals(book.getOwner().get(0)))
+        {
+            return false;
+        }
+
         switch (viewMode) {
             case OWNED:
                 return uuid.equals(book.getOwner().get(0));
@@ -194,7 +200,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
         isbn.setText(book.getIsbn());
         setStatus(status, book);
         owner.setText(book.getOwner().get(1));
-        if (book.getBorrower().size() > 1) {
+        if (book.getBorrower().size() == 2) {
             borrower.setText(book.getBorrower().get(1));
         }
     }

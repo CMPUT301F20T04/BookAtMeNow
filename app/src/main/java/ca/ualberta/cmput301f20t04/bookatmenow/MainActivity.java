@@ -36,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton filterButton;
     private Button searchButton;
 
-    private Animation slideUp;
-    private Animation slideDown;
+    private Animation slideLeft;
+    private Animation slideRight;
 
     private EditText searchEditText;
 
@@ -115,8 +115,8 @@ public class MainActivity extends AppCompatActivity {
         addBookButton.setVisibility(View.INVISIBLE);
 
         // animation adapted from https://stackoverflow.com/a/44145485
-        slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_left);
-        slideDown = AnimationUtils.loadAnimation(this, R.anim.slide_right);
+        slideLeft = AnimationUtils.loadAnimation(this, R.anim.slide_left);
+        slideRight = AnimationUtils.loadAnimation(this, R.anim.slide_right);
 
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                            @Override
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(List<Book> books) {
                                         addBookButton.setVisibility(View.VISIBLE);
-                                        addBookButton.startAnimation(slideUp);
+                                        addBookButton.startAnimation(slideLeft);
                                         addBookButton.setEnabled(true);
                                         setViewMode(BookAdapter.ViewMode.OWNED, books);
                                     }
@@ -264,9 +264,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 1) {
+                if (MainActivityViews.fromInt(tab.getPosition()) == MainActivityViews.MY_BOOKS) {
                     addBookButton.setEnabled(false);
-                    addBookButton.startAnimation(slideDown);
+                    addBookButton.startAnimation(slideRight);
                     addBookButton.setVisibility(View.INVISIBLE);
                 }
             }
@@ -322,13 +322,9 @@ public class MainActivity extends AppCompatActivity {
     private void setViewMode(BookAdapter.ViewMode viewMode, List<Book> allBooks)    {
         filteredBooks.clear();
 
-        if (viewMode == BookAdapter.ViewMode.ALL) {
-            filteredBooks.addAll(allBooks);
-        } else {
-            for (Book book : allBooks) {
-                if (BookAdapter.checkUser(book, uuid, viewMode)) {
-                    filteredBooks.add(book);
-                }
+        for (Book book : allBooks) {
+            if (BookAdapter.checkUser(book, uuid, viewMode)) {
+                filteredBooks.add(book);
             }
         }
         allBooksAdapter.notifyDataSetChanged();
@@ -347,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 setViewMode(BookAdapter.ViewMode.ALL, books);
                                 addBookButton.setEnabled(false);
-                                addBookButton.startAnimation(slideDown);
+                                addBookButton.startAnimation(slideRight);
                                 addBookButton.setVisibility(View.INVISIBLE);
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
