@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout filterTabs;
 
     private String uuid;
+    private String username;
 
     private enum MainActivityViews{
         ALL_BOOKS,
@@ -107,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
         filteredBooks = new ArrayList<>();
         allBooksAdapter = new BookAdapter(MainActivity.this, filteredBooks);
         bookList.setAdapter(allBooksAdapter);
-        uuid = getIntent().getStringExtra("uuid");
+        uuid = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_ID);
+        username = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_USERNAME);
 
         // animation adapted from https://stackoverflow.com/a/44145485
         slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_left);
@@ -277,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
                 Log.d(ProgramTags.TEST_TAG, uuid);
-                if (filteredBooks.get(pos).getOwner().equals(uuid)) {
+                if (filteredBooks.get(pos).getOwner().get(0).equals(uuid)) {
                     Intent i = new Intent(MainActivity.this, MyBookActivity.class);
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
                     i.putExtra(ProgramTags.PASSED_UUID, uuid);

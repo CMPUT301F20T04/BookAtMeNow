@@ -343,7 +343,7 @@ public class DBHandler {
      * @param failureListener
      *      Listener for failed retrieval
      */
-    public void loginHandler(String user, final String password, OnSuccessListener<String> successListener, OnFailureListener failureListener) {
+    public void loginHandler(String user, final String password, OnSuccessListener<List<String>> successListener, OnFailureListener failureListener) {
         String type;
         if (validEmail(user)) {
             type = FireStoreMapping.USER_FIELDS_EMAIL;
@@ -356,13 +356,16 @@ public class DBHandler {
                 .whereEqualTo(type, user)
                 .get();
 
-        loginTask.continueWith(new Continuation<QuerySnapshot, String>() {
+        loginTask.continueWith(new Continuation<QuerySnapshot, List<String>>() {
             @Override
-            public String then(@NonNull Task<QuerySnapshot> task) throws Exception {
+            public List<String> then(@NonNull Task<QuerySnapshot> task) throws Exception {
                 List<DocumentSnapshot> loginData = task.getResult().getDocuments();
                 if (loginData.size() > 0) {
                     if (loginData.get(0).getString(FireStoreMapping.USER_FIELDS_PASSWORD).equals(password)) {
-                        return loginData.get(0).getId();
+                        List<String> loginSuccess = new ArrayList<>();
+                        loginSuccess.add(loginData.get(0).getId());
+                        loginSuccess.add(loginData.get(0).getString(FireStoreMapping.USER_FIELDS_USERNAME));
+                        return loginSuccess;
                     } else {
                         return null;
                     }
