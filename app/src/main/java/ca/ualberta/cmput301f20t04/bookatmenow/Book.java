@@ -30,7 +30,7 @@ public class Book {
     private String author;
     private String isbn;
     private String status;
-    private String location;
+    private List<String> location;
     private List<String> borrower;
     private List<String> owner;
     private List<String> requests;
@@ -118,11 +118,11 @@ public class Book {
         this.status = status;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(List<String> location) {
         this.location = location;
     }
 
-    public String getLocation() {
+    public List<String> getLocation() {
         return this.location;
     }
 

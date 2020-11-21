@@ -420,7 +420,7 @@ public class DBHandler {
         if(bookToAdd.getLocation() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, bookToAdd.getLocation());
         } else {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, "");
+            bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, new ArrayList<String>());
         }
 
         if(bookToAdd.getBorrower() != null) {
@@ -470,7 +470,7 @@ public class DBHandler {
         String title = data.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
         String author = data.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
         String status = data.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
-        String location = data.getString(FireStoreMapping.BOOK_FIELDS_LOCATION);
+        List<String> location = (List<String>) data.get (FireStoreMapping.BOOK_FIELDS_LOCATION);
         List<String> borrower = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_BORROWER);
         List<String> owner = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_OWNER);
         List<String> requests = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_REQUESTS);
