@@ -79,6 +79,7 @@ public class MyBookActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
     private File photoFile;
     private String currentBookImage;
+    private boolean removeImage;
 
     private StorageReference storageReference;
     private StorageReference getImageRef;
@@ -113,6 +114,7 @@ public class MyBookActivity extends AppCompatActivity {
                 photoFile = null;
                 try {
                     photoFile = createImageFile();
+                    removeImage = false;
                 } catch (IOException ex) {
                     // Error occurred while creating the File
                 }
@@ -146,66 +148,8 @@ public class MyBookActivity extends AppCompatActivity {
         return image;
     }
 
-    public void saveImg() {
-
-        if(pictureTaken == true){//picture was taken. Save it
-            Toast toast1 = Toast.makeText(this, "Uploading image", Toast.LENGTH_SHORT);
-            toast1.show();
-
-            Uri file = myUri;
-            final StorageReference riversRef = storageReference.child("images/myImage.jpg");
-
-            final long FILE_SIZE = 5120*5120;
-            riversRef.getBytes(FILE_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                @Override
-                public void onSuccess(byte[] bytes) {
-                    Log.i("AppInfo", "SUCCEED");
-                    ImageView myImg = (ImageView) findViewById(R.id.myBook_imageview); //need to redefine it before changing it
-                    Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    myImg.setImageBitmap(myBitmap);
-                    myImg.setRotation(90);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.i("AppInfo", "FAILED: " + e.toString());
-                }
-            });
-
-            UploadTask uploadTask = riversRef.putFile(file);//uploading a file
-            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    // Get a URL to the uploaded content
-                    Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
-                    Log.i("AppInfo", "URL is: " + downloadUri.toString());
-                    Toast toast = Toast.makeText(MyBookActivity.this, "Upload successful", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle unsuccessful uploads
-                    // ...
-                    Toast toast = Toast.makeText(MyBookActivity.this, "Upload failed", Toast.LENGTH_SHORT);
-                    toast.show();
-                    Log.i("AppInfo", "FAIL: " + exception.toString());
-                }
-            });
-
-            riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Log.i("AppInfo", "url is: " + uri.toString());
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-
-                }
-            });
-        }
+    public void removeImage(View view){
+        removeImage = true;
     }
 
     @Override
@@ -329,6 +273,7 @@ public class MyBookActivity extends AppCompatActivity {
         db = new DBHandler();
 
         pictureTaken = false;
+        removeImage = false;
         storageReference = FirebaseStorage.getInstance().getReference();
 
         scanButton = findViewById(R.id.myBook_scan_button);
@@ -503,7 +448,7 @@ public class MyBookActivity extends AppCompatActivity {
                         public void onClick(View v) {
 
 
-                            if(pictureTaken == true){//picture was taken. Save it
+                            if(pictureTaken == true && removeImage == false){//picture was taken and user does not want it removed. Save it
                                 Uri file = myUri;
                                 currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
                                 final StorageReference riversRef = storageReference.child(currentBookImage);
@@ -562,7 +507,22 @@ public class MyBookActivity extends AppCompatActivity {
                                     }
                                 });
 
-                            } else {//no picture was takes. Update book data normally
+                            }else {//no picture was taken and user does not want to remove image. Update book data normally
+
+                                if(removeImage == true && currentBookImage != null){//regardless of if an image was taken, remove it if it exists
+                                    getImageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {//bok image has deleted. Now remove book from db
+                                            Log.i("AppInfo", "Image removed");
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e("Error", e.toString());
+                                        }
+                                    });
+                                }
+
                                 toggleAllFields(1);
 
                                 if (checkFields()) {
@@ -600,7 +560,7 @@ public class MyBookActivity extends AppCompatActivity {
                                                 }
                                             }).show();
                                 }
-                            }
+                            }//end of entire if else
 
                         }
                     });
