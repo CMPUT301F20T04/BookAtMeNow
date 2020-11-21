@@ -41,11 +41,15 @@ public class ABookActivity extends AppCompatActivity {
     private TextView aStatus;
     private Button ownerButton;
     private Button requestButton;
+    private Button borrowButton;
+    private Button returnButton;
+    private Button locationButton;
     private Context context;
 
     private String isbn;
     private String owner_uuid;
     private String uuid;
+    private List<String> location;
 
     private StorageReference storageReference;
     private StorageReference getImageRef;
@@ -68,7 +72,14 @@ public class ABookActivity extends AppCompatActivity {
         aStatus = findViewById(R.id.abook_status_textview);
         ownerButton = findViewById(R.id.abook_owner_button);
         requestButton = findViewById(R.id.abook_request_button);
+        borrowButton = findViewById(R.id.abook_borrow_button);
+        returnButton = findViewById(R.id.abook_return_button);
+        locationButton = findViewById(R.id.abook_location_button);
+
         requestButton.setEnabled(false);
+        borrowButton.setVisibility(View.INVISIBLE);
+        returnButton.setVisibility(View.INVISIBLE);
+        locationButton.setVisibility(View.INVISIBLE);
 
         db = new DBHandler();
         storageReference = FirebaseStorage.getInstance().getReference();
@@ -140,6 +151,14 @@ public class ABookActivity extends AppCompatActivity {
                         (bookStatus.equals(ProgramTags.STATUS_AVAILABLE) ||
                         bookStatus.equals(ProgramTags.STATUS_REQUESTED))) requestButton.setEnabled(true);
 
+                if (book.getBorrower() != null && book.getBorrower().size() == 2 && uuid.equals(book.getBorrower().get(0))) {
+                    if(book.getStatus().equals(ProgramTags.STATUS_ACCEPTED)) {
+                        borrowButton.setVisibility(View.VISIBLE);
+                        locationButton.setVisibility(View.VISIBLE);
+                        location = book.getLocation();
+                    }
+                }
+
 
 
                 db.getUser(owner_uuid, new OnSuccessListener<User>() {
@@ -175,6 +194,19 @@ public class ABookActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 handleRequest();
+            }
+        });
+
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(location.size() == 2) {
+                    Intent i = new Intent(ABookActivity.this, GeoLocation.class);
+                    i.putExtra(ProgramTags.LOCATION_PURPOSE, "view");
+                    i.putExtra("lat", location.get(0));
+                    i.putExtra("lng", location.get(1));
+                    startActivity(i);
+                }
             }
         });
 
