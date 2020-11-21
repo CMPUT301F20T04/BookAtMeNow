@@ -1,7 +1,6 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +24,7 @@ import java.util.Comparator;
  * @author Warren Stix
  * @see ArrayAdapter
  * @see android.widget.BaseAdapter
- * @version 1.1
+ * @version 1.4
  */
 public class BookAdapter extends ArrayAdapter<Book> {
     /**
@@ -70,8 +66,6 @@ public class BookAdapter extends ArrayAdapter<Book> {
     private Context context;
     private ArrayList<Book> filteredBooks;
 
-    private DBHandler db;
-
     /**
      * Construct a view of all books in the system.
      *
@@ -85,7 +79,6 @@ public class BookAdapter extends ArrayAdapter<Book> {
         this.filteredBooks = filteredBooks;
 //        viewMode = ViewMode.ALL;
 //        uuid = null;
-        db =  new DBHandler();
     }
 
     /**
@@ -129,7 +122,6 @@ public class BookAdapter extends ArrayAdapter<Book> {
 //                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
 //                    }
 //                });
-        db = new DBHandler();
     }
 
     /**
@@ -148,9 +140,9 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         switch (viewMode) {
             case OWNED:
-                return uuid.equals(book.getOwner());
+                return uuid.equals(book.getOwner().get(0));
             case BORROWED:
-                return uuid.equals(book.getBorrower());
+                return uuid.equals(book.getBorrower().get(0));
             case REQUESTED:
                 for (String requester : book.getRequests()) {
                     if (uuid.equals(requester)) {
@@ -183,70 +175,28 @@ public class BookAdapter extends ArrayAdapter<Book> {
             convertView = LayoutInflater.from(context).inflate(R.layout.book_row, parent, false);
         }
 
-        setBookData(convertView, filteredBooks.get(position));
+        Book book = filteredBooks.get(position);
+        setFields(convertView, book);
 
         return convertView;
     }
 
-    private void setBookData(final View convertView, final Book book) {
-        db.getUser(book.getOwner().get(0), new OnSuccessListener<User>() {
-            @Override
-            public void onSuccess(User user) {
-                final String ownerDisplayName = getDisplayName(user);
-
-                if (book.getBorrower() != null) {
-                    setBookBorrower(convertView, book, ownerDisplayName);
-                } else {
-                    setFields(convertView, book, ownerDisplayName);
-                }
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(ProgramTags.DB_ERROR, e + ": This book's owner could not be found!");
-            }
-        });
-    }
-
-    private static String getDisplayName(User user) {
-        return (user.getUsername() == null) ? user.getEmail() : user.getUsername();
-    }
-
-    private void setBookBorrower(final View convertView, final Book book,
-                                 final String ownerDisplayName)
-    {
-        // FIXME: store borrowers with uuids instead of usernames
-//        db.getUser(book.getBorrower(), new OnSuccessListener<User>() {
-        db.getUser("24cce726-4185-4684-b4ed-8b943dfd45a8", new OnSuccessListener<User>() {
-            @Override
-            public void onSuccess(User user) {
-                String borrowerDisplayName = getDisplayName(user);
-
-                TextView borrower = convertView.findViewById(R.id.borrower_text);
-                setFields(convertView, book, ownerDisplayName);
-                borrower.setText(borrowerDisplayName);
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(ProgramTags.DB_ERROR, e + ": This book's borrower could not be found!");
-                setFields(convertView, book, ownerDisplayName);
-            }
-        });
-    }
-
-    private void setFields(View convertedView, Book book, String ownerDisplayName) {
+    private void setFields(View convertedView, Book book) {
         TextView title = convertedView.findViewById(R.id.title_text);
         TextView author = convertedView.findViewById(R.id.author_text);
         TextView isbn = convertedView.findViewById(R.id.isbn_text);
         TextView status = convertedView.findViewById(R.id.status_text);
         TextView owner = convertedView.findViewById(R.id.owner_text);
+        TextView borrower = convertedView.findViewById(R.id.borrower_text);
 
         title.setText(book.getTitle());
         author.setText(book.getAuthor());
         isbn.setText(book.getIsbn());
         setStatus(status, book);
-        owner.setText(ownerDisplayName);
+        owner.setText(book.getOwner().get(1));
+        if (book.getBorrower().size() > 1) {
+            borrower.setText(book.getBorrower().get(1));
+        }
     }
 
     private void setStatus(TextView statusView, Book book) {
