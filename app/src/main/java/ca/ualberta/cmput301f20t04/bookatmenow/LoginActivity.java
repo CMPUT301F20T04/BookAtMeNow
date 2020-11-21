@@ -14,6 +14,8 @@ import android.widget.EditText;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.List;
+
 /**
  * Login using username and password that exist in the database.
  * TODO: login using email
@@ -87,12 +89,13 @@ public class LoginActivity extends AppCompatActivity {
                     loginBtn.setEnabled(false);
                     createAccBtn.setEnabled(false);
                     db.loginHandler(usernameOrEmail, password,
-                            new OnSuccessListener<String>() {
+                            new OnSuccessListener<List<String>>() {
                                 @Override
-                                public void onSuccess(String s) {
+                                public void onSuccess(List<String> s) {
                                     if (s != null) {
                                         Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                        i.putExtra("uuid", s);
+                                        i.putExtra(FireStoreMapping.USER_FIELDS_ID, s.get(0));
+                                        i.putExtra(FireStoreMapping.USER_FIELDS_USERNAME, s.get(1));
                                         startActivity(i);
                                         finish();
                                     } else {
