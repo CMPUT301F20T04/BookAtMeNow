@@ -184,6 +184,7 @@ public class BookRequests extends AppCompatActivity {
 
                 book.setBorrower(borrower);
                 book.setStatus(ProgramTags.STATUS_ACCEPTED);
+                book.setLocation(location);
                 book.clearRequests();
 
                 try {
