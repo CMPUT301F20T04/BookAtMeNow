@@ -642,18 +642,8 @@ public class MyBookActivity extends AppCompatActivity {
                                     newBook.setIsbn(isbnEditText.getText().toString().trim());
                                     Log.d(ProgramTags.BOOK_DATA, String.format("Book isbn set to %s", newBook.getIsbn()));
 
-                                    db.getUser(uuid, new OnSuccessListener<User>() {
-                                        @Override
-                                        public void onSuccess(User user) {
-                                            List owner = Arrays.asList(uuid, user.getUsername());
-                                            newBook.setOwner(owner);
-                                        }
-                                    }, new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-
-                                        }
-                                    });
+                                    List<String> owner = Arrays.asList(uuid, username);
+                                    newBook.setOwner(owner);
 
                                     Log.d(ProgramTags.BOOK_DATA, String.format("Book owner set to %s", newBook.getOwner()));
 
