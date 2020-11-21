@@ -171,6 +171,7 @@ public class BookRequests extends AppCompatActivity {
     public void acceptRequest(int position) {
         final String borrowerUuid = bookRequests.get(position).getUserId();
         final String borrowerUsername = bookRequests.get(position).getUsername();
+        Toast.makeText(context, "Accepted request by " + borrowerUsername, Toast.LENGTH_SHORT).show();
         final List<String> borrower = Arrays.asList(borrowerUuid, borrowerUsername);
         bookRequests.clear();
         requestAdapter.notifyDataSetChanged();
@@ -191,12 +192,12 @@ public class BookRequests extends AppCompatActivity {
                     db.addBook(book, new OnSuccessListener<Boolean>() {
                         @Override
                         public void onSuccess(Boolean aBoolean) {
-                            Log.e(ProgramTags.DB_ERROR, "Requested book could be re-added to database!");
+                            Log.d(ProgramTags.DB_MESSAGE, "Requested book was be re-added to database!");
                         }
                     }, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.e(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
+                            Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
                         }
                     });
                 } catch (Exception e) {
