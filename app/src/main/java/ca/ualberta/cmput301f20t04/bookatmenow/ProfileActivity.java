@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -109,6 +110,10 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Adding/updating a user profile.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,7 +140,7 @@ public class ProfileActivity extends AppCompatActivity {
         uuid = getIntent().getStringExtra("uuid");
         logoutButton.setVisibility(View.VISIBLE);
 
-        // user doesn't exist yet
+        // if user exists, allow edit profile
         if (uuid != null) {
             db.usernameExists(uuid, new OnSuccessListener<String>() {
                 @Override
@@ -165,6 +170,9 @@ public class ProfileActivity extends AppCompatActivity {
             logoutButton.setVisibility(View.INVISIBLE);
         }
 
+        /**
+         * Go to Geolocation activity to set address.
+         */
         addressButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,6 +182,9 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * Back to previous activity.
+         */
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,6 +192,9 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * Back to login activity.
+         */
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,6 +251,9 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
+        /**
+         * Add/Update user profile in db.
+         */
         saveProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -267,7 +284,7 @@ public class ProfileActivity extends AppCompatActivity {
                     myUser.setAddress(address);
                     db.usernameExists(username, new OnSuccessListener<String>() {
                         @Override
-                        public void onSuccess(String s) {
+                        public void onSuccess(final String s) {
                             // uuid does not exist (new user)
                             if (s == null) {
                                 db.addUser(myUser, new OnSuccessListener<Boolean>() {
@@ -286,24 +303,26 @@ public class ProfileActivity extends AppCompatActivity {
                                         databaseErrorDialog.show();
                                     }
                                 });
-                            } else if (s == uuid) {
+                            } else if (s != null) {
                                 // user is logged in and wants to edit
-                                /**
-                                 * updateUser doesn't work yet
-                                 */
                                 db.getUser(s, new OnSuccessListener<User>() {
                                     @Override
-                                    public void onSuccess(User user) {
-                                        final User updatedUser = user;
+                                    public void onSuccess(final User user) {
+                                        user.setUsername(username);
+                                        user.setPassword(password);
+                                        user.setEmail(email);
+                                        user.setPhone(phone);
+                                        user.setAddress(address);
                                         db.updateUser(user, new OnSuccessListener<Boolean>() {
                                             @Override
                                             public void onSuccess(Boolean aBoolean) {
                                                 if (aBoolean) {
-                                                    updatedUser.setUsername(username);
-                                                    updatedUser.setEmail(email);
-                                                    updatedUser.setPhone(phone);
-                                                    updatedUser.setAddress(address);
-                                                    startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                                                    Intent i = new Intent(ProfileActivity.this, MainActivity.class);
+                                                    i.putExtra(FireStoreMapping.USER_FIELDS_ID, user.getUserId());
+                                                    i.putExtra(FireStoreMapping.USER_FIELDS_USERNAME, user.getUsername());
+                                                    startActivity(i);
+                                                } else {
+                                                    databaseErrorDialog.show();
                                                 }
                                             }
                                         }, new OnFailureListener() {

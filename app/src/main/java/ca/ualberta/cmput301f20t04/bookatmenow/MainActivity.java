@@ -111,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
         uuid = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_ID);
         username = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_USERNAME);
 
+        addBookButton = findViewById(R.id.floating_add);
+        addBookButton.setVisibility(View.INVISIBLE);
+
         // animation adapted from https://stackoverflow.com/a/44145485
         slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_left);
         slideDown = AnimationUtils.loadAnimation(this, R.anim.slide_right);
@@ -142,9 +145,6 @@ public class MainActivity extends AppCompatActivity {
         currentView = MainActivityViews.ALL_BOOKS;
 
         filterTabs = findViewById(R.id.filterTabs);
-
-        addBookButton = findViewById(R.id.floating_add);
-        addBookButton.setVisibility(View.INVISIBLE);
 
         filterButton = findViewById(R.id.filter);
 
