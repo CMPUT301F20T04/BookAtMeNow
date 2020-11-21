@@ -30,6 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tabIndicatorColor="@color/confirm"
+        app:tabIndicatorHeight="@dimen/activity_main_margin"
         app:tabTextColor="@color/textColorInverse">
 
         <com.google.android.material.tabs.TabItem
