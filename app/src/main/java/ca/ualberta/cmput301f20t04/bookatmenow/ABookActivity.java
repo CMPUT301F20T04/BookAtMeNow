@@ -26,6 +26,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,6 +51,8 @@ public class ABookActivity extends AppCompatActivity {
     private String owner_uuid;
     private String uuid;
     private List<String> location;
+
+    final private static int REQUEST_ISBN_SCAN = 0;
 
     private StorageReference storageReference;
     private StorageReference getImageRef;
@@ -157,6 +160,12 @@ public class ABookActivity extends AppCompatActivity {
                         locationButton.setVisibility(View.VISIBLE);
                         location = book.getLocation();
                     }
+
+                    if(book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
+                        borrowButton.setVisibility(View.VISIBLE);
+                        borrowButton.setEnabled(false);
+                        returnButton.setVisibility(View.VISIBLE);
+                    }
                 }
 
 
@@ -210,6 +219,13 @@ public class ABookActivity extends AppCompatActivity {
             }
         });
 
+        borrowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkIsbn();
+            }
+        });
+
     }
 
     /**
@@ -245,5 +261,61 @@ public class ABookActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void handleBorrow() {
+        db.getBook(isbn, new OnSuccessListener<Book>() {
+            @Override
+            public void onSuccess(Book book) {
+                book.setStatus(ProgramTags.STATUS_BORROWED);
+
+                String status = "Status: ";
+                String bookStatus = book.getStatus();
+                SpannableString statusString = new SpannableString(status + bookStatus);
+                statusString.setSpan(new StyleSpan(Typeface.BOLD), 0, status.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                aStatus.setText(statusString);
+
+                try {
+                    db.addBook(book, new OnSuccessListener<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean aBoolean) {
+                            Toast toast = Toast.makeText(context, "You have borrowed this book.", Toast.LENGTH_SHORT);
+                            toast.show();
+                            borrowButton.setEnabled(false);
+                            returnButton.setVisibility(View.VISIBLE);
+                            locationButton.setVisibility(View.INVISIBLE);
+
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+    public void checkIsbn() {
+        Intent i = new Intent(ABookActivity.this, ScanBook.class);
+        i.putExtra(ProgramTags.PASSED_ISBN, isbn);
+        startActivityForResult(i, REQUEST_ISBN_SCAN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == REQUEST_ISBN_SCAN) {
+            handleBorrow();
+        }
     }
 }

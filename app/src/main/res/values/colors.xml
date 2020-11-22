@@ -10,6 +10,8 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="colorSecondary">#6200EE</color>
 
+    <color name="buttonSecondary">#BB86FC</color>
+
     <color name="windowBackground">#FFFFFF</color>
 
     <color name="confirm">#1DA069</color>
