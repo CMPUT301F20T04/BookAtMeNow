@@ -165,7 +165,10 @@ public class ABookActivity extends AppCompatActivity {
                     if(book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
                         borrowButton.setVisibility(View.VISIBLE);
                         borrowButton.setEnabled(false);
+                        locationButton.setVisibility(View.VISIBLE);
                         returnButton.setVisibility(View.VISIBLE);
+
+                        if(book.getReturning()) returnButton.setEnabled(false);
                     }
                 }
 
@@ -209,7 +212,7 @@ public class ABookActivity extends AppCompatActivity {
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(location.size() == 2) {
+                if(location != null && location.size() == 2) {
                     Intent i = new Intent(ABookActivity.this, GeoLocation.class);
                     i.putExtra(ProgramTags.LOCATION_PURPOSE, "view");
                     i.putExtra("lat", location.get(0));
@@ -223,6 +226,13 @@ public class ABookActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 checkIsbn();
+            }
+        });
+
+        returnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleReturn();
             }
         });
 
@@ -287,7 +297,40 @@ public class ABookActivity extends AppCompatActivity {
                             toast.show();
                             borrowButton.setEnabled(false);
                             returnButton.setVisibility(View.VISIBLE);
-                            locationButton.setVisibility(View.INVISIBLE);
+
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void handleReturn() {
+        db.getBook(isbn, new OnSuccessListener<Book>() {
+            @Override
+            public void onSuccess(Book book) {
+                book.setReturning(true);
+
+                try {
+                    db.addBook(book, new OnSuccessListener<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean aBoolean) {
+                            Toast toast = Toast.makeText(context, "You are returning this book.", Toast.LENGTH_SHORT);
+                            toast.show();
+                            borrowButton.setEnabled(false);
+                            returnButton.setEnabled(false);
 
                         }
                     }, new OnFailureListener() {
