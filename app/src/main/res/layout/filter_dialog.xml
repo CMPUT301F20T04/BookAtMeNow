@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Filter Dialog for searching books -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/windowBackground">
 
     <Spinner
         android:id="@+id/sort_by"
@@ -11,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="160dp"
         android:layout_marginTop="41dp"
-        android:spinnerMode="dialog"/>
+        android:spinnerMode="dialog" />
 
     <CheckBox
         android:id="@+id/borrowed"
