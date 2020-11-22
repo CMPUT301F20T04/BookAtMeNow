@@ -154,6 +154,7 @@ public class ABookActivity extends AppCompatActivity {
                         (bookStatus.equals(ProgramTags.STATUS_AVAILABLE) ||
                         bookStatus.equals(ProgramTags.STATUS_REQUESTED))) requestButton.setEnabled(true);
 
+                //If the current user is the borrower of the book being viewed, un-hide certain buttons.
                 if (book.getBorrower() != null && book.getBorrower().size() == 2 && uuid.equals(book.getBorrower().get(0))) {
                     if(book.getStatus().equals(ProgramTags.STATUS_ACCEPTED)) {
                         borrowButton.setVisibility(View.VISIBLE);
@@ -168,13 +169,10 @@ public class ABookActivity extends AppCompatActivity {
                     }
                 }
 
-
-
                 db.getUser(owner_uuid, new OnSuccessListener<User>() {
                     @Override
                     public void onSuccess(User user) {
                         ownerButton.setText(user.getUsername());
-
                     }
                 }, new OnFailureListener() {
                     @Override
@@ -206,6 +204,8 @@ public class ABookActivity extends AppCompatActivity {
             }
         });
 
+        //On location button click check that the location exists and then view it in the
+        //Geolocation activity.
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -263,6 +263,10 @@ public class ABookActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * If user borrows a book, get the book from the db, set its status to borrowed, then re-add
+     * the book to the db.
+     */
     private void handleBorrow() {
         db.getBook(isbn, new OnSuccessListener<Book>() {
             @Override
@@ -304,7 +308,10 @@ public class ABookActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Scan the book being borrowed (ISBN of the scanned book must match the ISBN from the db for
+     * that book.
+     */
     public void checkIsbn() {
         Intent i = new Intent(ABookActivity.this, ScanBook.class);
         i.putExtra(ProgramTags.PASSED_ISBN, isbn);
