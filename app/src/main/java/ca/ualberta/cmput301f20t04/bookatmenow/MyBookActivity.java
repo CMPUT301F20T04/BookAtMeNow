@@ -56,6 +56,8 @@ public class MyBookActivity extends AppCompatActivity {
     private Button removeButton;
     private Button pendingRequestButton;
     private Button takeImageButton;
+    private Button locationButton;
+    private Button receiveReturnButton;
     private RadioGroup statusButtons;
     private RadioButton selectedStatusButton;
     private EditText titleEditText;
@@ -278,6 +280,8 @@ public class MyBookActivity extends AppCompatActivity {
         removeButton = findViewById(R.id.myBook_remove_button);
         pendingRequestButton = findViewById(R.id.myBook_pending_request_button);
         takeImageButton = findViewById(R.id.myBook_take_picture_button);
+        locationButton= findViewById(R.id.myBook_location_button);
+        receiveReturnButton= findViewById(R.id.myBook_receive_button);
 
         titleEditText = findViewById(R.id.myBook_title_edittext);
         authorEditText = findViewById(R.id.myBook_author_edittext);
@@ -285,6 +289,9 @@ public class MyBookActivity extends AppCompatActivity {
         currentBorrower = findViewById(R.id.myBook_current_borrower_textview);
 
         bookImage = findViewById(R.id.myBook_imageview);
+
+        locationButton.setVisibility(View.INVISIBLE);
+        receiveReturnButton.setVisibility(View.INVISIBLE);
 
 
         if (main.hasExtra(ProgramTags.PASSED_ISBN)) {
@@ -305,7 +312,10 @@ public class MyBookActivity extends AppCompatActivity {
 
                     //If the book is accepted or borrowed, disable the pending requests button.
                     if(book.getStatus().equals(ProgramTags.STATUS_ACCEPTED) ||
-                            book.getStatus().equals(ProgramTags.STATUS_BORROWED)) pendingRequestButton.setEnabled(false);
+                            book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
+                        pendingRequestButton.setEnabled(false);
+                        locationButton.setVisibility(View.VISIBLE);
+                    }
 
                     //If the book has been borrowed, display who borrowed it.
                     if(book.getBorrower() != null && book.getBorrower().size() == 2 && book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
@@ -451,6 +461,23 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
+                    /**
+                     * If the location button is pressed launch the GeoLocation activity in view
+                     * mode to display the books pickup location.
+                     */
+                    locationButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(book.getLocation() != null && book.getLocation().size() == 2) {
+                                Intent i = new Intent(MyBookActivity.this, GeoLocation.class);
+                                i.putExtra(ProgramTags.LOCATION_PURPOSE, "view");
+                                i.putExtra("lat", book.getLocation().get(0));
+                                i.putExtra("lng", book.getLocation().get(1));
+                                startActivity(i);
+                            }
+                        }
+                    });
+
                     saveChangesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -581,6 +608,8 @@ public class MyBookActivity extends AppCompatActivity {
                             startActivity(i);
                         }
                     });
+
+
 
                     titleEditText.setText(book.getTitle());
 
