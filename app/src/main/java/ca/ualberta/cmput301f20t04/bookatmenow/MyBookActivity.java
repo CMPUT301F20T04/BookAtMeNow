@@ -12,11 +12,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -48,7 +52,6 @@ import java.util.List;
 public class MyBookActivity extends AppCompatActivity {
 
     private Button scanButton;
-    private Button cancelButton;
     private Button saveChangesButton;
     private Button removeButton;
     private Button pendingRequestButton;
@@ -96,14 +99,11 @@ public class MyBookActivity extends AppCompatActivity {
     private Boolean isbnTaken;
 **/
 
-    private View.OnClickListener cancelButtonAction = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            setResult(RESULT_CANCELED);
-            Log.d(ProgramTags.GENERAL_SUCCESS, "Cancelled book edit activity.");
-            finish();
-        }
-    };
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        finish();
+    }
 
     public void takePicture(View view){
         if(getCameraPermissions() == true){
@@ -222,7 +222,6 @@ public class MyBookActivity extends AppCompatActivity {
             if (mode == 0) {
                 scanButton.setEnabled(false);
                 saveChangesButton.setEnabled(false);
-                cancelButton.setEnabled(false);
                 statusButtons.setEnabled(false);
                 takeImageButton.setEnabled(false);
                 titleEditText.setEnabled(false);
@@ -230,7 +229,6 @@ public class MyBookActivity extends AppCompatActivity {
                 isbnEditText.setEnabled(false);
             } else if (mode == 1) {
                 saveChangesButton.setEnabled(false);
-                cancelButton.setEnabled(false);
                 statusButtons.setEnabled(false);
                 removeButton.setEnabled(false);
                 pendingRequestButton.setEnabled(false);
@@ -242,7 +240,6 @@ public class MyBookActivity extends AppCompatActivity {
             if (mode == 0) {
                 scanButton.setEnabled(true);
                 saveChangesButton.setEnabled(true);
-                cancelButton.setEnabled(true);
                 statusButtons.setEnabled(true);
                 takeImageButton.setEnabled(true);
                 titleEditText.setEnabled(true);
@@ -250,7 +247,6 @@ public class MyBookActivity extends AppCompatActivity {
                 isbnEditText.setEnabled(true);
             } else if (mode == 1) {
                 saveChangesButton.setEnabled(true);
-                cancelButton.setEnabled(true);
                 statusButtons.setEnabled(true);
                 removeButton.setEnabled(true);
                 pendingRequestButton.setEnabled(true);
@@ -278,7 +274,6 @@ public class MyBookActivity extends AppCompatActivity {
 
         scanButton = findViewById(R.id.myBook_scan_button);
         saveChangesButton = findViewById(R.id.myBook_save_change_button);
-        cancelButton = findViewById(R.id.myBook_cancel_button);
         statusButtons = findViewById(R.id.myBook_status_radiogroup);
         removeButton = findViewById(R.id.myBook_remove_button);
         pendingRequestButton = findViewById(R.id.myBook_pending_request_button);
@@ -291,7 +286,6 @@ public class MyBookActivity extends AppCompatActivity {
 
         bookImage = findViewById(R.id.myBook_imageview);
 
-        cancelButton.setOnClickListener(cancelButtonAction);
 
         if (main.hasExtra(ProgramTags.PASSED_ISBN)) {
             initIsbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
@@ -308,6 +302,20 @@ public class MyBookActivity extends AppCompatActivity {
                     titleEditText.setText(book.getTitle());
                     authorEditText.setText(book.getAuthor());
                     isbnEditText.setText(book.getIsbn());
+
+                    //If the book is accepted or borrowed, disable the pending requests button.
+                    if(book.getStatus().equals(ProgramTags.STATUS_ACCEPTED) ||
+                            book.getStatus().equals(ProgramTags.STATUS_BORROWED)) pendingRequestButton.setEnabled(false);
+
+                    //If the book has been borrowed, display who borrowed it.
+                    if(book.getBorrower() != null && book.getBorrower().size() == 2 && book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
+                        String borrowedBy = "Borrowed by: ";
+                        SpannableString borrowerString = new SpannableString(borrowedBy + book.getBorrower().get(1));
+                        borrowerString.setSpan(new StyleSpan(Typeface.BOLD), 0, borrowedBy.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        currentBorrower.setText(borrowerString);
+                    }
+
+
                     currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
 
 

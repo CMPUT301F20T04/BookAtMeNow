@@ -39,8 +39,8 @@
 
     <string name="action_save_pic">SAVE PIC</string>
     <string name="action_take_picture">TAKE PICTURE</string>
-    <string name="aBook_cancel_button">CANCEL</string>
-    <string name="myBook_save_button">Save Changes</string>
+    <string name="action_remove_picture">Remove Picture</string>
+    <string name="myBook_save_button">Save</string>
     <string name="myBook_isbn_hint">ISBN</string>
     <string name="myBook_remove_button">REMOVE</string>
     <string name="myBook_unavailable_radiobutton">Unavailable</string>
