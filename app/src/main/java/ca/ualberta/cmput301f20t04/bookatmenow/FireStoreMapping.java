@@ -21,6 +21,7 @@ public class FireStoreMapping {
     static final String BOOK_FIELDS_LOCATION = "HandoverLocation";
     static final String BOOK_FIELDS_IMAGE = "Image";
     static final String BOOK_FIELDS_DESCRIPTION = "Description";
+    static final String BOOK_FIELDS_RETURNING = "Returning";
 
     static final String BOOK_STATUS_AVAILABLE = "Available";
     static final String BOOK_STATUS_REQUESTED = "Requested";

@@ -417,6 +417,8 @@ public class DBHandler {
             bookData.put(FireStoreMapping.BOOK_FIELDS_STATUS, "");
         }
 
+        bookData.put(FireStoreMapping.BOOK_FIELDS_RETURNING, bookToAdd.getReturning());
+
         if(bookToAdd.getLocation() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, bookToAdd.getLocation());
         } else {
@@ -467,9 +469,16 @@ public class DBHandler {
     private Book convertToBook(DocumentSnapshot data) {
         Book finalBook = new Book();
 
+        boolean returning;
+
         String title = data.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
         String author = data.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
         String status = data.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
+        if(data.getBoolean(FireStoreMapping.BOOK_FIELDS_RETURNING) != null) {
+            returning = data.getBoolean(FireStoreMapping.BOOK_FIELDS_RETURNING);
+        } else {
+            returning = false;
+        }
         List<String> location = (List<String>) data.get (FireStoreMapping.BOOK_FIELDS_LOCATION);
         List<String> borrower = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_BORROWER);
         List<String> owner = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_OWNER);
@@ -479,6 +488,7 @@ public class DBHandler {
         finalBook.setAuthor(author);
         finalBook.setIsbn(data.getId());
         finalBook.setStatus(status);
+        finalBook.setReturning(returning);
         finalBook.setBorrower(borrower);
         finalBook.setOwner(owner);
         finalBook.setRequests(requests);

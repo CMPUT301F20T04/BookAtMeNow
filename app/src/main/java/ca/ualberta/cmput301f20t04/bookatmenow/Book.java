@@ -21,15 +21,14 @@ public class Book {
         Requested,
         Accepted,
         Borrowed,
-        Unavailable,
-        AcceptBorrow,
-        AcceptReturn
+        Unavailable
     }
 
     private String title;
     private String author;
     private String isbn;
     private String status;
+    private boolean returning;
     private List<String> location;
     private List<String> borrower;
     private List<String> owner;
@@ -148,6 +147,14 @@ public class Book {
 
     public void setRequests(List<String> requests) {
         this.requests = requests;
+    }
+
+    public boolean getReturning() {
+        return returning;
+    }
+
+    public void setReturning(boolean returning) {
+        this.returning = returning;
     }
 
     /**
