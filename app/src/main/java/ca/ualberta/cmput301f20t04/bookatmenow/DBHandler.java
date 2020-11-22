@@ -561,6 +561,69 @@ public class DBHandler {
                 .addOnFailureListener(failureListener);
     }
 
+    //Possible all search and filter candidate
+    //Assumes type is set to null or of [ProgramTags.TYPE_OWNER, ProgramTags.TYPE_BORROWER]
+    //Assumes uuid is set to null or legal UUID
+    //Assumes terms is non-empty, because what?
+    //Assumes filter to be of empty or filled with terms, use only legal status values defined in FireStoreMapping
+    public void getFilterBooks(String type, String uuid, List<String> terms, List<String> filter, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        Task<QuerySnapshot> bookTask;
+
+        if(filter.size() > 0) {
+            if (uuid != null) {
+                if (type.equals(ProgramTags.TYPE_OWNER)) {
+                    // Search by terms, with filters, with specific owner
+                    bookTask = db
+                            .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                            .whereArrayContains(FireStoreMapping.BOOK_FIELDS_OWNER, uuid)
+                            .whereIn(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
+                            .whereIn(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
+                            .get();
+                } else {
+                    // Search by terms, with filters, with specific borrower
+                    bookTask = db
+                            .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                            .whereArrayContains(FireStoreMapping.BOOK_FIELDS_BORROWER, uuid)
+                            .whereIn(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
+                            .whereIn(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
+                            .get();
+                }
+            } else {
+                // Search by terms, with filters
+                bookTask = db
+                        .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                        .whereIn(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
+                        .whereIn(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
+                        .get();
+            }
+        } else {
+            // Default search case, only terms
+            bookTask = db
+                    .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                    .whereIn(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
+                    .get();
+        }
+
+        bookTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
+            @Override
+            public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> bookData = task.getResult().getDocuments();
+                List<Book> books = new ArrayList<>();
+
+                for (DocumentSnapshot doc: bookData) {
+                    if (doc.exists()) {
+                        books.add(convertToBook(doc));
+                    }
+                }
+
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s books.", books.size()));
+                return books;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
     /**
      * Returns all books requested by specific UUID
      * @param uuid
