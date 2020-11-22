@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -44,12 +45,15 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 //import static ca.ualberta.cmput301f20t04.bookatmenow.R.id.editTextAuthor;
 
 public class MyBookActivity extends AppCompatActivity {
+
+    Context context;
 
     private Button scanButton;
     private Button saveChangesButton;
@@ -75,6 +79,7 @@ public class MyBookActivity extends AppCompatActivity {
 
     private DBHandler db;
 
+    final private static int CHECK_ISBN_SCAN = 2;
     final private static int REQUEST_IMAGE_CAPTURE = 1;
     final private static int REQUEST_ISBN_SCAN = 0;
 
@@ -174,11 +179,58 @@ public class MyBookActivity extends AppCompatActivity {
                         isbnEditText.setText(newIsbn);
                     }
                     break;
+
+                case CHECK_ISBN_SCAN:
+                    receiveBook();
+                    break;
             }
         } else if (resultCode == RESULT_CANCELED) {
             selectedStatusButton = statusButtons.findViewById(statusButtons.getCheckedRadioButtonId());
             selectedStatusButton.setChecked(false);
         }
+    }
+
+    /**
+     * Function for the owner to receive back a book they have lent out.   Resets book to default
+     * available state and re-adds it to the db.
+     */
+    private void receiveBook() {
+        db.getBook(initIsbn, new OnSuccessListener<Book>() {
+            @Override
+            public void onSuccess(Book book) {
+                List<String> emptyList = Collections.singletonList("");
+                book.setBorrower(emptyList);
+                book.setReturning(false);
+                book.setLocation(emptyList);
+                book.setStatus(ProgramTags.STATUS_AVAILABLE);
+
+                try {
+                    db.addBook(book, new OnSuccessListener<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean aBoolean) {
+                            Toast toast = Toast.makeText(context, "You have received this book.", Toast.LENGTH_SHORT);
+                            toast.show();
+                            pendingRequestButton.setEnabled(true);
+                            locationButton.setVisibility(View.INVISIBLE);
+                            receiveReturnButton.setVisibility(View.INVISIBLE);
+                            currentBorrower.setText("Not Borrowed");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(ProgramTags.DB_ERROR, "Received book could not be re-added to database!");
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private boolean getCameraPermissions() {
@@ -270,6 +322,8 @@ public class MyBookActivity extends AppCompatActivity {
         final Intent main = getIntent();
         db = new DBHandler();
 
+        context = this;
+
         pictureTaken = false;
         removeImage = false;
         storageReference = FirebaseStorage.getInstance().getReference();
@@ -310,11 +364,19 @@ public class MyBookActivity extends AppCompatActivity {
                     authorEditText.setText(book.getAuthor());
                     isbnEditText.setText(book.getIsbn());
 
-                    //If the book is accepted or borrowed, disable the pending requests button.
+                    //If the book is accepted or borrowed, disable the pending requests button and
+                    //show the button for the handover location.
                     if(book.getStatus().equals(ProgramTags.STATUS_ACCEPTED) ||
                             book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
                         pendingRequestButton.setEnabled(false);
                         locationButton.setVisibility(View.VISIBLE);
+                    }
+
+                    //If the book is borrowed and the borrower has clicked the return button,
+                    //enable the receive return button so that the owner can scan there book to
+                    //receive it back.
+                    if(book.getReturning() && book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
+                        receiveReturnButton.setVisibility(View.VISIBLE);
                     }
 
                     //If the book has been borrowed, display who borrowed it.
@@ -461,10 +523,9 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    /**
-                     * If the location button is pressed launch the GeoLocation activity in view
-                     * mode to display the books pickup location.
-                     */
+
+                     // If the location button is pressed launch the GeoLocation activity in view
+                     // mode to display the books pickup location.
                     locationButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -475,6 +536,18 @@ public class MyBookActivity extends AppCompatActivity {
                                 i.putExtra("lng", book.getLocation().get(1));
                                 startActivity(i);
                             }
+                        }
+                    });
+
+                    // If the receive return button is pressed, launch the ScanBook activity and
+                    // pass in the books ISBN to check that the book being returned matches the book
+                    // in the BD.
+                    receiveReturnButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent i = new Intent(MyBookActivity.this, ScanBook.class);
+                            i.putExtra(ProgramTags.PASSED_ISBN, book.getIsbn());
+                            startActivityForResult(i, CHECK_ISBN_SCAN);
                         }
                     });
 

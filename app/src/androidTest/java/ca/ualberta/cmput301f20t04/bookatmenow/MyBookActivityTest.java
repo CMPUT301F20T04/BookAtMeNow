@@ -48,18 +48,11 @@ public class MyBookActivityTest {
     }
 
     @Test
-    public void clickCancel() {
+    public void clickSave() {
         solo.assertCurrentActivity("MyBookActivity", MyBookActivity.class);
-        solo.clickOnButton("CANCEL");
+        solo.clickOnButton("Save");
     }
 
-    // require owner view
-    @Test
-    public void clickRemove() {}
-    @Test
-    public void clickSave() {}
-    @Test
-    public void clickPending() {}
 
     /**
      * Closes the activity after each test

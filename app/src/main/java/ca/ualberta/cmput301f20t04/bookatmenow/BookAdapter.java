@@ -63,7 +63,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
      */
     @Nullable private String uuid;
 
-    private Context context;
+    private final Context context;
     private ArrayList<Book> filteredBooks;
 
     /**
@@ -250,51 +250,49 @@ public class BookAdapter extends ArrayAdapter<Book> {
     }
 
     /**
-     * Sort the internal list based on a given {@link Book.StatusEnum}.
-     * <p>
-     * Deprecated due to due to idiosyncrasies with the way async databases work.
+     * Sort the internal list based on a given {@link CompareBookBy.SortOption}.
      *
-     * @param statusEnum
-     *      The status of books to come first in the internal list
-     * @see CompareByStatus
-     *
-     * @deprecated
+     * @param option
+     *      The book's value to be prioritized while sorting
+     * @see CompareBookBy
      */
-    public void sort(Book.StatusEnum statusEnum) {
-        Collections.sort(filteredBooks, new CompareByStatus(statusEnum));
-        notifyDataSetChanged();
+    public void sort(CompareBookBy.SortOption option) {
+        Collections.sort(filteredBooks, new CompareBookBy(option));
+//        notifyDataSetChanged();
     }
 
     /**
-     * A class used to compare two books by their current status.
-     * <p>
-     * Deprecated due to due to idiosyncrasies with the way async databases work.
+     * A class used to compare two books by their title, author, or ISBN.
      *
      * @author Warren Stix
-     * @version 0.2
+     * @version 0.3
      * @see Comparator
-     *
-     * @deprecated
      */
-    public static class CompareByStatus implements Comparator<Book> {
-        private Book.StatusEnum statusEnum;
+    public static class CompareBookBy implements Comparator<Book> {
+
+        protected enum SortOption {
+            TITLE,
+            AUTHOR,
+            ISBN,
+        }
+
+        private final SortOption option;
 
         /**
-         * Construct a comparator that prioritizes books with a given status
+         * Construct a comparator that prioritizes books with a given {@link SortOption}.
          *
-         * @param statusEnum
-         *      The status to prioritize
+         * @param option
+         *      The relevant {@link SortOption}
+         *
          */
-        CompareByStatus(@Nullable Book.StatusEnum statusEnum) {
-            this.statusEnum = statusEnum;
+        CompareBookBy(@Nullable SortOption option) {
+            this.option = option;
         }
 
         /**
          * A required method from the {@link Comparator} interface used to compare two elements of
-         * the same class. In this case, a {@link Book} with the {@link Book.StatusEnum} that this
-         * instance of this class was constructed with will have a lower value than a {@link Book}
-         * with a different {@link Book.StatusEnum}. All other {@link Book}s will be considered
-         * equal.
+         * the same class. In this case, {@link Book}s are compared lexicographically based on their
+         * given {@link SortOption}.
          *
          * @param book1
          *      The first {@link Book} to compare
@@ -305,19 +303,30 @@ public class BookAdapter extends ArrayAdapter<Book> {
          */
         @Override
         public int compare(@NonNull Book book1, @NonNull Book book2) {
-            if (statusEnum == null) { return 0; }
+            String book1Val;
+            String book2Val;
 
-            if (Book.StatusEnum.valueOf(book1.getStatus()) == statusEnum &&
-                    Book.StatusEnum.valueOf(book2.getStatus()) != statusEnum)
-            {
-                return -1;
-            } else if (Book.StatusEnum.valueOf(book1.getStatus()) != statusEnum &&
-                        Book.StatusEnum.valueOf(book2.getStatus()) == statusEnum)
-            {
-                return 1;
-            } else {
-                return 0;
+            switch (option) {
+                case ISBN:
+                   book1Val = book1.getIsbn();
+                   book2Val = book2.getIsbn();
+                   break;
+
+                case TITLE:
+                    book1Val = book1.getTitle();
+                    book2Val = book2.getTitle();
+                    break;
+
+                case AUTHOR:
+                    book1Val = book1.getAuthor();
+                    book2Val = book2.getAuthor();
+                    break;
+
+                default:
+                    return 0;
             }
+
+            return book1Val.compareTo(book2Val);
         }
     }
 

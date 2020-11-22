@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -194,6 +195,11 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
             map.addMarker(new MarkerOptions()//set marker
                     .position(pickupLocationViewing)
                     .title("Pickup Location"));
+
+            if (pickupLocationViewing != null) {
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(pickupLocationViewing, DEFAULT_ZOOM));
+            }
+
         }
 
 
@@ -213,7 +219,7 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             lastKnownLocation = task.getResult();
-                            if (lastKnownLocation != null) {
+                            if (lastKnownLocation != null && !viewingMap) {
                                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                         new LatLng(lastKnownLocation.getLatitude(),
                                                 lastKnownLocation.getLongitude()), DEFAULT_ZOOM));

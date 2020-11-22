@@ -44,7 +44,7 @@ public class MainActivityTest {
     }
 
     /**
-     * Check that tabs are the same activity (except requests).
+     * Check that tabs are the same activity.
      */
     @Test
     public void clickMenuItems() {
@@ -54,15 +54,8 @@ public class MainActivityTest {
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.clickOnMenuItem("ALL BOOKS");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-    }
-
-    /**
-     * Checks that Requested menu item goes to my requests activity.
-     */
-    @Test
-    public void clickRequested() {
         solo.clickOnMenuItem("REQUESTED");
-        solo.assertCurrentActivity("Wrong Activity", MyRequests.class);
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
     }
 
     /**
@@ -74,7 +67,6 @@ public class MainActivityTest {
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         FloatingActionButton add = (FloatingActionButton) solo.getView(R.id.floating_add);
         solo.clickOnView(add);
-        solo.waitForActivity("MyBookActivity");
         solo.assertCurrentActivity("Wrong Activity", MyBookActivity.class);
     }
 
