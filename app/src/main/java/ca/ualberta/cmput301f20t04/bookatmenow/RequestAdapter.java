@@ -72,6 +72,8 @@ public class RequestAdapter extends ArrayAdapter<User> {
             displayName.setText(requester.getEmail());
         }
 
+        // Add a click listener to the confirm buttons that will give the position of the click
+        // to the clickedAccept function in the BookRequests activity.
         convertView.findViewById(R.id.confirm_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,6 +83,8 @@ public class RequestAdapter extends ArrayAdapter<User> {
             }
         });
 
+        // Add a click listener to the reject buttons that will give the position of the click
+        // to the removeRequest function in the BookRequests activity.
         convertView.findViewById(R.id.reject_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -547,6 +547,8 @@ public class MyBookActivity extends AppCompatActivity {
                         public void onClick(View view) {
                             Intent i = new Intent(MyBookActivity.this, ScanBook.class);
                             i.putExtra(ProgramTags.PASSED_ISBN, book.getIsbn());
+                            i.putExtra(ProgramTags.PASSED_BOOKNAME, book.getTitle());
+                            i.putExtra(ProgramTags.SCAN_MESSAGE, "ScanExisting");
                             startActivityForResult(i, CHECK_ISBN_SCAN);
                         }
                     });
@@ -554,8 +556,6 @@ public class MyBookActivity extends AppCompatActivity {
                     saveChangesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-
-
                             if(pictureTaken == true && removeImage == false){//picture was taken and user does not want it removed. Save it
                                 Uri file = myUri;
                                 currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");

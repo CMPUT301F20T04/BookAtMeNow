@@ -5,18 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +19,6 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,8 +29,6 @@ public class BookRequests extends AppCompatActivity {
     private TextView noRequests;
     private TextView bookRequestsTitle;
     private Context context;
-    private boolean gotIsbn;
-    private boolean gotLocation;
 
     private RequestAdapter requestAdapter;
     private LinkedList<User> bookRequests;
@@ -44,12 +36,11 @@ public class BookRequests extends AppCompatActivity {
     private DBHandler db;
 
     private String isbn;
+    private String bookName;
 
-    final private static int REQUEST_ISBN_SCAN = 0;
+    final private static int CHECK_ISBN_SCAN = 0;
     final private static int REQUEST_LOCATION = 1;
 
-    Geocoder geocoder;
-    List<Address> addresses;
     List<String> location;
     int acceptPosition;
 
@@ -85,19 +76,24 @@ public class BookRequests extends AppCompatActivity {
             @Override
             public void onSuccess(Book book) {//got bool with isbn. Now get users requesting book
 
+                bookName = book.getTitle();
+
                 String requestsFor = "Requests for: ";
                 SpannableString requestTitleString = new SpannableString(requestsFor + book.getTitle());
                 requestTitleString.setSpan(new StyleSpan(Typeface.ITALIC), requestsFor.length() - 1, requestsFor.length() + book.getTitle().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 bookRequestsTitle.setText(requestTitleString);
 
-                if (book.noRequests()) {//there are users requesting this book
+                //There are no users requesting this book.  Make the "no requests" text visible.
+                if (book.noRequests()) {
                     requesterList.setVisibility(View.GONE);
                     noRequests.setVisibility(View.VISIBLE);
-                } else {//no one is requesting this book
+                } else {
+                    // Users are requesting the book. Get users who requested book
+                    // and add them to the bookRequests linked list. Make title of book visible.
                     bookRequestsTitle.setVisibility(View.VISIBLE);
                     db.bookRequests(book.getRequests(), new OnSuccessListener<List<User>>() {
                         @Override
-                        public void onSuccess(List<User> users) {//got list of users who requested book
+                        public void onSuccess(List<User> users) {
                             Log.e("AppInfo", "all users are: " + String.valueOf(users));
                             bookRequests.addAll(users);
                             requestAdapter.notifyDataSetChanged();
@@ -120,12 +116,22 @@ public class BookRequests extends AppCompatActivity {
 
     }
 
+    /**
+     * If the accept button is pressed on a request, call functions to get handover location and
+     * check books ISBN.
+     * @param position of button press in list of requests.
+     */
     public void clickedAccept(int position) {
         acceptPosition = position;
         checkIsbn();
         getLocation();
     }
 
+    /**
+     * Removes a request in the local book object and then re-adds that book to the db with the
+     * modified requests list.
+     * @param position position in the user linked list of the request being removed.
+     */
     public void removeRequest(int position) {
         final String requestUuid = bookRequests.get(position).getUserId();
         final String requestUsername = bookRequests.get(position).getUsername();
@@ -168,6 +174,12 @@ public class BookRequests extends AppCompatActivity {
         });
     }
 
+    /**
+     * Accepts a book request by a user.  Clears all other book requests and makes the accepted
+     * user the borrower of the book.   Updates the books status to "accepted" and adds the
+     * handover location.   Then re-adds the book to the db to update it.
+     * @param position position in the user linked list of the user whose request is accepted.
+     */
     public void acceptRequest(int position) {
         final String borrowerUuid = bookRequests.get(position).getUserId();
         final String borrowerUsername = bookRequests.get(position).getUsername();
@@ -212,13 +224,22 @@ public class BookRequests extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Launches the ScanBook activity and passes in the name and ISBN of the book to check that
+     * the book being accepted is in the owners possession.
+     */
     public void checkIsbn() {
         Intent i = new Intent(BookRequests.this, ScanBook.class);
         i.putExtra(ProgramTags.PASSED_ISBN, isbn);
-        startActivityForResult(i, REQUEST_ISBN_SCAN);
+        i.putExtra(ProgramTags.PASSED_BOOKNAME, bookName);
+        i.putExtra(ProgramTags.SCAN_MESSAGE, "ScanExisting");
+        startActivityForResult(i, CHECK_ISBN_SCAN);
     }
 
+    /**
+     * Launches the GeoLocation activity so that the owner can select and handover location for an
+     * accepted book request.
+     */
     public void getLocation() {
         Intent i = new Intent(BookRequests.this, GeoLocation.class);
         i.putExtra(ProgramTags.LOCATION_PURPOSE, "getLocation");
@@ -230,14 +251,16 @@ public class BookRequests extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
+                // If the GeoLocation activity completes successfully, get the location that was
+                // selected.
                 case REQUEST_LOCATION:
                     String lat = data.getStringExtra("lat");
                     String lng = data.getStringExtra("lng");
                     location = Arrays.asList(lat, lng);
-
                     break;
 
-                case REQUEST_ISBN_SCAN:
+                // If the ScanBook activity completes successfully, call the acceptRequest function.
+                case CHECK_ISBN_SCAN:
                     acceptRequest(acceptPosition);
                     break;
             }

@@ -5,6 +5,8 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Typeface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -12,6 +14,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -30,10 +36,14 @@ import java.io.IOException;
 
 public class ScanBook extends AppCompatActivity {
     private String bookISBN;
+    private String bookName;
     private SurfaceView cameraView;
     private CameraSource cameraSource;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
+    private TextView scanMessage;
     private TextView isbnText;
+
+    Intent main;
 
     private DBHandler db;
 
@@ -45,7 +55,6 @@ public class ScanBook extends AppCompatActivity {
             Toast toast = Toast.makeText(this, "Please scan an ISBN barcode.", Toast.LENGTH_SHORT);
             toast.show();
         } else {
-            final Intent main = getIntent();
             String passedIsbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
 
             if (passedIsbn != null) {
@@ -74,6 +83,24 @@ public class ScanBook extends AppCompatActivity {
         setContentView(R.layout.activity_scan_book);
         cameraView = findViewById(R.id.scanbook_camera_view);
         isbnText = findViewById(R.id.scanbook_isbn);
+        scanMessage = findViewById(R.id.scanbook_message);
+        scanMessage.setVisibility(View.INVISIBLE);
+        main = getIntent();
+
+
+        if(main.getStringExtra(ProgramTags.SCAN_MESSAGE) != null && main.getStringExtra(ProgramTags.SCAN_MESSAGE).equals("ScanExisting")) {
+            scanMessage.setVisibility(View.VISIBLE);
+            String scanBook = "Please scan: ";
+            bookName = main.getStringExtra(ProgramTags.PASSED_BOOKNAME);
+            Log.e("Josh error", bookName);
+            SpannableString messageString = new SpannableString(scanBook + bookName);
+            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                    scanBook.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            messageString.setSpan(new StyleSpan(Typeface.ITALIC), scanBook.length() - 1,
+                    scanBook.length() + bookName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            scanMessage.setText(messageString);
+        }
+
         initialize();
     }
 
