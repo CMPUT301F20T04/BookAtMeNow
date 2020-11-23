@@ -48,11 +48,12 @@ public class ABookActivity extends AppCompatActivity {
     private Context context;
 
     private String isbn;
+    private String bookName;
     private String owner_uuid;
     private String uuid;
     private List<String> location;
 
-    final private static int REQUEST_ISBN_SCAN = 0;
+    final private static int CHECK_ISBN_SCAN = 0;
 
     private StorageReference storageReference;
     private StorageReference getImageRef;
@@ -92,7 +93,7 @@ public class ABookActivity extends AppCompatActivity {
             public void onSuccess(Book book) {
 
                 String currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
-
+                bookName = book.getTitle();
 
                 getImageRef = storageReference.child(currentBookImage);//try to get image
 
@@ -156,10 +157,11 @@ public class ABookActivity extends AppCompatActivity {
 
                 //If the current user is the borrower of the book being viewed, un-hide certain buttons.
                 if (book.getBorrower() != null && book.getBorrower().size() == 2 && uuid.equals(book.getBorrower().get(0))) {
+                    locationButton.setVisibility(View.VISIBLE);
+                    location = book.getLocation();
+
                     if(book.getStatus().equals(ProgramTags.STATUS_ACCEPTED)) {
                         borrowButton.setVisibility(View.VISIBLE);
-                        locationButton.setVisibility(View.VISIBLE);
-                        location = book.getLocation();
                     }
 
                     if(book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
@@ -358,13 +360,15 @@ public class ABookActivity extends AppCompatActivity {
     public void checkIsbn() {
         Intent i = new Intent(ABookActivity.this, ScanBook.class);
         i.putExtra(ProgramTags.PASSED_ISBN, isbn);
-        startActivityForResult(i, REQUEST_ISBN_SCAN);
+        i.putExtra(ProgramTags.PASSED_BOOKNAME, bookName);
+        i.putExtra(ProgramTags.SCAN_MESSAGE, "ScanExisting");
+        startActivityForResult(i, CHECK_ISBN_SCAN);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == REQUEST_ISBN_SCAN) {
+        if (resultCode == RESULT_OK && requestCode == CHECK_ISBN_SCAN) {
             handleBorrow();
         }
     }
