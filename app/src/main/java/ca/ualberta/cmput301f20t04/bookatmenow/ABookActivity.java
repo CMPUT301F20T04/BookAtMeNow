@@ -217,6 +217,8 @@ public class ABookActivity extends AppCompatActivity {
                 if(location != null && location.size() == 2) {
                     Intent i = new Intent(ABookActivity.this, GeoLocation.class);
                     i.putExtra(ProgramTags.LOCATION_PURPOSE, "view");
+                    i.putExtra(ProgramTags.LOCATION_MESSAGE, "ViewHandover");
+                    i.putExtra(ProgramTags.PASSED_BOOKNAME, bookName);
                     i.putExtra("lat", location.get(0));
                     i.putExtra("lng", location.get(1));
                     startActivity(i);

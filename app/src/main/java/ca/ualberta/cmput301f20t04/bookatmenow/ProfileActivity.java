@@ -178,6 +178,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, GeoLocation.class);
                 intent.putExtra(ProgramTags.LOCATION_PURPOSE, "getLocation");
+                intent.putExtra(ProgramTags.LOCATION_MESSAGE, "UserLocSelect");
                 startActivityForResult(intent, 1);
             }
         });
