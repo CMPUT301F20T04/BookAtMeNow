@@ -24,7 +24,7 @@ import java.util.Comparator;
  * @author Warren Stix
  * @see ArrayAdapter
  * @see android.widget.BaseAdapter
- * @version 1.5
+ * @version 1.6
  */
 public class BookAdapter extends ArrayAdapter<Book> {
     /**
@@ -148,7 +148,12 @@ public class BookAdapter extends ArrayAdapter<Book> {
             case OWNED:
                 return uuid.equals(book.getOwner().get(0));
             case BORROWED:
-                return uuid.equals(book.getBorrower().get(0));
+                if (book.getBorrower().size() == 2) {
+                    return uuid.equals(book.getBorrower().get(0));
+                } else {
+                    return false;
+                }
+
             case REQUESTED:
                 for (String requester : book.getRequests()) {
                     if (uuid.equals(requester)) {
