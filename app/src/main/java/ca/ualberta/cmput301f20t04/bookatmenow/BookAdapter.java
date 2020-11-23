@@ -24,7 +24,7 @@ import java.util.Comparator;
  * @author Warren Stix
  * @see ArrayAdapter
  * @see android.widget.BaseAdapter
- * @version 1.4
+ * @version 1.5
  */
 public class BookAdapter extends ArrayAdapter<Book> {
     /**

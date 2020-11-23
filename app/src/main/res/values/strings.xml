@@ -52,5 +52,7 @@
     <string name="mainActivity_borrowed">BORROWED</string>
     <string name="mainActivity_requested">REQUESTED</string>
     <string name="mainActivity_search">Search</string>
-    <string name="mainActivity_filter">FILTER</string>
+    <string name="mainActivity_add">Add Book</string>
+    <string name="mainActivity_filter">Filter Books</string>
+    <string name="mainActivity_edit_profile">Edit Profile</string>
 </resources>

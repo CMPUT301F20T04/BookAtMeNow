@@ -17,4 +17,6 @@
     <color name="confirm">#1DA069</color>
     <color name="deny">#AA3E3E</color>
     <color name="mid_way">#F9A825</color>
+    <color name="filter_color">@color/textColorInverse</color>
+    <color name="sort_color">@color/colorPrimaryDark</color>
 </resources>
