@@ -3,6 +3,7 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String uuid;
     private String username;
+
+    private List<String> filterTerms;
 
     private enum MainActivityViews{
         ALL_BOOKS,
@@ -184,16 +187,17 @@ public class MainActivity extends AppCompatActivity {
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 String search = searchEditText.getText().toString().trim();
-                if (search.length() > 0 && currentView == MainActivityViews.ALL_BOOKS) {
+                if (currentView == MainActivityViews.ALL_BOOKS) {
                     List<String> searchTerms = Arrays.asList(search.split(" "));
-                    db.searchBooks(searchTerms,
+                    db.getBooks(null, null, searchTerms, filterTerms,
                             new OnSuccessListener<List<Book>>() {
                                 @Override
                                 public void onSuccess(List<Book> books) {
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                                     setViewMode(BookAdapter.ViewMode.ALL, books);
-                                    searchEditText.setText("");
                                 }
                             },
                             new OnFailureListener() {
@@ -202,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                             });
+
                 }
             }
         });
@@ -336,13 +341,6 @@ public class MainActivity extends AppCompatActivity {
                 i.putExtra(ProgramTags.PASSED_UUID, uuid);
                 i.putExtra(ProgramTags.PASSED_USERNAME, username);
                 startActivityForResult(i, MyBookActivity.ADD_BOOK);
-            }
-        });
-
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
             }
         });
     }
