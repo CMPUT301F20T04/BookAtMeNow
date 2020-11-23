@@ -3,6 +3,7 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,13 +33,17 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
 
+    private FloatingActionButton filterButton;
     private FloatingActionButton addBookButton;
     private FloatingActionButton editProfileButton;
-    private ImageButton filterButton;
+
+    private ImageButton sortButton;
     private Button searchButton;
 
-    private Animation slideLeft;
-    private Animation slideRight;
+    private Animation slideOnLeft;
+    private Animation slideOffRight;
+    private Animation slideOffLeft;
+    private Animation slideOnRight;
 
     private EditText searchEditText;
 
@@ -46,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String uuid;
     private String username;
+
+    private List<String> filterTerms;
 
     private enum MainActivityViews{
         ALL_BOOKS,
@@ -123,9 +130,14 @@ public class MainActivity extends AppCompatActivity {
         addBookButton = findViewById(R.id.floating_add);
         addBookButton.setVisibility(View.INVISIBLE);
 
+        filterButton = findViewById(R.id.floating_filter);
+        filterButton.setVisibility(View.INVISIBLE);
+
         // animation adapted from https://stackoverflow.com/a/44145485
-        slideLeft = AnimationUtils.loadAnimation(this, R.anim.slide_left);
-        slideRight = AnimationUtils.loadAnimation(this, R.anim.slide_right);
+        slideOnLeft = AnimationUtils.loadAnimation(this, R.anim.slide_on_left);
+        slideOffRight = AnimationUtils.loadAnimation(this, R.anim.slide_off_right);
+        slideOffLeft = AnimationUtils.loadAnimation(this, R.anim.slide_off_left);
+        slideOnRight= AnimationUtils.loadAnimation(this, R.anim.slide_on_right);
 
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                            @Override
@@ -155,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
         filterTabs = findViewById(R.id.filterTabs);
 
-        filterButton = findViewById(R.id.filter);
+        sortButton = findViewById(R.id.sort);
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,18 +178,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        sortButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new SortDialog().show(getSupportFragmentManager(), "Sort Books");
+            }
+        });
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 String search = searchEditText.getText().toString().trim();
-                if (search.length() > 0 && currentView == MainActivityViews.ALL_BOOKS) {
+                if (currentView == MainActivityViews.ALL_BOOKS) {
                     List<String> searchTerms = Arrays.asList(search.split(" "));
-                    db.searchBooks(searchTerms,
+                    db.getBooks(null, null, searchTerms, filterTerms,
                             new OnSuccessListener<List<Book>>() {
                                 @Override
                                 public void onSuccess(List<Book> books) {
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                                     setViewMode(BookAdapter.ViewMode.ALL, books);
-                                    searchEditText.setText("");
                                 }
                             },
                             new OnFailureListener() {
@@ -186,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                             });
+
                 }
             }
         });
@@ -221,8 +242,11 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(List<Book> books) {
                                         addBookButton.setVisibility(View.VISIBLE);
-                                        addBookButton.startAnimation(slideLeft);
+                                        filterButton.setVisibility(View.VISIBLE);
+                                        addBookButton.startAnimation(slideOnLeft);
+                                        filterButton.startAnimation(slideOnRight);
                                         addBookButton.setEnabled(true);
+                                        filterButton.setEnabled(true);
                                         setViewMode(BookAdapter.ViewMode.OWNED, books);
                                     }
                                 },
@@ -275,8 +299,11 @@ public class MainActivity extends AppCompatActivity {
             public void onTabUnselected(TabLayout.Tab tab) {
                 if (MainActivityViews.fromInt(tab.getPosition()) == MainActivityViews.MY_BOOKS) {
                     addBookButton.setEnabled(false);
-                    addBookButton.startAnimation(slideRight);
+                    filterButton.setEnabled(false);
+                    addBookButton.startAnimation(slideOffRight);
+                    filterButton.startAnimation(slideOffLeft);
                     addBookButton.setVisibility(View.INVISIBLE);
+                    filterButton.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -316,13 +343,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
-
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
-            }
-        });
     }
 
     /**
@@ -354,8 +374,11 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 setViewMode(BookAdapter.ViewMode.ALL, books);
                                 addBookButton.setEnabled(false);
-                                addBookButton.startAnimation(slideRight);
+                                filterButton.setEnabled(false);
+                                addBookButton.startAnimation(slideOffRight);
+                                filterButton.startAnimation(slideOffLeft);
                                 addBookButton.setVisibility(View.INVISIBLE);
+                                filterButton.setVisibility(View.INVISIBLE);
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
                         } catch (Exception e) {

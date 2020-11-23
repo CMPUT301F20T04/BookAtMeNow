@@ -69,7 +69,7 @@
         android:inputType="textPersonName"
         android:textColor="@color/textColorHint"
         android:textColorHint="@color/textColorHint"
-        app:layout_constraintEnd_toStartOf="@+id/filter"
+        app:layout_constraintEnd_toStartOf="@+id/sort"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/filterTabs" />
@@ -86,7 +86,7 @@
         app:layout_constraintTop_toTopOf="@+id/search_bar" />
 
     <ImageButton
-        android:id="@+id/filter"
+        android:id="@+id/sort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/mainActivity_filter"
@@ -95,7 +95,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/search_bar"
         app:layout_constraintEnd_toStartOf="@+id/search_btn"
         app:layout_constraintTop_toTopOf="@+id/search_bar"
-        app:srcCompat="@drawable/ic_baseline_filter_list_24" />
+        app:srcCompat="@drawable/ic_baseline_sort_24" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_bar"
@@ -115,6 +115,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:clickable="true"
+            android:contentDescription="@string/mainActivity_edit_profile"
             android:focusable="true"
             app:backgroundTint="#4527A0"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -130,6 +131,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:clickable="true"
+            android:contentDescription="@string/mainActivity_add"
             android:focusable="true"
             app:backgroundTint="@color/confirm"
             app:layout_constraintBottom_toBottomOf="@+id/floating_edit_profile"
@@ -138,6 +140,23 @@
             app:layout_constraintStart_toEndOf="@+id/floating_edit_profile"
             app:layout_constraintTop_toTopOf="@+id/floating_edit_profile"
             app:srcCompat="@drawable/ic_baseline_add_48" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floating_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:clickable="true"
+            android:contentDescription="@string/mainActivity_filter"
+            android:focusable="true"
+            app:backgroundTint="@color/mid_way"
+            app:layout_constraintBottom_toBottomOf="@+id/floating_edit_profile"
+            app:layout_constraintEnd_toStartOf="@+id/floating_edit_profile"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/floating_edit_profile"
+            app:srcCompat="@drawable/ic_baseline_filter_list_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

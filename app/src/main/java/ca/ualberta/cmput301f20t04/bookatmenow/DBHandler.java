@@ -10,6 +10,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -561,6 +562,79 @@ public class DBHandler {
                 .addOnFailureListener(failureListener);
     }
 
+    //Possible all search and filter candidate, may be generalised for all cases of multi-book retrieval
+    //Assumes type is set to null or of [ProgramTags.TYPE_OWNER, ProgramTags.TYPE_BORROWER]
+    //Assumes uuid is set to null or legal UUID
+    //Assumes terms is non-empty, because what?
+    //Assumes filter to be of empty or filled with terms, use only legal status values defined in FireStoreMapping
+    public void getBooks(String type, String uuid, List<String> terms, List<String> filter, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        Task<QuerySnapshot> bookTask;
+        Query initialTask;
+
+        if(terms.size() > 0 && !terms.get(0).equals("")) {
+            // If we actually have any search terms entered
+            initialTask = db
+                    .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                    .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms);
+        } else {
+            //If we do not have search terms
+            initialTask = db
+                    .collection(FireStoreMapping.COLLECTIONS_BOOK);
+        }
+
+        if (terms.size() > 0) { // Clean up search terms
+            for (String i: terms) {
+                terms.set(terms.indexOf(i), i.trim().toLowerCase());
+            }
+        }
+
+        if(filter.size() > 0) {
+            if (uuid != null) {
+                if (type.equals(ProgramTags.TYPE_OWNER)) {
+                    // Search by terms, with filters, with specific owner
+                    bookTask = initialTask
+                            .whereArrayContains(FireStoreMapping.BOOK_FIELDS_OWNER, uuid)
+                            .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
+                            .get();
+                } else {
+                    // Search by terms, with filters, with specific borrower
+                    bookTask = initialTask
+                            .whereArrayContains(FireStoreMapping.BOOK_FIELDS_BORROWER, uuid)
+                            .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
+                            .get();
+                }
+            } else {
+                // Search by terms, with filters
+                bookTask = initialTask
+                        .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
+                        .get();
+            }
+        } else {
+            // Default search case, only terms
+            bookTask = initialTask
+                    .get();
+        }
+
+        bookTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
+            @Override
+            public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> bookData = task.getResult().getDocuments();
+                List<Book> books = new ArrayList<>();
+
+                for (DocumentSnapshot doc: bookData) {
+                    if (doc.exists()) {
+                        books.add(convertToBook(doc));
+                    }
+                }
+
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s books.", books.size()));
+                return books;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
     /**
      * Returns all books requested by specific UUID
      * @param uuid
@@ -652,38 +726,6 @@ public class DBHandler {
 
                 Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s users.", users.size()));
                 return users;
-            }
-        })
-                .addOnSuccessListener(successListener)
-                .addOnFailureListener(failureListener);
-    }
-
-    /**
-     * Text based search function, returns result based on search terms
-     * @param terms
-     *      String array of terms to search by
-     * @param successListener
-     *      Listener for successful retrieval
-     * @param failureListener
-     *      Listener for failed retrieval
-     */
-    public void searchBooks(List<String> terms, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
-        for (String i: terms) {
-            terms.set(terms.indexOf(i), i.toLowerCase());
-        }
-        Task<QuerySnapshot> searchTask = db
-                .collection(FireStoreMapping.COLLECTIONS_BOOK)
-                .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
-                .get();
-
-        searchTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
-            @Override
-            public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
-                List<Book> searchResult = new ArrayList<>();
-                for (DocumentSnapshot doc: task.getResult().getDocuments()) {
-                    searchResult.add(convertToBook(doc));
-                }
-                return searchResult;
             }
         })
                 .addOnSuccessListener(successListener)

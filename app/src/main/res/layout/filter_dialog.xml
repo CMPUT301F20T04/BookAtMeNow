@@ -1,57 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Filter Dialog for searching books -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/windowBackground">
-
-    <Spinner
-        android:id="@+id/sort_by"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="160dp"
-        android:layout_marginTop="41dp"
-        android:spinnerMode="dialog" />
 
     <CheckBox
         android:id="@+id/borrowed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="41dp"
+        android:layout_marginTop="16dp"
         android:text="Borrowed"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <CheckBox
         android:id="@+id/available"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="82dp"
+        android:layout_marginTop="32dp"
         android:text="Available"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        app:layout_constraintStart_toStartOf="@+id/borrowed"
+        app:layout_constraintTop_toBottomOf="@+id/borrowed" />
 
     <CheckBox
         android:id="@+id/pending"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="36dp"
-        android:layout_marginLeft="36dp"
-        android:layout_marginTop="124dp"
+        android:layout_marginTop="32dp"
         android:text="Pending"
-        android:textColor="@color/textColorPrimary" />
+        android:textColor="@color/textColorPrimary"
+        app:layout_constraintStart_toStartOf="@+id/available"
+        app:layout_constraintTop_toBottomOf="@+id/available" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

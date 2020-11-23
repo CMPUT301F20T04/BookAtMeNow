@@ -33,5 +33,8 @@ public class ProgramTags {
     static final String GENERAL_ERROR = "ERROR";
     static final String GENERAL_SUCCESS = "SUCCESS";
 
+    static final String TYPE_OWNER = "Owner";
+    static final String TYPE_BORROWER = "Borrower";
+
     private ProgramTags() {}
 }
