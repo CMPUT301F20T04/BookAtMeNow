@@ -22,6 +22,7 @@ public class ProgramTags {
     static final String PASSED_USERNAME = "PassedUsername";
 
     static final String SCAN_MESSAGE = "ScanMessage";
+    static final String LOCATION_MESSAGE = "LocationMessage";
 
     static final String STATUS_AVAILABLE = "Available";
     static final String STATUS_REQUESTED = "Requested";

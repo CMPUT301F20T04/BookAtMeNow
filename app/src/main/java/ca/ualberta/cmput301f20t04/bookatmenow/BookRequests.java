@@ -123,7 +123,6 @@ public class BookRequests extends AppCompatActivity {
      */
     public void clickedAccept(int position) {
         acceptPosition = position;
-        checkIsbn();
         getLocation();
     }
 
@@ -243,6 +242,8 @@ public class BookRequests extends AppCompatActivity {
     public void getLocation() {
         Intent i = new Intent(BookRequests.this, GeoLocation.class);
         i.putExtra(ProgramTags.LOCATION_PURPOSE, "getLocation");
+        i.putExtra(ProgramTags.LOCATION_MESSAGE, "SelectHandover");
+        i.putExtra(ProgramTags.PASSED_BOOKNAME, bookName);
         startActivityForResult(i, REQUEST_LOCATION);
     }
 
@@ -257,6 +258,7 @@ public class BookRequests extends AppCompatActivity {
                     String lat = data.getStringExtra("lat");
                     String lng = data.getStringExtra("lng");
                     location = Arrays.asList(lat, lng);
+                    checkIsbn();
                     break;
 
                 // If the ScanBook activity completes successfully, call the acceptRequest function.

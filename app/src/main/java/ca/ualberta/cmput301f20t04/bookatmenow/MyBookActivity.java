@@ -72,6 +72,7 @@ public class MyBookActivity extends AppCompatActivity {
     private ImageView bookImage;
 
     private String initIsbn;
+    private String bookName;
 
     public static final int CHANGE_BOOK_FROM_MAIN = 2;
     public static final int CHANGE_BOOK_FROM_MYBOOKS = 3;
@@ -364,6 +365,8 @@ public class MyBookActivity extends AppCompatActivity {
                     authorEditText.setText(book.getAuthor());
                     isbnEditText.setText(book.getIsbn());
 
+                    bookName = book.getTitle();
+
                     //If the book is accepted or borrowed, disable the pending requests button and
                     //show the button for the handover location.
                     if(book.getStatus().equals(ProgramTags.STATUS_ACCEPTED) ||
@@ -532,6 +535,8 @@ public class MyBookActivity extends AppCompatActivity {
                             if(book.getLocation() != null && book.getLocation().size() == 2) {
                                 Intent i = new Intent(MyBookActivity.this, GeoLocation.class);
                                 i.putExtra(ProgramTags.LOCATION_PURPOSE, "view");
+                                i.putExtra(ProgramTags.LOCATION_MESSAGE, "ViewHandover");
+                                i.putExtra(ProgramTags.PASSED_BOOKNAME, bookName);
                                 i.putExtra("lat", book.getLocation().get(0));
                                 i.putExtra("lng", book.getLocation().get(1));
                                 startActivity(i);
