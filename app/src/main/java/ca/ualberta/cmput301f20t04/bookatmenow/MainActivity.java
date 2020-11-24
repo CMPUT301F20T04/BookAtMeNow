@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
         filteredBooks = new ArrayList<>();
         allBooksAdapter = new BookAdapter(MainActivity.this, filteredBooks);
         bookList.setAdapter(allBooksAdapter);
+
         uuid = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_ID);
         username = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_USERNAME);
 
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
         filterButton = findViewById(R.id.floating_filter);
         filterButton.setVisibility(View.INVISIBLE);
+        filterTerms = new ArrayList<>();
 
         // animation adapted from https://stackoverflow.com/a/44145485
         slideOnLeft = AnimationUtils.loadAnimation(this, R.anim.slide_on_left);
@@ -188,16 +190,29 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                String search = searchEditText.getText().toString().trim();
-                if (currentView == MainActivityViews.ALL_BOOKS) {
+                String search = searchEditText.getText().toString().toLowerCase().trim();
+                if (search.length() > 0) {
                     List<String> searchTerms = Arrays.asList(search.split(" "));
-                    db.getBooks(null, null, searchTerms, filterTerms,
+                    db.searchBooks(searchTerms,
                             new OnSuccessListener<List<Book>>() {
                                 @Override
                                 public void onSuccess(List<Book> books) {
                                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                                    setViewMode(BookAdapter.ViewMode.ALL, books);
+                                    switch (currentView) {
+                                        case REQUESTED:
+                                            setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                                            break;
+                                        case BORROWED:
+                                            setViewMode(BookAdapter.ViewMode.BORROWED, books);
+                                            break;
+                                        case MY_BOOKS:
+                                            setViewMode(BookAdapter.ViewMode.OWNED, books);
+                                            break;
+                                        default:
+                                            setViewMode(BookAdapter.ViewMode.ALL, books);
+                                            break;
+                                    }
                                 }
                             },
                             new OnFailureListener() {
@@ -206,7 +221,6 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                             });
-
                 }
             }
         });
