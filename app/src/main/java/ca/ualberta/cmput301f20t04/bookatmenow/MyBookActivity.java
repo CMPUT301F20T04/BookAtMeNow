@@ -319,9 +319,6 @@ public class MyBookActivity extends AppCompatActivity {
         }
     }
 
-    /*
-        We should have a formula, I was thinking <activity_type_name> so as an example: <setNewUser_button_saveAndExit>
-        */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -361,10 +358,6 @@ public class MyBookActivity extends AppCompatActivity {
             isbnEditText.setVisibility(View.INVISIBLE);
             scanButton.setVisibility(View.INVISIBLE);
 
-            //takePic = findViewById(R.id.MBA_button_takePic);
-            //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
-            //save = findViewById(R.id.MBA_button_savePic);
-
             db.getBook(initIsbn, new OnSuccessListener<Book>() {//not adding a book. editing a pre-existing book
                 @Override
                 public void onSuccess(final Book book) {
@@ -382,9 +375,9 @@ public class MyBookActivity extends AppCompatActivity {
                         locationButton.setVisibility(View.VISIBLE);
                     }
 
-                    //If the book is borrowed and the borrower has clicked the return button,
-                    //enable the receive return button so that the owner can scan there book to
-                    //receive it back.
+                    // If the book is borrowed and the borrower has clicked the return button,
+                    // enable the receive return button so that the owner can scan there book to
+                    // receive it back.
                     if(book.getReturning() && book.getStatus().equals(ProgramTags.STATUS_BORROWED)) {
                         receiveReturnButton.setVisibility(View.VISIBLE);
                     }
@@ -450,6 +443,8 @@ public class MyBookActivity extends AppCompatActivity {
                         default:
                     }
 
+                    // If the remove button is pressed, check that the user wants to delete the book,
+                    // and then remove the book and any images associated with it.
                     removeButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -565,6 +560,8 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
+                    // Ensure that all fields are correct and then save the changes to the book by
+                    // updating the modified fields and re-adding the book to the db.
                     saveChangesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -685,6 +682,8 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
+                    // Takes user to the BookRequests activity to view any pending requests that book
+                    // may have.
                     pendingRequestButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -731,14 +730,17 @@ public class MyBookActivity extends AppCompatActivity {
                 }
             });
 
+            // Launches the ScanBook activity to get a ISBN from the books barcode.
             scanButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent i = new Intent(MyBookActivity.this, ScanBook.class);
+
                     startActivityForResult(i, REQUEST_ISBN_SCAN);
                 }
             });
 
+            // Checks that all the information is good and then adds the book to the db.
             saveChangesButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -869,90 +871,3 @@ public class MyBookActivity extends AppCompatActivity {
         }
     }
 }
-/**
- old oncreate
- @Override
- protected void onCreate(Bundle savedInstanceState) {
- super.onCreate(savedInstanceState);
- setContentView(R.layout.activity_my_book);
-
- Intent main = getIntent();
-
- init_isbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
- db = new DBHandler();
-
- db.getBook(init_isbn, new OnSuccessListener<Book>() {
- @Override
- public void onSuccess(final Book book) {
- //takePic = findViewById(R.id.MBA_button_takePic);
- //myImg = (ImageView) findViewById(R.id.MBA_imageView_picDisplay);
- //save = findViewById(R.id.MBA_button_savePic);
- to_scan_btn = findViewById(R.id.to_scan_btn);
- to_scan_btn.setOnClickListener(new View.OnClickListener() {
- @Override
- public void onClick(View v) {
- startActivity(new Intent(MyBookActivity.this, ScanBook.class));
- }
- });
-
- save_changes = findViewById(R.id.save_change_button);
- save_changes.setOnClickListener(new View.OnClickListener() {
- @Override
- public void onClick(View v) {
- book.setTitle("Title");
-
- final Intent main = new Intent();
- db.addBook(book, new OnSuccessListener<Boolean>() {
- @Override
- public void onSuccess(Boolean aBoolean) {
- // send data back to main
-
- setResult(RESULT_OK, main);
- finish();
- }
- }, new OnFailureListener() {
- @Override
- public void onFailure(@NonNull Exception e) {
- Log.d(ProgramTags.DB_ERROR, "Book could not be added to database!");
- setResult(RESULT_CANCELED, main);
- finish();
- }
- });
- }
- });
-
- titleEditText = findViewById(R.id.editTextTitle);
- titleEditText.setText(book.getTitle());
-
- authorEditText = findViewById(R.id.editTextAuthor);
- authorEditText.setText(book.getAuthor());
-
- storageReference = FirebaseStorage.getInstance().getReference();
-
- pictureTaken = false;
- }
- }, new OnFailureListener() {
- @Override
- public void onFailure(@NonNull Exception e) {
- Log.d(ProgramTags.DB_ERROR, "Book could not be found!" + e.toString());
- }
- });
- title = findViewById(R.id.editTextTitle);
- author = findViewById(R.id.editTextAuthor);
- deleteButton = findViewById(R.id.delete_button);
- submitButton = findViewById(R.id.submit_button);
- submitButton.setOnClickListener(new View.OnClickListener() {
- @Override
- public void onClick(View v) {
- if (isbnTaken) {
- String bookTitle = title.getText().toString();
- String bookAuthor = author.getText().toString();
- String bookIsbn = isbn.getText().toString();
- String owner = "";
- Book newBook = new Book(bookTitle, bookAuthor, bookIsbn, owner);
- //final DBHandler db = new DBHandler();
- //db.addBook();
- }
- }
- });
- **/
