@@ -34,12 +34,12 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private FloatingActionButton filterButton;
     private FloatingActionButton addBookButton;
     private FloatingActionButton editProfileButton;
 
     private ImageButton sortButton;
     private Button searchButton;
+    private FloatingActionButton filterButton;
 
     private Animation slideOnLeft;
     private Animation slideOffRight;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     BookAdapter.CompareBookBy.SortOption sortOption;
 
-    private List<String> filterTerms;
+    List<String> filterTerms;
 
     private enum MainActivityViews{
         ALL_BOOKS,
@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         addBookButton.setVisibility(View.INVISIBLE);
 
         filterButton = findViewById(R.id.floating_filter);
+        filterButton.setEnabled(false);
         filterButton.setVisibility(View.INVISIBLE);
         filterTerms = new ArrayList<>();
 
@@ -192,6 +193,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new FilterDialog(MainActivity.this).show(getSupportFragmentManager(), "Filter Books");
+            }
+        });
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -212,7 +220,43 @@ public class MainActivity extends AppCompatActivity {
                                             setViewMode(BookAdapter.ViewMode.BORROWED, books);
                                             break;
                                         case MY_BOOKS:
-                                            setViewMode(BookAdapter.ViewMode.OWNED, books);
+                                            if (filterTerms.size() > 0) {
+                                                setViewMode(BookAdapter.ViewMode.OWNED_FILTERED, books);
+                                            } else {
+                                                setViewMode(BookAdapter.ViewMode.OWNED, books);
+                                            }
+                                            break;
+                                        default:
+                                            setViewMode(BookAdapter.ViewMode.ALL_FILTERED, books);
+                                            break;
+                                    }
+                                }
+                            },
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                } else {
+                    db.getAllBooks(new OnSuccessListener<List<Book>>() {
+                                @Override
+                                public void onSuccess(List<Book> books) {
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                                    switch (currentView) {
+                                        case REQUESTED:
+                                            setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                                            break;
+                                        case BORROWED:
+                                            setViewMode(BookAdapter.ViewMode.BORROWED, books);
+                                            break;
+                                        case MY_BOOKS:
+                                            if (filterTerms.size() > 0) {
+                                                setViewMode(BookAdapter.ViewMode.OWNED_FILTERED, books);
+                                            } else {
+                                                setViewMode(BookAdapter.ViewMode.OWNED, books);
+                                            }
                                             break;
                                         default:
                                             setViewMode(BookAdapter.ViewMode.ALL, books);
@@ -243,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
                                 new OnSuccessListener<List<Book>>() {
                                     @Override
                                     public void onSuccess(List<Book> books) {
+                                        filterTerms.clear();
                                         setViewMode(BookAdapter.ViewMode.ALL, books);
                                     }
                                 },
@@ -260,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
                                 new OnSuccessListener<List<Book>>() {
                                     @Override
                                     public void onSuccess(List<Book> books) {
+                                        filterTerms.clear();
                                         addBookButton.setVisibility(View.VISIBLE);
                                         filterButton.setVisibility(View.VISIBLE);
                                         addBookButton.startAnimation(slideOnLeft);
@@ -283,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
                                 new OnSuccessListener<List<Book>>() {
                                     @Override
                                     public void onSuccess(List<Book> books) {
+                                        filterTerms.clear();
                                         setViewMode(BookAdapter.ViewMode.BORROWED, books);
                                     }
                                 },
@@ -301,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
                                 new OnSuccessListener<List<Book>>() {
                                     @Override
                                     public void onSuccess(List<Book> books) {
+                                        filterTerms.clear();
                                         setViewMode(BookAdapter.ViewMode.REQUESTED, books);
                                     }
                                 },
@@ -357,13 +405,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
-
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
-            }
-        });
     }
 
     private void disableButtons() {
@@ -384,11 +425,43 @@ public class MainActivity extends AppCompatActivity {
         filteredBooks.clear();
 
         for (Book book : allBooks) {
-            if (BookAdapter.checkUser(book, uuid, viewMode)) {
+            if (BookAdapter.checkUser(book, uuid, viewMode, filterTerms)) {
                 filteredBooks.add(book);
             }
         }
         allBooksAdapter.sort(sortOption);
+    }
+
+    public void filterUpdate() {
+        final BookAdapter.ViewMode mode;
+        if (currentView == MainActivityViews.ALL_BOOKS) {
+            if (filterTerms.size() > 0) {
+                mode = BookAdapter.ViewMode.ALL_FILTERED;
+            } else {
+                mode = BookAdapter.ViewMode.ALL;
+            }
+        } else {
+            if (filterTerms.size() > 0) {
+                mode = BookAdapter.ViewMode.OWNED_FILTERED;
+            } else {
+                mode = BookAdapter.ViewMode.OWNED;
+            }
+        }
+
+        db.getAllBooks(
+                new OnSuccessListener<List<Book>>() {
+                    @Override
+                    public void onSuccess(List<Book> books) {
+                        setViewMode(mode, books);
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
     }
 
     @Override
@@ -400,9 +473,17 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(List<Book> books) {
                         try {
                             if (requestCode == MyBookActivity.ADD_BOOK || requestCode == MyBookActivity.CHANGE_BOOK_FROM_MYBOOKS) {
-                                setViewMode(BookAdapter.ViewMode.OWNED, books);
+                                if (filterTerms.size() > 0) {
+                                    setViewMode(BookAdapter.ViewMode.OWNED_FILTERED, books);
+                                } else {
+                                    setViewMode(BookAdapter.ViewMode.OWNED, books);
+                                }
                             } else {
-                                setViewMode(BookAdapter.ViewMode.ALL, books);
+                                if (filterTerms.size() > 0) {
+                                    setViewMode(BookAdapter.ViewMode.ALL_FILTERED, books);
+                                } else {
+                                    setViewMode(BookAdapter.ViewMode.ALL, books);
+                                }
                                 disableButtons();
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");

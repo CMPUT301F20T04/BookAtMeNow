@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * An {@link ArrayAdapter} class specialized for a database of {@link Book}s to be owned, borrowed,
@@ -40,9 +41,17 @@ public class BookAdapter extends ArrayAdapter<Book> {
          */
         ALL,
         /**
+         * Display all {@link Book}s in the system Filtered by Status
+         */
+        ALL_FILTERED,
+        /**
          * Display the {@link Book}s owned by the {@link User} with a given UUID
          */
         OWNED,
+        /**
+         * Display the {@link Book}s being owned by the {@link User} with a given UUID and Status Filter
+         */
+        OWNED_FILTERED,
         /**
          * Display the {@link Book}s being borrowed by the {@link User} with a given UUID
          */
@@ -133,7 +142,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
      * @return
      *      A boolean representing whether or not the current book should be displayed
      */
-    public static boolean checkUser(Book book, String uuid, ViewMode viewMode) {
+    public static boolean checkUser(Book book, String uuid, ViewMode viewMode, List<String> filter) {
         if (uuid == null) {
             return true;
         }
@@ -147,13 +156,14 @@ public class BookAdapter extends ArrayAdapter<Book> {
         switch (viewMode) {
             case OWNED:
                 return uuid.equals(book.getOwner().get(0));
+            case OWNED_FILTERED:
+                return uuid.equals(book.getOwner().get(0)) && filter.contains(book.getStatus());
             case BORROWED:
                 if (book.getBorrower().size() == 2) {
                     return uuid.equals(book.getBorrower().get(0));
                 } else {
                     return false;
                 }
-
             case REQUESTED:
                 for (String requester : book.getRequests()) {
                     if (uuid.equals(requester)) {
@@ -161,6 +171,9 @@ public class BookAdapter extends ArrayAdapter<Book> {
                     }
                 }
                 return false;
+            case ALL_FILTERED:
+                return (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)
+                        || book.getStatus().equals(FireStoreMapping.BOOK_STATUS_REQUESTED));
             default:
                 return true;
         }
@@ -349,13 +362,9 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
     /**
      * Change the internal filtered list to only show books with a given status.
-     * <p>
-     * Deprecated due to due to idiosyncrasies with the way async databases work.
-     *
+     * @deprecated
      * @param statusEnum
      *      The status to filter by
-     *
-     * @deprecated
      */
     public void filter(@Nullable final Book.StatusEnum statusEnum) {
 //        db.getAllBooks(new OnSuccessListener<List<Book>>() {

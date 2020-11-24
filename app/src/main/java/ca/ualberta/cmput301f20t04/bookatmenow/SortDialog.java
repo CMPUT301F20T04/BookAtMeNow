@@ -12,8 +12,6 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import java.util.ArrayList;
-
 /**
  * Search dialog.
  * TODO: rework using fragments, enable searching.
