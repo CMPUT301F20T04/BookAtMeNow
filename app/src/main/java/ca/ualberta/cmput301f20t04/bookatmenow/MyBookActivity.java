@@ -268,7 +268,7 @@ public class MyBookActivity extends AppCompatActivity {
     private boolean checkFields() {
         return (!(titleEditText.getText().length() < 1) &&
                 !(authorEditText.getText().length() < 1) &&
-                !(isbnEditText.getText().length() == 13) &&
+                (isbnEditText.getText().length() == 13) &&
                 !(statusButtons.getCheckedRadioButtonId() == -1));
     }
 
