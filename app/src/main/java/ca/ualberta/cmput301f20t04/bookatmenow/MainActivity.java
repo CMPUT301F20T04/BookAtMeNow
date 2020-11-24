@@ -25,6 +25,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String uuid;
     private String username;
+
+    BookAdapter.CompareBookBy.SortOption sortOption;
 
     private List<String> filterTerms;
 
@@ -124,14 +127,18 @@ public class MainActivity extends AppCompatActivity {
         filteredBooks = new ArrayList<>();
         allBooksAdapter = new BookAdapter(MainActivity.this, filteredBooks);
         bookList.setAdapter(allBooksAdapter);
+
         uuid = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_ID);
         username = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_USERNAME);
+
+        sortOption = BookAdapter.CompareBookBy.SortOption.TITLE;
 
         addBookButton = findViewById(R.id.floating_add);
         addBookButton.setVisibility(View.INVISIBLE);
 
         filterButton = findViewById(R.id.floating_filter);
         filterButton.setVisibility(View.INVISIBLE);
+        filterTerms = new ArrayList<>();
 
         // animation adapted from https://stackoverflow.com/a/44145485
         slideOnLeft = AnimationUtils.loadAnimation(this, R.anim.slide_on_left);
@@ -144,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                            public void onSuccess(List<Book> books) {
                                filteredBooks.clear();
                                filteredBooks.addAll(books);
-                               allBooksAdapter.notifyDataSetChanged();
+                               allBooksAdapter.sort(sortOption);
                                Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
                                setUi(filteredBooks);
                            }
@@ -152,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+                        e.printStackTrace();
                     }
                 });
     }
@@ -181,23 +188,36 @@ public class MainActivity extends AppCompatActivity {
         sortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new SortDialog().show(getSupportFragmentManager(), "Sort Books");
+                new SortDialog(MainActivity.this).show(getSupportFragmentManager(), "Sort Books");
             }
         });
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                String search = searchEditText.getText().toString().trim();
-                if (currentView == MainActivityViews.ALL_BOOKS) {
+                String search = searchEditText.getText().toString().toLowerCase().trim();
+                if (search.length() > 0) {
                     List<String> searchTerms = Arrays.asList(search.split(" "));
-                    db.getBooks(null, null, searchTerms, filterTerms,
+                    db.searchBooks(searchTerms,
                             new OnSuccessListener<List<Book>>() {
                                 @Override
                                 public void onSuccess(List<Book> books) {
                                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                                    setViewMode(BookAdapter.ViewMode.ALL, books);
+                                    switch (currentView) {
+                                        case REQUESTED:
+                                            setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                                            break;
+                                        case BORROWED:
+                                            setViewMode(BookAdapter.ViewMode.BORROWED, books);
+                                            break;
+                                        case MY_BOOKS:
+                                            setViewMode(BookAdapter.ViewMode.OWNED, books);
+                                            break;
+                                        default:
+                                            setViewMode(BookAdapter.ViewMode.ALL, books);
+                                            break;
+                                    }
                                 }
                             },
                             new OnFailureListener() {
@@ -206,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                             });
-
                 }
             }
         });
@@ -298,12 +317,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 if (MainActivityViews.fromInt(tab.getPosition()) == MainActivityViews.MY_BOOKS) {
-                    addBookButton.setEnabled(false);
-                    filterButton.setEnabled(false);
-                    addBookButton.startAnimation(slideOffRight);
-                    filterButton.startAnimation(slideOffLeft);
-                    addBookButton.setVisibility(View.INVISIBLE);
-                    filterButton.setVisibility(View.INVISIBLE);
+                    disableButtons();
                 }
             }
 
@@ -343,6 +357,22 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
+
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
+            }
+        });
+    }
+
+    private void disableButtons() {
+        addBookButton.setEnabled(false);
+        filterButton.setEnabled(false);
+        addBookButton.startAnimation(slideOffRight);
+        filterButton.startAnimation(slideOffLeft);
+        addBookButton.setVisibility(View.INVISIBLE);
+        filterButton.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -350,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
      * @param viewMode
      * @param allBooks
      */
-    private void setViewMode(BookAdapter.ViewMode viewMode, List<Book> allBooks)    {
+    private void setViewMode(BookAdapter.ViewMode viewMode, List<Book> allBooks) {
         filteredBooks.clear();
 
         for (Book book : allBooks) {
@@ -358,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
                 filteredBooks.add(book);
             }
         }
-        allBooksAdapter.notifyDataSetChanged();
+        allBooksAdapter.sort(sortOption);
     }
 
     @Override
@@ -373,12 +403,7 @@ public class MainActivity extends AppCompatActivity {
                                 setViewMode(BookAdapter.ViewMode.OWNED, books);
                             } else {
                                 setViewMode(BookAdapter.ViewMode.ALL, books);
-                                addBookButton.setEnabled(false);
-                                filterButton.setEnabled(false);
-                                addBookButton.startAnimation(slideOffRight);
-                                filterButton.startAnimation(slideOffLeft);
-                                addBookButton.setVisibility(View.INVISIBLE);
-                                filterButton.setVisibility(View.INVISIBLE);
+                                disableButtons();
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
                         } catch (Exception e) {

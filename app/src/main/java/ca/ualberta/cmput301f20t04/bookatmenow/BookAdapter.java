@@ -263,7 +263,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
      */
     public void sort(CompareBookBy.SortOption option) {
         Collections.sort(filteredBooks, new CompareBookBy(option));
-//        notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     /**
@@ -275,10 +275,22 @@ public class BookAdapter extends ArrayAdapter<Book> {
      */
     public static class CompareBookBy implements Comparator<Book> {
 
-        protected enum SortOption {
+        public enum SortOption {
             TITLE,
             AUTHOR,
-            ISBN,
+            ISBN;
+
+            public int toInt() {
+                switch (this) {
+                    default:
+                    case TITLE:
+                        return 0;
+                    case AUTHOR:
+                        return 1;
+                    case ISBN:
+                        return 2;
+                }
+            }
         }
 
         private final SortOption option;
