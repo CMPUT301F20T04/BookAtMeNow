@@ -83,6 +83,7 @@ public class MyBookActivity extends AppCompatActivity {
     final private static int CHECK_ISBN_SCAN = 2;
     final private static int REQUEST_IMAGE_CAPTURE = 1;
     final private static int REQUEST_ISBN_SCAN = 0;
+    final private static int VIEW_PENDING_REQUESTS = 3;
 
 
     private Uri myUri;
@@ -184,6 +185,12 @@ public class MyBookActivity extends AppCompatActivity {
                 case CHECK_ISBN_SCAN:
                     receiveBook();
                     break;
+
+                case VIEW_PENDING_REQUESTS:
+                    if(data.getStringExtra(ProgramTags.PASSED_BORROWER) != null) {
+                        statusButtons.check(R.id.myBook_accepted_radiobutton);
+                    }
+
             }
         } else if (resultCode == RESULT_CANCELED) {
             selectedStatusButton = statusButtons.findViewById(statusButtons.getCheckedRadioButtonId());
@@ -683,7 +690,7 @@ public class MyBookActivity extends AppCompatActivity {
                         public void onClick(View view) {
                             Intent i = new Intent(MyBookActivity.this, BookRequests.class);
                             i.putExtra(ProgramTags.PASSED_ISBN, initIsbn);
-                            startActivity(i);
+                            startActivityForResult(i,VIEW_PENDING_REQUESTS);
                         }
                     });
 

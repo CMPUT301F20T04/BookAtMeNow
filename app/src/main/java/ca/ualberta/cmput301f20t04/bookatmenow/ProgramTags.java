@@ -20,6 +20,7 @@ public class ProgramTags {
     static final String PASSED_BOOKNAME = "PassedBookname";
     static final String PASSED_UUID = "PassedUUID";
     static final String PASSED_USERNAME = "PassedUsername";
+    static final String PASSED_BORROWER = "PassedBorrower";
 
     static final String SCAN_MESSAGE = "ScanMessage";
     static final String LOCATION_MESSAGE = "LocationMessage";

@@ -35,6 +35,8 @@ public class BookRequests extends AppCompatActivity {
 
     private DBHandler db;
 
+    Intent intent;
+
     private String isbn;
     private String bookName;
 
@@ -47,7 +49,7 @@ public class BookRequests extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_CANCELED);
+        setResult(RESULT_OK);
         this.finish();
     }
 
@@ -61,7 +63,7 @@ public class BookRequests extends AppCompatActivity {
         noRequests = findViewById(R.id.noRequested_TextView_BookRequests);
         bookRequestsTitle = findViewById(R.id.myBookReqs_BookTitle);
 
-        Intent intent = getIntent();
+        intent = getIntent();
         isbn = intent.getStringExtra(ProgramTags.PASSED_ISBN);
 
         bookRequests = new LinkedList<>();
@@ -193,7 +195,7 @@ public class BookRequests extends AppCompatActivity {
         db.getBook(isbn, new OnSuccessListener<Book>() {
             @Override
             public void onSuccess(Book book) {
-
+                intent.putExtra(ProgramTags.PASSED_BORROWER, borrowerUsername);
                 book.setBorrower(borrower);
                 book.setStatus(ProgramTags.STATUS_ACCEPTED);
                 book.setLocation(location);
