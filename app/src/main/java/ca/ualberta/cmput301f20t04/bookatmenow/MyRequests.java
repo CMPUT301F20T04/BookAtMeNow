@@ -17,6 +17,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated
+ */
 public class MyRequests extends AppCompatActivity {
 
     //Views
