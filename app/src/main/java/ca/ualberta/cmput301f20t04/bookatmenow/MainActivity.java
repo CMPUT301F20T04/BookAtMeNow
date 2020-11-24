@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                            public void onSuccess(List<Book> books) {
                                filteredBooks.clear();
                                filteredBooks.addAll(books);
-                               allBooksAdapter.notifyDataSetChanged();
+                               allBooksAdapter.sort(sortOption);
                                Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
                                setUi(filteredBooks);
                            }
