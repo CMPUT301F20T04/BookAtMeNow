@@ -67,7 +67,7 @@
         android:hint="@string/mainActivity_search"
         android:importantForAutofill="no"
         android:inputType="textPersonName"
-        android:textColor="@color/textColorHint"
+        android:textColor="@color/textColorPrimary"
         android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toStartOf="@+id/sort"
         app:layout_constraintHorizontal_bias="0.0"

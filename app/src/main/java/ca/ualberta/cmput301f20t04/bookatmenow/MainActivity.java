@@ -25,6 +25,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -152,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(ProgramTags.DB_ERROR, "Not all books could be found!" + e.toString());
+                        e.printStackTrace();
                     }
                 });
     }
@@ -298,12 +299,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 if (MainActivityViews.fromInt(tab.getPosition()) == MainActivityViews.MY_BOOKS) {
-                    addBookButton.setEnabled(false);
-                    filterButton.setEnabled(false);
-                    addBookButton.startAnimation(slideOffRight);
-                    filterButton.startAnimation(slideOffLeft);
-                    addBookButton.setVisibility(View.INVISIBLE);
-                    filterButton.setVisibility(View.INVISIBLE);
+                    disableButtons();
                 }
             }
 
@@ -343,6 +339,22 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(i, MyBookActivity.ADD_BOOK);
             }
         });
+
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new FilterDialog().show(getSupportFragmentManager(), "Filter Books");
+            }
+        });
+    }
+
+    private void disableButtons() {
+        addBookButton.setEnabled(false);
+        filterButton.setEnabled(false);
+        addBookButton.startAnimation(slideOffRight);
+        filterButton.startAnimation(slideOffLeft);
+        addBookButton.setVisibility(View.INVISIBLE);
+        filterButton.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -373,12 +385,7 @@ public class MainActivity extends AppCompatActivity {
                                 setViewMode(BookAdapter.ViewMode.OWNED, books);
                             } else {
                                 setViewMode(BookAdapter.ViewMode.ALL, books);
-                                addBookButton.setEnabled(false);
-                                filterButton.setEnabled(false);
-                                addBookButton.startAnimation(slideOffRight);
-                                filterButton.startAnimation(slideOffLeft);
-                                addBookButton.setVisibility(View.INVISIBLE);
-                                filterButton.setVisibility(View.INVISIBLE);
+                                disableButtons();
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
                         } catch (Exception e) {
