@@ -15,8 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Filter dialog.
- * TODO: rework using fragments, enable searching.
+ * Filter dialog for books according to status.
  */
 public class FilterDialog extends AppCompatDialogFragment {
     private MainActivity main;

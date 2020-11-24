@@ -17,8 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.List;
 
 /**
- * Login using username and password that exist in the database.
- * TODO: login using email
+ * Login using username/email and password that exist in the database.
  */
 public class LoginActivity extends AppCompatActivity {
 

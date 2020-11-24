@@ -32,6 +32,9 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 
+/**
+ * Scan book ISBN for add/borrow/return.
+ */
 public class ScanBook extends AppCompatActivity {
     private String bookISBN;
     private String bookName;

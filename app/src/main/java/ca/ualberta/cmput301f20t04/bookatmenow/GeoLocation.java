@@ -54,6 +54,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Set Geolocation of user address / book pickup or return.
+ */
 public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback {
 
     private Button setGeoLocPickup;

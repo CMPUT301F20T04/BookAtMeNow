@@ -13,8 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 /**
- * Search dialog.
- * TODO: rework using fragments, enable searching.
+ * Search books dialog.
  */
 public class SortDialog extends AppCompatDialogFragment {
     private final MainActivity main;

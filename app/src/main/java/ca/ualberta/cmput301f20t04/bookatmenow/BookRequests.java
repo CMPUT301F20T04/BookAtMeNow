@@ -23,6 +23,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * View requests on a book owned by logged in user.
+ */
 public class BookRequests extends AppCompatActivity {
 
     private ListView requesterList;

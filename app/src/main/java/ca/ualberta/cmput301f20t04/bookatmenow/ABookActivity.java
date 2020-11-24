@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * View A Book that's not owned by the logged in user.
- * TODO: add viewing pickup location, optional book image, request / return / borrow, pretty-up UI.
+ * View pickup location, optional book image, request / return / borrow actions.
  */
 public class ABookActivity extends AppCompatActivity {
 

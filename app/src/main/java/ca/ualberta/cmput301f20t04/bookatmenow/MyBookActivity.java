@@ -51,6 +51,9 @@ import java.util.List;
 
 //import static ca.ualberta.cmput301f20t04.bookatmenow.R.id.editTextAuthor;
 
+/**
+ * Add / edit book to personal library.
+ */
 public class MyBookActivity extends AppCompatActivity {
 
     Context context;

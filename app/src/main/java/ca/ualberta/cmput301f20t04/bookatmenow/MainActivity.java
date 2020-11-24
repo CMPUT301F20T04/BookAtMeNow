@@ -29,8 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * List all books, list logged in user's books.
- * TODO: list all borrowed and requested books, search functionality
+ * List all books, list logged in user's books, list all books borrowed/requested by user, search/filter books.
  */
 public class MainActivity extends AppCompatActivity {
 

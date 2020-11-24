@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 /**
  * Create new user with unique username, with or without optional fields.
  * See user details if currently logged in.
- * TODO: edit user details if currently logged in
+ * Edit user details if currently logged in.
  */
 public class ProfileActivity extends AppCompatActivity {
 
