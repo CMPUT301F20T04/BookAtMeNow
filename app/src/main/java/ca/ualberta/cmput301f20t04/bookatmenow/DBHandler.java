@@ -315,7 +315,7 @@ public class DBHandler {
     public void emailExists(String email, OnSuccessListener<String> onSuccessListener, OnFailureListener onFailureListener) {
         Task<QuerySnapshot> userTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .whereEqualTo(FireStoreMapping.USER_FIELDS_USERNAME, email.toLowerCase())
+                .whereEqualTo(FireStoreMapping.USER_FIELDS_EMAIL, email.toLowerCase())
                 .get();
 
         userTask.continueWith(new Continuation<QuerySnapshot, String>() {

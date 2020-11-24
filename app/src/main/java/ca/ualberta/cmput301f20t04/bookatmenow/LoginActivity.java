@@ -27,14 +27,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginBtn;
     private Button createAccBtn;
 
-    /**
-     * clears the fields of the login screen
-     */
-    private void clearField() {
-        logInUser.setText("");
-        logInPW.setText("");
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -99,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                                         startActivity(i);
                                         finish();
                                     } else {
-                                        clearField();
+                                        logInPW.setText("");
                                         invalidLoginDialog.show();
                                     }
                                 }
