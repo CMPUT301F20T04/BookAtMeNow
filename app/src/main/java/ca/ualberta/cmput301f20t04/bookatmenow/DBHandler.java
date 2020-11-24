@@ -315,7 +315,7 @@ public class DBHandler {
     public void emailExists(String email, OnSuccessListener<String> onSuccessListener, OnFailureListener onFailureListener) {
         Task<QuerySnapshot> userTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .whereEqualTo(FireStoreMapping.USER_FIELDS_USERNAME, email.toLowerCase())
+                .whereEqualTo(FireStoreMapping.USER_FIELDS_EMAIL, email.toLowerCase())
                 .get();
 
         userTask.continueWith(new Continuation<QuerySnapshot, String>() {
@@ -567,53 +567,16 @@ public class DBHandler {
     //Assumes uuid is set to null or legal UUID
     //Assumes terms is non-empty, because what?
     //Assumes filter to be of empty or filled with terms, use only legal status values defined in FireStoreMapping
-    public void getBooks(String type, String uuid, List<String> terms, List<String> filter, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
-        Task<QuerySnapshot> bookTask;
-        Query initialTask;
-
-        if(terms.size() > 0 && !terms.get(0).equals("")) {
-            // If we actually have any search terms entered
-            initialTask = db
-                    .collection(FireStoreMapping.COLLECTIONS_BOOK)
-                    .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms);
-        } else {
-            //If we do not have search terms
-            initialTask = db
-                    .collection(FireStoreMapping.COLLECTIONS_BOOK);
+    public void searchBooks(List<String> terms, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        for (String i: terms) {
+            // Clean up terms
+            terms.set(terms.indexOf(i), i.trim().toLowerCase());
         }
 
-        if (terms.size() > 0) { // Clean up search terms
-            for (String i: terms) {
-                terms.set(terms.indexOf(i), i.trim().toLowerCase());
-            }
-        }
-
-        if(filter.size() > 0) {
-            if (uuid != null) {
-                if (type.equals(ProgramTags.TYPE_OWNER)) {
-                    // Search by terms, with filters, with specific owner
-                    bookTask = initialTask
-                            .whereArrayContains(FireStoreMapping.BOOK_FIELDS_OWNER, uuid)
-                            .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
-                            .get();
-                } else {
-                    // Search by terms, with filters, with specific borrower
-                    bookTask = initialTask
-                            .whereArrayContains(FireStoreMapping.BOOK_FIELDS_BORROWER, uuid)
-                            .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
-                            .get();
-                }
-            } else {
-                // Search by terms, with filters
-                bookTask = initialTask
-                        .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_STATUS, filter)
-                        .get();
-            }
-        } else {
-            // Default search case, only terms
-            bookTask = initialTask
-                    .get();
-        }
+        Task<QuerySnapshot> bookTask = db
+                .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
+                .get();
 
         bookTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
             @Override
