@@ -9,14 +9,24 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
+
+import java.util.ArrayList;
 
 /**
  * Search dialog.
  * TODO: rework using fragments, enable searching.
  */
 public class SortDialog extends AppCompatDialogFragment {
+    private final MainActivity main;
+
+    SortDialog(MainActivity main) {
+        this.main = main;
+    }
+
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -28,6 +38,8 @@ public class SortDialog extends AppCompatDialogFragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
+        spinner.setSelection(main.sortOption.toInt());
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         return builder
                 .setView(view)
@@ -35,21 +47,16 @@ public class SortDialog extends AppCompatDialogFragment {
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        dialog.cancel();
                     }
                 })
                 .setPositiveButton("Done", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String selection = spinner.getSelectedItem().toString();
-
-                        if (selection.equals("Title")) {
-
-                        } else if (selection.equals("Author")) {
-
-                        } else if (selection.equals("ISBN")) {
-
-                        }
+                        BookAdapter.CompareBookBy.SortOption sortOption = BookAdapter.CompareBookBy.SortOption
+                                .valueOf(spinner.getSelectedItem().toString().toUpperCase());
+                        main.allBooksAdapter.sort(sortOption);
+                        main.sortOption = sortOption;
                     }
                 })
                 .create();
