@@ -130,7 +130,7 @@
         android:layout_marginTop="8dp"
         android:textSize="12sp"
         android:minHeight="0dp"
-        android:onClick="removeImage"
+        android:onClick="takePicture"
         android:text="@string/action_take_picture"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/myBook_status_radiogroup" />
@@ -144,7 +144,7 @@
         android:layout_marginTop="4dp"
         android:textSize="12sp"
         android:minHeight="0dp"
-        android:onClick="takePicture"
+        android:onClick="removeImage"
         android:text="@string/action_remove_picture"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/myBook_take_picture_button" />
