@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private String uuid;
     private String username;
 
+    BookAdapter.CompareBookBy.SortOption sortOption;
+
     private List<String> filterTerms;
 
     private enum MainActivityViews{
@@ -129,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
         uuid = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_ID);
         username = getIntent().getStringExtra(FireStoreMapping.USER_FIELDS_USERNAME);
 
+        sortOption = BookAdapter.CompareBookBy.SortOption.TITLE;
+
         addBookButton = findViewById(R.id.floating_add);
         addBookButton.setVisibility(View.INVISIBLE);
 
@@ -184,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         sortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new SortDialog().show(getSupportFragmentManager(), "Sort Books");
+                new SortDialog(MainActivity.this).show(getSupportFragmentManager(), "Sort Books");
             }
         });
 
@@ -376,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
      * @param viewMode
      * @param allBooks
      */
-    private void setViewMode(BookAdapter.ViewMode viewMode, List<Book> allBooks)    {
+    private void setViewMode(BookAdapter.ViewMode viewMode, List<Book> allBooks) {
         filteredBooks.clear();
 
         for (Book book : allBooks) {
@@ -384,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
                 filteredBooks.add(book);
             }
         }
-        allBooksAdapter.notifyDataSetChanged();
+        allBooksAdapter.sort(sortOption);
     }
 
     @Override
