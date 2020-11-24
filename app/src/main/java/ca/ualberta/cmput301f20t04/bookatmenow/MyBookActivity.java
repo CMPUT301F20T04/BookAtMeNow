@@ -735,7 +735,7 @@ public class MyBookActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent i = new Intent(MyBookActivity.this, ScanBook.class);
-
+                    i.putExtra(ProgramTags.SCAN_MESSAGE, "ScanNew");
                     startActivityForResult(i, REQUEST_ISBN_SCAN);
                 }
             });

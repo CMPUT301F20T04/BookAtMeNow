@@ -86,17 +86,26 @@ public class ScanBook extends AppCompatActivity {
         main = getIntent();
 
 
-        if(main.getStringExtra(ProgramTags.SCAN_MESSAGE) != null && main.getStringExtra(ProgramTags.SCAN_MESSAGE).equals("ScanExisting")) {
+        if(main.getStringExtra(ProgramTags.SCAN_MESSAGE) != null) {
             scanMessage.setVisibility(View.VISIBLE);
-            String scanBook = "Please scan: ";
-            bookName = main.getStringExtra(ProgramTags.PASSED_BOOKNAME);
-            Log.e("Josh error", bookName);
-            SpannableString messageString = new SpannableString(scanBook + bookName);
-            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
-                    scanBook.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            messageString.setSpan(new StyleSpan(Typeface.ITALIC), scanBook.length() - 1,
-                    scanBook.length() + bookName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            scanMessage.setText(messageString);
+            if(main.getStringExtra(ProgramTags.SCAN_MESSAGE).equals("ScanExisting")) {
+                String scanBook = "Please scan: ";
+                bookName = main.getStringExtra(ProgramTags.PASSED_BOOKNAME);
+                SpannableString messageString = new SpannableString(scanBook + bookName);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                        scanBook.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageString.setSpan(new StyleSpan(Typeface.ITALIC), scanBook.length() - 1,
+                        scanBook.length() + bookName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                scanMessage.setText(messageString);
+            } else if (main.getStringExtra(ProgramTags.SCAN_MESSAGE).equals("ScanNew")) {
+                String scanBook = "Please scan ISBN barcode";
+                SpannableString messageString = new SpannableString(scanBook);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                        scanBook.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                scanMessage.setText(messageString);
+            }
+
+
         }
 
         initialize();
