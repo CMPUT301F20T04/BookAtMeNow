@@ -6,6 +6,7 @@ public class Notification {
     public enum NotificationType {
         Request,
         Approve,
+        Reject,
         Return
     }
 
