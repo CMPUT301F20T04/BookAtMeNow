@@ -379,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
         bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
-                Log.d(ProgramTags.TEST_TAG, uuid);
+                Log.d(ProgramTags.TEST_TAG, "List Adapter");
                 if (filteredBooks.get(pos).getOwner().get(0).equals(uuid)) {
                     Intent i = new Intent(MainActivity.this, MyBookActivity.class);
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());

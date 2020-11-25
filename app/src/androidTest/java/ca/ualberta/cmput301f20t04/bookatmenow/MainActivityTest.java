@@ -60,6 +60,19 @@ public class MainActivityTest {
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
     }
 
+    @Test
+    public void clickBookList() {
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+        solo.waitForActivity(MainActivity.class);
+        solo.clickInList(1);
+        solo.assertCurrentActivity("Wrong Activity", ABookActivity.class);
+        Button request = (Button) solo.getView(R.id.abook_request_button);
+        solo.clickOnView(request);
+        Button owner = (Button) solo.getView(R.id.abook_owner_button);
+        solo.clickOnView(owner);
+        solo.assertCurrentActivity("Wrong Activity", AProfileActivity.class);
+    }
+
     /**
      * Checks that addBook button goes to my book activity.
      */
