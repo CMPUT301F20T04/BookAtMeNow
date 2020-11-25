@@ -14,19 +14,16 @@ public class User {
     /**
      * Unique user ID, randomly generated on account creation.
      * Having it enables changing one's account details without losing information on books owned.
-     * TODO: use this to check uniqueness of username & email every time a user edits their account.
      */
     private String userId;
 
     /**
      * Unique username, checked on account creation.
-     * TODO: make spaces in the name invalid.
      */
     private String username;
 
     /**
      * Password must be letters, numbers, no spaces.
-     * TODO: allow special characters.
      */
     private String password;
     private String email;

@@ -13,8 +13,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:text="@string/default_username"
-        android:textColor="@color/design_default_color_on_secondary"
-        android:textSize="18sp"
+        android:textColor="@color/textColorPrimary"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="@+id/confirm_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/confirm_button" />

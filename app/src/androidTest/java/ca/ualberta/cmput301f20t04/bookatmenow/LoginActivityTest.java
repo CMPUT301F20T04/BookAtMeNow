@@ -8,14 +8,13 @@ import android.widget.EditText;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class LoginActivityTest {
     private Solo solo;
@@ -54,7 +53,9 @@ public class LoginActivityTest {
         solo.enterText((EditText) solo.getView(R.id.login_pw), "password");
         solo.clickOnButton("Login");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("Profile");
+        FloatingActionButton profile = (FloatingActionButton) solo.getView(R.id.floating_edit_profile);
+        solo.clickOnView(profile);
+        solo.waitForActivity("ProfileActivity");
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         solo.clickOnButton("Logout");
         solo.waitForActivity("LoginActivity"); // check if everything else finished
@@ -84,31 +85,6 @@ public class LoginActivityTest {
         solo.assertCurrentActivity("Wrong Activity", LoginActivity.class);
     }
 
-    /**
-     * Checks clicking on create account.
-     * Actually works in practice on real phones and emulators, but produces the following error on Pixel 2 API 30 emulator.
-     *
-     * Error:
-     * android.view.WindowManager$BadTokenException: Unable to add window -- token android.os.BinderProxy@8e6f5e4 is not valid; is your activity running?
-     * at android.view.ViewRootImpl.setView(ViewRootImpl.java:1068)
-     * at android.view.WindowManagerGlobal.addView(WindowManagerGlobal.java:409)
-     * at android.view.WindowManagerImpl.addView(WindowManagerImpl.java:109)
-     * at android.app.Dialog.show(Dialog.java:340)
-     * at android.app.AlertDialog$Builder.show(AlertDialog.java:1131)
-     * at ca.ualberta.cmput301f20t04.bookatmenow.LoginActivity$3$1$1$1.onSuccess(LoginActivity.java:93)
-     * at ca.ualberta.cmput301f20t04.bookatmenow.LoginActivity$3$1$1$1.onSuccess(LoginActivity.java:83)
-     * at com.google.android.gms.tasks.zzn.run(com.google.android.gms:play-services-tasks@@17.1.0:4)
-     * at android.os.Handler.handleCallback(Handler.java:938)
-     * at android.os.Handler.dispatchMessage(Handler.java:99)
-     * at com.google.android.gms.internal.tasks.zzb.dispatchMessage(com.google.android.gms:play-services-tasks@@17.1.0:6)
-     * at android.os.Looper.loop(Looper.java:223)
-     * at android.app.ActivityThread.main(ActivityThread.java:7656)
-     * at java.lang.reflect.Method.invoke(Native Method)
-     * at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
-     * at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
-     *
-     * Test running failed: Instrumentation run failed due to 'Process crashed.'
-     */
     @Test
     public void clickCreateAccount() {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);

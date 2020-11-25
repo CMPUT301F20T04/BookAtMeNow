@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -13,17 +17,16 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".AProfileActivity"></activity>
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".AProfileActivity" />
         <activity android:name=".ABookActivity" />
-        <activity android:name=".BookRequests"></activity>
+        <activity android:name=".BookRequests" />
         <activity android:name=".MyRequests" />
         <activity android:name=".MyBookActivity" />
-        <activity android:name=".MyBook" />
         <activity android:name=".MainActivity" />
-        <activity
-            android:name=".ui.login.LoginActivity"
-            android:label="@string/title_activity_login" />
+<!--        <activity-->
+<!--            android:name=".ui.login.LoginActivity"-->
+<!--            android:label="@string/title_activity_login" />-->
         <activity android:name=".ProfileActivity" />
         <activity android:name=".LoginActivity">
             <intent-filter>
@@ -33,7 +36,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".GeoLocation" />
-        <activity android:name=".ScanBook" />
+        <activity
+            android:name=".ScanBook"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -52,10 +57,5 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 </manifest>

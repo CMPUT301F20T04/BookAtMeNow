@@ -1,6 +1,7 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.media.Image;
+import android.util.Log;
 
 import java.util.List;
 
@@ -20,16 +21,18 @@ public class Book {
         Requested,
         Accepted,
         Borrowed,
+        Unavailable
     }
 
     private String title;
     private String author;
     private String isbn;
     private String status;
-    private String borrower;
-    private String owner;
+    private boolean returning;
+    private List<String> location;
+    private List<String> borrower;
+    private List<String> owner;
     private List<String> requests;
-    private Image image;
 
     /**
      * constructs basic Book
@@ -39,7 +42,7 @@ public class Book {
      * @param status
      * @param owner
      */
-    public Book(String title, String author, String isbn, String status, String owner) {
+    public Book(String title, String author, String isbn, String status, List<String> owner) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
@@ -62,7 +65,7 @@ public class Book {
      * @param owner
      * @param borrower
      */
-    public Book(String title, String author, String isbn, String status, String owner, String borrower) {
+    public Book(String title, String author, String isbn, String status, List<String> owner, List<String> borrower) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
@@ -114,19 +117,27 @@ public class Book {
         this.status = status;
     }
 
-    public String getBorrower() {
+    public void setLocation(List<String> location) {
+        this.location = location;
+    }
+
+    public List<String> getLocation() {
+        return this.location;
+    }
+
+    public List<String> getBorrower() {
         return borrower;
     }
 
-    public void setBorrower(String borrower) {
+    public void setBorrower(List<String> borrower) {
         this.borrower = borrower;
     }
 
-    public String getOwner() {
+    public List<String> getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(List<String> owner) {
         this.owner = owner;
     }
 
@@ -138,11 +149,48 @@ public class Book {
         this.requests = requests;
     }
 
-    public Image getImage() {
-        return image;
+    public boolean getReturning() {
+        return returning;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setReturning(boolean returning) {
+        this.returning = returning;
     }
+
+    /**
+     * Add a request to the requests list. If this is the first request then set the book status
+     * to "requested".
+     * @param uuid of requesting user.
+     */
+    public void addRequest(String uuid) {
+        if(this.noRequests()) {
+            this.setStatus(ProgramTags.STATUS_REQUESTED);
+        }
+        this.requests.add(uuid);
+    }
+
+    public void clearRequests() {
+        for(String request : this.requests) {
+            if(!request.equals("EMPTY")) this.requests.remove(request);
+        }
+    }
+
+    public void deleteRequest(String uuid) {
+        if(this.checkForRequest(uuid)) {
+            this.requests.remove(uuid);
+        } else {
+            Log.e(ProgramTags.BOOK_ERROR, "Tried to delete non-existent request.");
+        }
+    }
+
+    /**
+     * Check if a user uuid is present in the requests list.
+     * @param uuid of user being checked.
+     * @return boolean of whether user uuid was in request list.
+     */
+    public boolean checkForRequest(String uuid) {
+        return requests.contains(uuid);
+    }
+
+    public boolean noRequests() {return (requests.size() == 1 && requests.get(0).equals("EMPTY")); }
 }

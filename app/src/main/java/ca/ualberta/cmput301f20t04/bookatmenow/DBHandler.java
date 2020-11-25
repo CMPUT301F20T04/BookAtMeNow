@@ -10,13 +10,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import static ca.ualberta.cmput301f20t04.bookatmenow.ProfileActivity.validEmail;
 
 /**
  * Handler class
@@ -192,60 +196,79 @@ public class DBHandler {
      * @param failureListener
      *      Listener to act on failed update
      */
-    public void updateUser(User userToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
-        HashMap<String, Object> userData = new HashMap<>();
-
+    public void updateUser(final User userToAdd, final OnSuccessListener<Boolean> successListener, final OnFailureListener failureListener) {
         if (userToAdd.getUserId() == null) {
             Log.d(ProgramTags.DB_ERROR, "Received empty UUID string, failed to add user, terminating operation.");
             return;
         }
 
-        userData.put(FireStoreMapping.USER_FIELDS_ID, userToAdd.getUserId());
+        getUser(
+                userToAdd.getUserId(),
+                new OnSuccessListener<User>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        if (user != null) {
+                            HashMap<String, Object> userData = new HashMap<>();
 
-        if(userToAdd.getUsername() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_USERNAME, "");
-        }
+                            userData.put(FireStoreMapping.USER_FIELDS_ID, userToAdd.getUserId());
 
-        if(userToAdd.getPassword() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, "");
-        }
+                            if (!userToAdd.getUsername().equals(user.getUsername())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_USERNAME, userToAdd.getUsername());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_USERNAME, user.getUsername());
+                            }
 
-        if(userToAdd.getPhone() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_PHONE, userToAdd.getPhone());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_PHONE, "");
-        }
+                            if (!userToAdd.getPassword().equals(user.getPassword()) && userToAdd.getPassword().trim().length() > 0) {
+                                userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, user.getPassword());
+                                Log.d(ProgramTags.DB_MESSAGE, "User password not changed.");
+                            }
 
-        if(userToAdd.getEmail() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_EMAIL, "");
-        }
+                            if (!userToAdd.getPhone().equals(user.getPhone())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_PHONE, userToAdd.getPhone());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_PHONE, user.getPhone());
+                            }
 
-        if(userToAdd.getAddress() != null) {
-            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, userToAdd.getAddress());
-        } else {
-            userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, "");
-        }
+                            if (!userToAdd.getEmail().equals(user.getEmail())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_EMAIL, userToAdd.getEmail().toLowerCase());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_EMAIL, user.getEmail());
+                            }
 
-        Task<Void> updateTask = db
-                .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(userToAdd.getUserId())
-                .set(userData);
+                            if (!userToAdd.getAddress().equals(user.getAddress())) {
+                                userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, userToAdd.getAddress());
+                            } else {
+                                userData.put(FireStoreMapping.USER_FIELDS_ADDRESS, user.getAddress());
+                            }
 
-        updateTask.continueWith(new Continuation<Void, Boolean>() {
-            @Override
-            public Boolean then(@NonNull Task<Void> task) throws Exception {
-                Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
-                return true;
-            }
-        })
-                .addOnSuccessListener(successListener)
-                .addOnFailureListener(failureListener);
+                            Task<Void> updateTask = db
+                                    .collection(FireStoreMapping.COLLECTIONS_USER)
+                                    .document(userToAdd.getUserId())
+                                    .set(userData);
+
+                            updateTask.continueWith(new Continuation<Void, Boolean>() {
+                                @Override
+                                public Boolean then(@NonNull Task<Void> task) throws Exception {
+                                    Log.d(ProgramTags.DB_MESSAGE, "User added successfully");
+                                    return true;
+                                }
+                            })
+                                    .addOnSuccessListener(successListener)
+                                    .addOnFailureListener(failureListener);
+                        } else {
+                            Log.d(ProgramTags.DB_ERROR, "Unable to update user. Original user does no exist.");
+                        }
+                    }
+                },
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(ProgramTags.DB_ERROR, "Failed to retrieve existing profile, terminating.");
+                    }
+                });
+
     }
 
     /**
@@ -292,7 +315,7 @@ public class DBHandler {
     public void emailExists(String email, OnSuccessListener<String> onSuccessListener, OnFailureListener onFailureListener) {
         Task<QuerySnapshot> userTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .whereEqualTo(FireStoreMapping.USER_FIELDS_USERNAME, email.toLowerCase())
+                .whereEqualTo(FireStoreMapping.USER_FIELDS_EMAIL, email.toLowerCase())
                 .get();
 
         userTask.continueWith(new Continuation<QuerySnapshot, String>() {
@@ -311,39 +334,45 @@ public class DBHandler {
     }
 
     /**
-     * Password checker, assumes user exists and has a password, returns null if account does not
-     * exist or account has no password
-     * @param uuid
-     *      User's email. a string
+     * Login handler, sends user data into app given login criteria is met
+     * @param user
+     *      Username/email string
      * @param password
-     *      User's password, a string
+     *      Password string
      * @param successListener
-     *      Listener to handle when data is pulled
+     *      Listener for successful retrieval
      * @param failureListener
-     *      Listener to handle the failure of data pulling
+     *      Listener for failed retrieval
      */
-    public void checkPassword(String uuid, final String password, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
-        Task<DocumentSnapshot> userTask = db
+    public void loginHandler(String user, final String password, OnSuccessListener<List<String>> successListener, OnFailureListener failureListener) {
+        String type;
+        if (validEmail(user)) {
+            type = FireStoreMapping.USER_FIELDS_EMAIL;
+        } else {
+            type = FireStoreMapping.USER_FIELDS_USERNAME;
+        }
+
+        Task<QuerySnapshot> loginTask = db
                 .collection(FireStoreMapping.COLLECTIONS_USER)
-                .document(uuid)
+                .whereEqualTo(type, user)
                 .get();
 
-        userTask.continueWith(new Continuation<DocumentSnapshot, Boolean>() {
+        loginTask.continueWith(new Continuation<QuerySnapshot, List<String>>() {
             @Override
-            public Boolean then(@NonNull Task<DocumentSnapshot> task) throws Exception {
-                DocumentSnapshot userData = task.getResult();
-
-                if (!userData.exists()) {
-                    Log.d(ProgramTags.DB_ERROR, "User does not exist, please verify user's existence prior to calling this method.");
+            public List<String> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> loginData = task.getResult().getDocuments();
+                if (loginData.size() > 0) {
+                    if (loginData.get(0).getString(FireStoreMapping.USER_FIELDS_PASSWORD).equals(password)) {
+                        List<String> loginSuccess = new ArrayList<>();
+                        loginSuccess.add(loginData.get(0).getId());
+                        loginSuccess.add(loginData.get(0).getString(FireStoreMapping.USER_FIELDS_USERNAME));
+                        return loginSuccess;
+                    } else {
+                        return null;
+                    }
+                } else {
                     return null;
                 }
-
-                if (userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD) == null) {
-                    Log.d(ProgramTags.DB_ERROR, "User does not have a password set. Is this a test account?");
-                    return null;
-                }
-
-                return userData.getString(FireStoreMapping.USER_FIELDS_PASSWORD).equals(password);
             }
         })
                 .addOnSuccessListener(successListener)
@@ -358,23 +387,30 @@ public class DBHandler {
     public void addBook(Book bookToAdd, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) throws Exception {
         // <Field, Data>
         HashMap<String, Object> bookData = new HashMap<String, Object>();
+        List<String> tags = new ArrayList<>();
+
         if(bookToAdd.getTitle() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_TITLE, bookToAdd.getTitle());
+            tags.addAll(Arrays.asList(bookToAdd.getTitle().toLowerCase().split(" ")));
         } else {
             bookData.put(FireStoreMapping.BOOK_FIELDS_TITLE, "");
         }
 
         if(bookToAdd.getAuthor() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_AUTHOR, bookToAdd.getAuthor());
+            tags.addAll(Arrays.asList(bookToAdd.getAuthor().toLowerCase().split(" ")));
         } else {
             bookData.put(FireStoreMapping.BOOK_FIELDS_AUTHOR, "");
         }
 
         if(bookToAdd.getIsbn() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_ISBN, bookToAdd.getIsbn());
+            tags.add(bookToAdd.getIsbn());
         } else {
             throw new Exception("Cannot add book without ISBN.");
         }
+
+        bookData.put(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, tags);
 
         if(bookToAdd.getStatus() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_STATUS, bookToAdd.getStatus());
@@ -382,10 +418,18 @@ public class DBHandler {
             bookData.put(FireStoreMapping.BOOK_FIELDS_STATUS, "");
         }
 
+        bookData.put(FireStoreMapping.BOOK_FIELDS_RETURNING, bookToAdd.getReturning());
+
+        if(bookToAdd.getLocation() != null) {
+            bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, bookToAdd.getLocation());
+        } else {
+            bookData.put(FireStoreMapping.BOOK_FIELDS_LOCATION, new ArrayList<String>());
+        }
+
         if(bookToAdd.getBorrower() != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_BORROWER, bookToAdd.getBorrower());
         } else {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_BORROWER, "");
+            bookData.put(FireStoreMapping.BOOK_FIELDS_BORROWER, new ArrayList<String>());
         }
 
         if(bookToAdd.getOwner() != null) {
@@ -398,12 +442,6 @@ public class DBHandler {
             bookData.put(FireStoreMapping.BOOK_FIELDS_REQUESTS, bookToAdd.getRequests());
         } else {
             bookData.put(FireStoreMapping.BOOK_FIELDS_REQUESTS, Collections.singletonList("EMPTY"));
-        }
-
-        if(bookToAdd.getImage() != null) {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_IMAGE, bookToAdd.getImage());
-        } else {
-            bookData.put(FireStoreMapping.BOOK_FIELDS_IMAGE, "");
         }
 
         Task<Void> addTask = db
@@ -432,22 +470,30 @@ public class DBHandler {
     private Book convertToBook(DocumentSnapshot data) {
         Book finalBook = new Book();
 
+        boolean returning;
+
         String title = data.getString(FireStoreMapping.BOOK_FIELDS_TITLE);
         String author = data.getString(FireStoreMapping.BOOK_FIELDS_AUTHOR);
         String status = data.getString(FireStoreMapping.BOOK_FIELDS_STATUS);
-        String borrower = data.getString(FireStoreMapping.BOOK_FIELDS_BORROWER);
-        String owner = data.getString(FireStoreMapping.BOOK_FIELDS_OWNER);
+        if(data.getBoolean(FireStoreMapping.BOOK_FIELDS_RETURNING) != null) {
+            returning = data.getBoolean(FireStoreMapping.BOOK_FIELDS_RETURNING);
+        } else {
+            returning = false;
+        }
+        List<String> location = (List<String>) data.get (FireStoreMapping.BOOK_FIELDS_LOCATION);
+        List<String> borrower = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_BORROWER);
+        List<String> owner = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_OWNER);
         List<String> requests = (List<String>) data.get(FireStoreMapping.BOOK_FIELDS_REQUESTS);
-        String image = data.getString(FireStoreMapping.BOOK_FIELDS_IMAGE);
-
 
         finalBook.setTitle(title);
         finalBook.setAuthor(author);
         finalBook.setIsbn(data.getId());
         finalBook.setStatus(status);
+        finalBook.setReturning(returning);
         finalBook.setBorrower(borrower);
         finalBook.setOwner(owner);
         finalBook.setRequests(requests);
+        finalBook.setLocation(location);
 
         return finalBook;
     }
@@ -494,6 +540,42 @@ public class DBHandler {
     public void getAllBooks(OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
         Task<QuerySnapshot> bookTask = db
                 .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                .get();
+
+        bookTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {
+            @Override
+            public List<Book> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> bookData = task.getResult().getDocuments();
+                List<Book> books = new ArrayList<>();
+
+                for (DocumentSnapshot doc: bookData) {
+                    if (doc.exists()) {
+                        books.add(convertToBook(doc));
+                    }
+                }
+
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s books.", books.size()));
+                return books;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    //Possible all search and filter candidate, may be generalised for all cases of multi-book retrieval
+    //Assumes type is set to null or of [ProgramTags.TYPE_OWNER, ProgramTags.TYPE_BORROWER]
+    //Assumes uuid is set to null or legal UUID
+    //Assumes terms is non-empty, because what?
+    //Assumes filter to be of empty or filled with terms, use only legal status values defined in FireStoreMapping
+    public void searchBooks(List<String> terms, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
+        for (String i: terms) {
+            // Clean up terms
+            terms.set(terms.indexOf(i), i.trim().toLowerCase());
+        }
+
+        Task<QuerySnapshot> bookTask = db
+                .collection(FireStoreMapping.COLLECTIONS_BOOK)
+                .whereArrayContainsAny(FireStoreMapping.BOOK_FIELDS_DESCRIPTION, terms)
                 .get();
 
         bookTask.continueWith(new Continuation<QuerySnapshot, List<Book>>() {

@@ -1,7 +1,6 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,13 +9,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * An {@link ArrayAdapter} class specialized for a database of {@link Book}s to be owned, borrowed,
@@ -27,7 +25,7 @@ import java.util.Comparator;
  * @author Warren Stix
  * @see ArrayAdapter
  * @see android.widget.BaseAdapter
- * @version 1.1
+ * @version 1.6
  */
 public class BookAdapter extends ArrayAdapter<Book> {
     /**
@@ -43,9 +41,17 @@ public class BookAdapter extends ArrayAdapter<Book> {
          */
         ALL,
         /**
+         * Display all {@link Book}s in the system Filtered by Status
+         */
+        ALL_FILTERED,
+        /**
          * Display the {@link Book}s owned by the {@link User} with a given UUID
          */
         OWNED,
+        /**
+         * Display the {@link Book}s being owned by the {@link User} with a given UUID and Status Filter
+         */
+        OWNED_FILTERED,
         /**
          * Display the {@link Book}s being borrowed by the {@link User} with a given UUID
          */
@@ -66,7 +72,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
      */
     @Nullable private String uuid;
 
-    private Context context;
+    private final Context context;
     private ArrayList<Book> filteredBooks;
 
     /**
@@ -136,16 +142,28 @@ public class BookAdapter extends ArrayAdapter<Book> {
      * @return
      *      A boolean representing whether or not the current book should be displayed
      */
-    public static boolean checkUser(Book book, String uuid, ViewMode viewMode) {
+    public static boolean checkUser(Book book, String uuid, ViewMode viewMode, List<String> filter) {
         if (uuid == null) {
             return true;
         }
 
+        if ((Book.StatusEnum.valueOf(book.getStatus()) == Book.StatusEnum.Unavailable) &&
+            !uuid.equals(book.getOwner().get(0)))
+        {
+            return false;
+        }
+
         switch (viewMode) {
             case OWNED:
-                return uuid.equals(book.getOwner());
+                return uuid.equals(book.getOwner().get(0));
+            case OWNED_FILTERED:
+                return uuid.equals(book.getOwner().get(0)) && filter.contains(book.getStatus());
             case BORROWED:
-                return uuid.equals(book.getBorrower());
+                if (book.getBorrower().size() == 2) {
+                    return uuid.equals(book.getBorrower().get(0));
+                } else {
+                    return false;
+                }
             case REQUESTED:
                 for (String requester : book.getRequests()) {
                     if (uuid.equals(requester)) {
@@ -153,6 +171,9 @@ public class BookAdapter extends ArrayAdapter<Book> {
                     }
                 }
                 return false;
+            case ALL_FILTERED:
+                return (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)
+                        || book.getStatus().equals(FireStoreMapping.BOOK_STATUS_REQUESTED));
             default:
                 return true;
         }
@@ -175,40 +196,54 @@ public class BookAdapter extends ArrayAdapter<Book> {
     @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         if(convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.borrow_row, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.book_row, parent, false);
         }
-        final View convertedView = convertView;
 
-        final Book book = filteredBooks.get(position);
+        Book book = filteredBooks.get(position);
+        setFields(convertView, book);
 
-        DBHandler db = new DBHandler();
-        db.getUser(book.getOwner(), new OnSuccessListener<User>() {
-            @Override
-            public void onSuccess(User user) {
-                String displayName = user.getUsername();
+        return convertView;
+    }
 
-                TextView title = convertedView.findViewById(R.id.title_text);
-                TextView author = convertedView.findViewById(R.id.author_text);
-                TextView isbn = convertedView.findViewById(R.id.isbn_text);
-                TextView status = convertedView.findViewById(R.id.status_text);
-                TextView owner = convertedView.findViewById(R.id.owner_text);
-                TextView borrower = convertedView.findViewById(R.id.borrower_text);
+    private void setFields(View convertedView, Book book) {
+        TextView title = convertedView.findViewById(R.id.title_text);
+        TextView author = convertedView.findViewById(R.id.author_text);
+        TextView isbn = convertedView.findViewById(R.id.isbn_text);
+        TextView status = convertedView.findViewById(R.id.status_text);
+        TextView owner = convertedView.findViewById(R.id.owner_text);
+        TextView borrower = convertedView.findViewById(R.id.borrower_text);
 
-                title.setText(book.getTitle());
-                author.setText(book.getAuthor());
-                isbn.setText(book.getIsbn());
-                status.setText(book.getStatus());
-                owner.setText(displayName);
-                borrower.setText(book.getBorrower());
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(ProgramTags.DB_ERROR, e + ": This book's owner could not be found!");
-            }
-        });
+        title.setText(book.getTitle());
+        author.setText(book.getAuthor());
+        isbn.setText(book.getIsbn());
+        setStatus(status, book);
+        owner.setText(book.getOwner().get(1));
+        if (book.getBorrower().size() == 2) {
+            borrower.setText(book.getBorrower().get(1));
+        }
+    }
 
-        return convertedView;
+    private void setStatus(TextView statusView, Book book) {
+        int colour;
+        String bookStatus = book.getStatus();
+
+        switch (Book.StatusEnum.valueOf(bookStatus)) {
+            case Available:
+                colour = ContextCompat.getColor(context, R.color.confirm);
+                break;
+            case Requested:
+                colour = ContextCompat.getColor(context, R.color.mid_way);
+                break;
+            case Accepted:
+            case Borrowed:
+                colour = ContextCompat.getColor(context, R.color.deny);
+                break;
+            default:
+                colour = 0x000000;
+        }
+
+        statusView.setText(bookStatus);
+        statusView.setTextColor(colour);
     }
 
     /**
@@ -233,51 +268,61 @@ public class BookAdapter extends ArrayAdapter<Book> {
     }
 
     /**
-     * Sort the internal list based on a given {@link Book.StatusEnum}.
-     * <p>
-     * Deprecated due to due to idiosyncrasies with the way async databases work.
+     * Sort the internal list based on a given {@link CompareBookBy.SortOption}.
      *
-     * @param statusEnum
-     *      The status of books to come first in the internal list
-     * @see CompareByStatus
-     *
-     * @deprecated
+     * @param option
+     *      The book's value to be prioritized while sorting
+     * @see CompareBookBy
      */
-    public void sort(Book.StatusEnum statusEnum) {
-        Collections.sort(filteredBooks, new CompareByStatus(statusEnum));
+    public void sort(CompareBookBy.SortOption option) {
+        Collections.sort(filteredBooks, new CompareBookBy(option));
         notifyDataSetChanged();
     }
 
     /**
-     * A class used to compare two books by their current status.
-     * <p>
-     * Deprecated due to due to idiosyncrasies with the way async databases work.
+     * A class used to compare two books by their title, author, or ISBN.
      *
      * @author Warren Stix
-     * @version 0.2
+     * @version 0.3
      * @see Comparator
-     *
-     * @deprecated
      */
-    public static class CompareByStatus implements Comparator<Book> {
-        private Book.StatusEnum statusEnum;
+    public static class CompareBookBy implements Comparator<Book> {
+
+        public enum SortOption {
+            TITLE,
+            AUTHOR,
+            ISBN;
+
+            public int toInt() {
+                switch (this) {
+                    default:
+                    case TITLE:
+                        return 0;
+                    case AUTHOR:
+                        return 1;
+                    case ISBN:
+                        return 2;
+                }
+            }
+        }
+
+        private final SortOption option;
 
         /**
-         * Construct a comparator that prioritizes books with a given status
+         * Construct a comparator that prioritizes books with a given {@link SortOption}.
          *
-         * @param statusEnum
-         *      The status to prioritize
+         * @param option
+         *      The relevant {@link SortOption}
+         *
          */
-        CompareByStatus(@Nullable Book.StatusEnum statusEnum) {
-            this.statusEnum = statusEnum;
+        CompareBookBy(@Nullable SortOption option) {
+            this.option = option;
         }
 
         /**
          * A required method from the {@link Comparator} interface used to compare two elements of
-         * the same class. In this case, a {@link Book} with the {@link Book.StatusEnum} that this
-         * instance of this class was constructed with will have a lower value than a {@link Book}
-         * with a different {@link Book.StatusEnum}. All other {@link Book}s will be considered
-         * equal.
+         * the same class. In this case, {@link Book}s are compared lexicographically based on their
+         * given {@link SortOption}.
          *
          * @param book1
          *      The first {@link Book} to compare
@@ -288,31 +333,38 @@ public class BookAdapter extends ArrayAdapter<Book> {
          */
         @Override
         public int compare(@NonNull Book book1, @NonNull Book book2) {
-            if (statusEnum == null) { return 0; }
+            String book1Val;
+            String book2Val;
 
-            if (Book.StatusEnum.valueOf(book1.getStatus()) == statusEnum &&
-                    Book.StatusEnum.valueOf(book2.getStatus()) != statusEnum)
-            {
-                return -1;
-            } else if (Book.StatusEnum.valueOf(book1.getStatus()) != statusEnum &&
-                        Book.StatusEnum.valueOf(book2.getStatus()) == statusEnum)
-            {
-                return 1;
-            } else {
-                return 0;
+            switch (option) {
+                case ISBN:
+                   book1Val = book1.getIsbn();
+                   book2Val = book2.getIsbn();
+                   break;
+
+                case TITLE:
+                    book1Val = book1.getTitle();
+                    book2Val = book2.getTitle();
+                    break;
+
+                case AUTHOR:
+                    book1Val = book1.getAuthor();
+                    book2Val = book2.getAuthor();
+                    break;
+
+                default:
+                    return 0;
             }
+
+            return book1Val.compareTo(book2Val);
         }
     }
 
     /**
      * Change the internal filtered list to only show books with a given status.
-     * <p>
-     * Deprecated due to due to idiosyncrasies with the way async databases work.
-     *
+     * @deprecated
      * @param statusEnum
      *      The status to filter by
-     *
-     * @deprecated
      */
     public void filter(@Nullable final Book.StatusEnum statusEnum) {
 //        db.getAllBooks(new OnSuccessListener<List<Book>>() {

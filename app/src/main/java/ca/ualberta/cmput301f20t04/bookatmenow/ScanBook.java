@@ -5,6 +5,8 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Typeface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -12,6 +14,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -26,13 +32,21 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 
+/**
+ * Scan book ISBN for add/borrow/return.
+ */
 public class ScanBook extends AppCompatActivity {
     private String bookISBN;
+    private String bookName;
     private SurfaceView cameraView;
     private CameraSource cameraSource;
     private static final int PERMISSIONS_REQUEST_ACCESS_CAMERA = 1;
+    private TextView scanMessage;
     private TextView isbnText;
 
+    Intent main;
+
+    private DBHandler db;
 
      // If the USE BARCODE button is clicked.
      // If no ISBN has been scanned, tell user to scan one.  Otherwise put the scanned ISBN in an
@@ -42,38 +56,80 @@ public class ScanBook extends AppCompatActivity {
             Toast toast = Toast.makeText(this, "Please scan an ISBN barcode.", Toast.LENGTH_SHORT);
             toast.show();
         } else {
-            Intent returnData = new Intent();
-            returnData.putExtra("isbn", bookISBN);
-            setResult(Activity.RESULT_OK, returnData);
-            this.finish();
-        }
-    }
+            String passedIsbn = main.getStringExtra(ProgramTags.PASSED_ISBN);
 
-    //If the CANCEL button is clicked, finish the activity.
-    public void cancel(View view) {
-        this.finish();
+            if (passedIsbn != null) {
+                // if book barcode matches scanned barcode
+                // allow barcode to be used to check out the book
+                if (passedIsbn.equals(bookISBN)) {
+                    setResult(Activity.RESULT_OK);
+                    this.finish();
+                } else {
+                    Toast toast = Toast.makeText(this, "Please scan a matching ISBN barcode.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            } else {
+                // new book
+                Intent returnData = new Intent();
+                returnData.putExtra("isbn", bookISBN);
+                setResult(Activity.RESULT_OK, returnData);
+                this.finish();
+            }
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_book);
-        cameraView = findViewById(R.id.camera_view);
-        isbnText = findViewById(R.id.isbn_number);
+        cameraView = findViewById(R.id.scanbook_camera_view);
+        isbnText = findViewById(R.id.scanbook_isbn);
+        scanMessage = findViewById(R.id.scanbook_message);
+        scanMessage.setVisibility(View.INVISIBLE);
+        main = getIntent();
+
+
+        if(main.getStringExtra(ProgramTags.SCAN_MESSAGE) != null) {
+            scanMessage.setVisibility(View.VISIBLE);
+            if(main.getStringExtra(ProgramTags.SCAN_MESSAGE).equals("ScanExisting")) {
+                String scanBook = "Please scan: ";
+                bookName = main.getStringExtra(ProgramTags.PASSED_BOOKNAME);
+                SpannableString messageString = new SpannableString(scanBook + bookName);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                        scanBook.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageString.setSpan(new StyleSpan(Typeface.ITALIC), scanBook.length() - 1,
+                        scanBook.length() + bookName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                scanMessage.setText(messageString);
+            } else if (main.getStringExtra(ProgramTags.SCAN_MESSAGE).equals("ScanNew")) {
+                String scanBook = "Please scan ISBN barcode";
+                SpannableString messageString = new SpannableString(scanBook);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                        scanBook.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                scanMessage.setText(messageString);
+            }
+
+
+        }
+
         initialize();
     }
 
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        this.finish();
+    }
 
     private void initialize(){
 
-        //Build barcode detector object.
+        //Build barcode detector object. Set it to read 13 digit barcodes.
         BarcodeDetector detector = new BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.ALL_FORMATS)
+                .setBarcodeFormats(Barcode.EAN_13)
                 .build();
 
         //Build camera source object.
         cameraSource = new CameraSource.Builder(this, detector)
-                .setRequestedPreviewSize(1920, 1080)
+                .setFacing(CameraSource.CAMERA_FACING_BACK)
                 .setAutoFocusEnabled(true)
                 .build();
 
@@ -112,17 +168,18 @@ public class ScanBook extends AppCompatActivity {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                //If a barcode exists and is 13 digits long (length of ISBN-13), set TextView and bookISBN string.
-                if (barcodes.size() > 0 && (barcodes.valueAt(0).displayValue).length() == 13) {
+                //If a barcode exists, set TextView and bookISBN string.
+                if (barcodes.size() > 0) {
                     isbnText.post(new Runnable() {
                         @Override
                         public void run() {
                             bookISBN = barcodes.valueAt(0).displayValue;
-                            isbnText.setText(bookISBN);
+                            isbnText.setText("ISBN: " + bookISBN);
                         }
                     });
                 }
             }
         });
     }
+
 }

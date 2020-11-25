@@ -1,70 +1,65 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
- * Filter dialog.
- * TODO: rework using fragments, enable searching.
+ * Filter dialog for books according to status.
  */
 public class FilterDialog extends AppCompatDialogFragment {
+    private MainActivity main;
+
+    FilterDialog(MainActivity main) {
+        this.main = main;
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final String[] filterItems = {FireStoreMapping.BOOK_STATUS_AVAILABLE,
+                FireStoreMapping.BOOK_STATUS_UNAVAILABLE,
+                FireStoreMapping.BOOK_STATUS_BORROWED,
+                FireStoreMapping.BOOK_STATUS_REQUESTED};
+        final boolean[] checkedItems = {false, false, false, false};
 
-        final View view = inflater.inflate(R.layout.filter_dialog, null);
-
-        final CheckBox borrowed = view.findViewById(R.id.borrowed);
-        final CheckBox available = view.findViewById(R.id.available);
-        final CheckBox pending = view.findViewById(R.id.pending);
-
-        final Spinner spinner = view.findViewById(R.id.sort_by);
-        final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.sort_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        for (int j = 0; j < filterItems.length; j++) {
+            checkedItems[j] = main.filterTerms.contains(filterItems[j]);
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         return builder
-                .setView(view)
                 .setTitle("Filter Books")
+                .setMultiChoiceItems(filterItems, checkedItems,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                                checkedItems[i] = b;
+                            }
+                        })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        dialog.cancel();
                     }
                 })
                 .setPositiveButton("Done", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String selection = spinner.getSelectedItem().toString();
-                        if (selection.equals("Title")) {
-
-                        } else if (selection.equals("Author")) {
-
-                        } else if (selection.equals("ISBN")) {
-
+                        main.filterTerms.clear();
+                        for (int k = 0; k < filterItems.length; k++) {
+                            if (checkedItems[k]) main.filterTerms.add(filterItems[k]);
                         }
-
-                        if (borrowed.isChecked()) {
-                        }
-                        if (available.isChecked()) {
-                        }
-                        if (pending.isChecked()) {
-                        }
+                        main.filterUpdate();
                     }
                 })
                 .create();

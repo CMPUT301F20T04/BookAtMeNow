@@ -15,18 +15,24 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -48,10 +54,14 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Set Geolocation of user address / book pickup or return.
+ */
 public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback {
 
     private Button setGeoLocPickup;
     private Button cancelPickupLocSet;
+    private TextView locationMessage;
 
     private GoogleMap map;
     private LatLng selectedLocation;
@@ -90,6 +100,7 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public void cancel(View view) {//cancel setting pickup location, or pressing back on location view screen
+        setResult(RESULT_CANCELED);
         this.finish();//close activity
     }
 
@@ -106,17 +117,60 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
 
         setGeoLocPickup = findViewById(R.id.GeoLocation_button_setPickupLoc);
         cancelPickupLocSet = findViewById(R.id.GeoLocation_button_cancel);
+        locationMessage = findViewById(R.id.GeoLocation_message);
+        locationMessage.setVisibility(View.INVISIBLE);
 
         mapType = getIntent();
         viewingMap = false;
         setAddress = false;
 
-        if (mapType.getStringExtra("purpose").equals("view") ){//we are viewing the map, not setting a location
+        if(mapType.getStringExtra(ProgramTags.LOCATION_MESSAGE) != null) {
+            switch (mapType.getStringExtra(ProgramTags.LOCATION_MESSAGE)) {
+                case "UserLocSelect": {
+                    locationMessage.setVisibility(View.VISIBLE);
+                    String locSelect = "Please select your location.";
+                    SpannableString messageString = new SpannableString(locSelect);
+                    messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                            locSelect.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    locationMessage.setText(messageString);
+
+                    break;
+                }
+                case "SelectHandover": {
+                    locationMessage.setVisibility(View.VISIBLE);
+                    String locView = "Select location to handover: ";
+                    String bookName = mapType.getStringExtra(ProgramTags.PASSED_BOOKNAME);
+                    SpannableString messageString = new SpannableString(locView + bookName);
+                    messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                            locView.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    messageString.setSpan(new StyleSpan(Typeface.ITALIC), locView.length() - 1,
+                            locView.length() + bookName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    locationMessage.setText(messageString);
+
+                    break;
+                }
+                case "ViewHandover": {
+                    locationMessage.setVisibility(View.VISIBLE);
+                    String locView = "Location to handover: ";
+                    String bookName = mapType.getStringExtra(ProgramTags.PASSED_BOOKNAME);
+                    SpannableString messageString = new SpannableString(locView + bookName);
+                    messageString.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                            locView.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    messageString.setSpan(new StyleSpan(Typeface.ITALIC), locView.length() - 1,
+                            locView.length() + bookName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    locationMessage.setText(messageString);
+                    break;
+                }
+            }
+        }
+
+
+        if (mapType.getStringExtra(ProgramTags.LOCATION_PURPOSE).equals("view") ){//we are viewing the map, not setting a location
             setGeoLocPickup.setVisibility(View.GONE);
             cancelPickupLocSet.setText("BACK");
             viewingMap = true;
             pickupLocationViewing = new LatLng(Double.valueOf(mapType.getStringExtra("lat")), Double.valueOf(mapType.getStringExtra("lng")));
-        } else if(mapType.getStringExtra("purpose").equals("profile")) {//selecting address for profile
+        } else if(mapType.getStringExtra(ProgramTags.LOCATION_PURPOSE).equals("getLocation")) {//selecting address for profile or pickup
             setGeoLocPickup.setText("SET ADDRESS");
             setAddress = true;
         }
@@ -193,6 +247,11 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
             map.addMarker(new MarkerOptions()//set marker
                     .position(pickupLocationViewing)
                     .title("Pickup Location"));
+
+            if (pickupLocationViewing != null) {
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(pickupLocationViewing, DEFAULT_ZOOM));
+            }
+
         }
 
 
@@ -212,7 +271,7 @@ public class GeoLocation extends AppCompatActivity implements OnMapReadyCallback
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             lastKnownLocation = task.getResult();
-                            if (lastKnownLocation != null) {
+                            if (lastKnownLocation != null && !viewingMap) {
                                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                         new LatLng(lastKnownLocation.getLatitude(),
                                                 lastKnownLocation.getLongitude()), DEFAULT_ZOOM));

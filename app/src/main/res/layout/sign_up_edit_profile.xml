@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- create new account / view current logged in account details -->
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/windowBackground">
 
     <EditText
         android:id="@+id/address"
@@ -15,6 +15,8 @@
         android:ems="10"
         android:hint="Address (optional)"
         android:inputType="textPostalAddress"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/textColorHint"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -30,6 +32,8 @@
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,14 +43,16 @@
         android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:ems="10"
         android:hint="Username"
         android:inputType="textPersonName"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_profile" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/password_confirm"
@@ -56,6 +62,8 @@
         android:ems="10"
         android:hint="Confirm Password"
         android:inputType="textPassword"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,6 +113,8 @@
         android:ems="10"
         android:hint="Phone # (optional)"
         android:inputType="phone"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -118,6 +128,8 @@
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/textColorHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"

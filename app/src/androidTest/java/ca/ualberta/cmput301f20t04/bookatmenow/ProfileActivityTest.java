@@ -1,24 +1,17 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
-import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 
-import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ProfileActivityTest {
     private Solo solo;
@@ -55,7 +48,6 @@ public class ProfileActivityTest {
     public void clickCancel() {
         solo.assertCurrentActivity("Wrong Activity", ProfileActivity.class);
         solo.clickOnButton("Cancel");
-        solo.waitForActivity("MainActivity"); // checks if ProfileActivity finished
     }
 
     /**

@@ -14,9 +14,10 @@ import android.widget.EditText;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.List;
+
 /**
- * Login using username and password that exist in the database.
- * TODO: login using email
+ * Login using username/email and password that exist in the database.
  */
 public class LoginActivity extends AppCompatActivity {
 
@@ -24,14 +25,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText logInPW;
     private Button loginBtn;
     private Button createAccBtn;
-
-    /**
-     * clears the fields of the login screen
-     */
-    private void clearField() {
-        logInUser.setText("");
-        logInPW.setText("");
-    }
 
     @Override
     public void onBackPressed() {
@@ -79,57 +72,37 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String usernameOrEmail = logInUser.getText().toString();
-                // if username exists
-                loginBtn.setEnabled(false);
-                createAccBtn.setEnabled(false);
-                db.usernameExists(usernameOrEmail, new OnSuccessListener<String>() {
-                            @Override
-                            public void onSuccess(String s) {
-                                if (s != null) {
-                                    final String uuid = s;
-                                    db.getUser(uuid, new OnSuccessListener<User>() {
-                                        @Override
-                                        public void onSuccess(final User user) {
-                                            db.checkPassword(uuid, logInPW.getText().toString(), new OnSuccessListener<Boolean>() {
-                                                @Override
-                                                public void onSuccess(Boolean aBoolean) {
-                                                    if (aBoolean) {
-                                                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                                        i.putExtra("uuid", uuid);
-                                                        startActivity(i);
-                                                        finish();
-                                                    } else {
-                                                        clearField();
-                                                        invalidLoginDialog.show();
-                                                    }
-                                                }
-                                            }, new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    // DB retrieval failed
-                                                    databaseErrorDialog.show();
-                                                }
-                                            }); // end of checkPassword
-                                        }
-                                    }, new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            // DB retrieval failed
-                                            databaseErrorDialog.show();
-                                        }
-                                    }); // end of getUser
-                                } else { // end of not null
-                                    clearField();
-                                    invalidLoginDialog.show();
+                final String password = logInPW.getText().toString();
+
+                //Check that values have been entered for both username/email and password.
+                if(checkEntered(usernameOrEmail, password)) {
+                    // if username exists
+                    loginBtn.setEnabled(false);
+                    createAccBtn.setEnabled(false);
+                    db.loginHandler(usernameOrEmail, password,
+                            new OnSuccessListener<List<String>>() {
+                                @Override
+                                public void onSuccess(List<String> s) {
+                                    if (s != null) {
+                                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                        i.putExtra(FireStoreMapping.USER_FIELDS_ID, s.get(0));
+                                        i.putExtra(FireStoreMapping.USER_FIELDS_USERNAME, s.get(1));
+                                        startActivity(i);
+                                        finish();
+                                    } else {
+                                        logInPW.setText("");
+                                        invalidLoginDialog.show();
+                                    }
                                 }
-                            }
-                        }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // username doesn't exist, assume account doesn't exist
-                        databaseErrorDialog.show();
-                    }
-                }); // end of usernameExists
+                            },
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    databaseErrorDialog.show();
+                                }
+                            });
+                }
+
             }
         }); // end of setOnClickListener
 
@@ -140,5 +113,25 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
             }
         });
+    }
+
+    /**
+     * Checks that the user has entered a username and password.  If the username or password is
+     * missing, adds an error to the relevant EditText.
+     * @param usernameOrEmail   users entered username or email
+     * @param password  users entered password
+     * @return whether user has entered values for both credentials.
+     */
+    private boolean checkEntered(String usernameOrEmail, String password) {
+        boolean credsCheck = true;
+        if(usernameOrEmail.trim().length() == 0) {
+            logInUser.setError("Please enter a username or email.");
+            credsCheck = false;
+        }
+        if(password.trim().length() == 0) {
+            logInPW.setError("Please enter a password.");
+            credsCheck = false;
+        }
+        return credsCheck;
     }
 }
