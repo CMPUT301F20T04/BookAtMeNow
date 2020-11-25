@@ -1,6 +1,7 @@
 language: android #app
 jdk: oraclejdk8 
 dist: trusty
+os: osx
 
 env:
   global:
