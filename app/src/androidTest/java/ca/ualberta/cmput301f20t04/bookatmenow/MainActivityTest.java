@@ -1,8 +1,10 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
+import android.media.Image;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -71,13 +73,26 @@ public class MainActivityTest {
     }
 
     /**
-     * Check filter button.
-     * TODO: check dialog actions when search works
+     * Check sort button.
      */
     @Test
-    public void clickFilter() {
+    public void clickSortCancel() {
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-//        solo.clickOnButton("Filter");
+        ImageButton sort = (ImageButton) solo.getView(R.id.sort);
+        solo.clickOnView(sort);
+    }
+
+    /**
+     * Check filter button.
+     */
+    @Test
+    public void clickFilterCancel() {
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+        solo.clickOnMenuItem("MY BOOKS");
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+        FloatingActionButton filter = (FloatingActionButton) solo.getView(R.id.floating_filter);
+        solo.clickOnView(filter);
+        solo.clickOnButton("Cancel");
     }
 
     /**

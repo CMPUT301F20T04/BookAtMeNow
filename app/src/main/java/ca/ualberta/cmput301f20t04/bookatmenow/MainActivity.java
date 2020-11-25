@@ -164,6 +164,10 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Set the user interface according to which tab is selected.
+     * @param filteredBooks
+     */
     private void setUi(final ArrayList<Book> filteredBooks) {
         // menu buttons
         editProfileButton = findViewById(R.id.floating_edit_profile);
