@@ -65,6 +65,7 @@ public class MainActivityTest {
      */
     @Test
     public void addBook() {
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.clickOnMenuItem("MY BOOKS");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         FloatingActionButton add = (FloatingActionButton) solo.getView(R.id.floating_add);
