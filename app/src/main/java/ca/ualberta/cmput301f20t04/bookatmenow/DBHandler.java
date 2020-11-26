@@ -788,9 +788,10 @@ public class DBHandler {
                 List<Notification> notificationList = new ArrayList<>();
 
                 for (DocumentSnapshot doc: getResults) {
-                    notificationList.add(convertToNotification(doc));
+                    if (doc.exists()) {
+                        notificationList.add(convertToNotification(doc));
+                    }
                 }
-
                 return notificationList;
             }
         })
