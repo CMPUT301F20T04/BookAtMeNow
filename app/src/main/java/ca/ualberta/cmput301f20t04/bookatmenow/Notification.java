@@ -15,16 +15,16 @@ public class Notification {
         Return
     }
 
-    private String uuid;
-    private List<String> owner;
+    private String selfUUID;
+    private String receiveUUID;
+    private List<String> sender;
     private String type;
     private List<String> book;
-    private List<String> borrower;
     private String timestamp;
 
-    public Notification(String uuid, List<String> owner, String type, List<String> book, List<String> borrower, String timestamp) {
-        this.uuid = uuid;
-        this.owner = owner;
+    public Notification(String receiveUUID, List<String> sender, String type, List<String> book, String timestamp) {
+        this.receiveUUID = receiveUUID;
+        this.sender = sender;
         this.type = type;
         for (NotificationType t : NotificationType.values()) {
             if (t.name().equals(type)) {
@@ -35,7 +35,6 @@ public class Notification {
             Log.e(ProgramTags.NOTIFICATION_ERROR, String.format("%s is not a valid notification type.", type));
         }
         this.book = book;
-        this.borrower = borrower;
         this.timestamp = timestamp;
     }
 
@@ -44,20 +43,20 @@ public class Notification {
         this.timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm").format(currentTime);
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getReceiveUUID() {
+        return receiveUUID;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setReceiveUUID(String receiveUUID) {
+        this.receiveUUID = receiveUUID;
     }
 
-    public List<String> getOwner() {
-        return owner;
+    public List<String> getSender() {
+        return sender;
     }
 
-    public void setOwner(List<String> owner) {
-        this.owner = owner;
+    public void setSender(List<String> sender) {
+        this.sender = sender;
     }
 
     public String getType() {
@@ -83,19 +82,19 @@ public class Notification {
         this.book = book;
     }
 
-    public List<String> getBorrower() {
-        return borrower;
-    }
-
-    public void setBorrower(List<String> borrower) {
-        this.borrower = borrower;
-    }
-
     public String getTimestamp() {
         return timestamp;
     }
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public void setSelfUUID(String uuid) {
+        this.selfUUID = uuid;
+    }
+
+    public String getSelfUUID() {
+        return this.selfUUID;
     }
 }

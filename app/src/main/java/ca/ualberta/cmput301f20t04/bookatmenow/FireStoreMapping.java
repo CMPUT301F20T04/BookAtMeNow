@@ -3,6 +3,7 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 public class FireStoreMapping {
     static final String COLLECTIONS_USER = "Users";
     static final String COLLECTIONS_BOOK = "Books";
+    static final String COLLECTIONS_NOTIFICATION = "Notifications";
 
     static final String USER_FIELDS_ID = "User ID";
     static final String USER_FIELDS_USERNAME = "Username";
@@ -22,6 +23,12 @@ public class FireStoreMapping {
     static final String BOOK_FIELDS_IMAGE = "Image";
     static final String BOOK_FIELDS_DESCRIPTION = "Description";
     static final String BOOK_FIELDS_RETURNING = "Returning";
+
+    static final String NOTIFICATION_FIELDS_RECEIVER = "Receiver";
+    static final String NOTIFICATION_FIELDS_SENDER = "Sender";
+    static final String NOTIFICATION_FIELDS_TYPE = "Type";
+    static final String NOTIFICATION_FIELDS_BOOK = "Book";
+    static final String NOTIFICATION_FIELDS_TIMESTAMP = "Timestamp";
 
     static final String BOOK_STATUS_AVAILABLE = "Available";
     static final String BOOK_STATUS_REQUESTED = "Requested";
