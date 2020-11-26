@@ -274,9 +274,9 @@ public class ABookActivity extends AppCompatActivity {
 
                     Notification n = new Notification();
                     n.setType(ProgramTags.NOTIFICATION_REQUEST);
-                    n.setOwner(book.getOwner());
-                    List<String> borrower = Arrays.asList(uuid, username);
-                    n.setBorrower(borrower);
+                    n.setReceiveUUID(book.getOwner().get(0));
+                    List<String> requester = Arrays.asList(uuid, username);
+                    n.setSender(requester);
                     List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
                     n.setBook(bookInfo);
 
@@ -284,8 +284,8 @@ public class ABookActivity extends AppCompatActivity {
 
                     Log.e("Notification type", n.getType());
                     Log.e("Notification timestamp", n.getTimestamp());
-                    Log.e("Notification owner", n.getOwner().toString());
-                    Log.e("Notification borrower", n.getBorrower().toString());
+                    Log.e("Notification receiver", n.getReceiveUUID());
+                    Log.e("Notification sender", n.getSender().toString());
                     Log.e("Notification book", n.getBook().toString());
 
 
@@ -375,9 +375,9 @@ public class ABookActivity extends AppCompatActivity {
 
                     Notification n = new Notification();
                     n.setType(ProgramTags.NOTIFICATION_RETURN);
-                    n.setOwner(book.getOwner());
+                    n.setReceiveUUID(book.getOwner().get(0));
                     List<String> borrower = Arrays.asList(uuid, username);
-                    n.setBorrower(borrower);
+                    n.setSender(borrower);
                     List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
                     n.setBook(bookInfo);
 
@@ -385,8 +385,8 @@ public class ABookActivity extends AppCompatActivity {
 
                     Log.e("Notification type", n.getType());
                     Log.e("Notification timestamp", n.getTimestamp());
-                    Log.e("Notification owner", n.getOwner().toString());
-                    Log.e("Notification borrower", n.getBorrower().toString());
+                    Log.e("Notification receiver", n.getReceiveUUID());
+                    Log.e("Notification sender", n.getSender().toString());
                     Log.e("Notification book", n.getBook().toString());
 
                 } catch (Exception e) {
