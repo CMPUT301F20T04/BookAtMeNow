@@ -27,6 +27,9 @@ android:
     - extra-google-m2repository
     - extra-android-m2repository
     - extra-android-support
+    
+    # Building the emulator
+    - sys-img-$ANDROID_ABI-google_apis-$ANDROID_EMU_API_LEVEL
 
   licenses:
       - 'android-sdk-preview-license-52d11cd2'
@@ -40,12 +43,12 @@ before_install:
 before_script:
   - chmod +x gradlew
 
-  #Emulator Instance
-  # - echo no | android create avd --force -n test -t android-$ANDROID_EMU_API_LEVEL --abi google_apis/$ANDROID_ABI
-  # - emulator -avd test -no-window & #android-wait-for-emulator
-  # - android-wait-for-emulator
-  # - adb shell input keyevent 82 &
+  # Emulator Instance
+  - echo no | android create avd --force -n test -t android-$ANDROID_EMU_API_LEVEL --abi google_apis/$ANDROID_ABI
+  - emulator -avd test -no-window & #android-wait-for-emulator
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
 
-# script:
-#   - ./gradlew clean build
-#   - ./gradlew test
+script:
+  - ./gradlew clean build
+  - ./gradlew test
