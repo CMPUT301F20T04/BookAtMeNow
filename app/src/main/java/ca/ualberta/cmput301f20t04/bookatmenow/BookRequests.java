@@ -169,7 +169,6 @@ public class BookRequests extends AppCompatActivity {
                     });
 
                     Notification n = new Notification();
-                    n.setUuid(book.getOwner().get(0));
                     n.setType(ProgramTags.NOTIFICATION_REJECT);
                     n.setOwner(book.getOwner());
                     List<String> borrower = Arrays.asList(requestUuid, requestUsername);
@@ -179,7 +178,6 @@ public class BookRequests extends AppCompatActivity {
 
                     //DB stuff for notification here.
 
-                    Log.e("Notification UUID", n.getUuid());
                     Log.e("Notification type", n.getType());
                     Log.e("Notification timestamp", n.getTimestamp());
                     Log.e("Notification owner", n.getOwner().toString());
@@ -239,7 +237,6 @@ public class BookRequests extends AppCompatActivity {
                     });
 
                     Notification n = new Notification();
-                    n.setUuid(book.getOwner().get(0));
                     n.setType(ProgramTags.NOTIFICATION_APPROVE);
                     n.setOwner(book.getOwner());
                     List<String> borrower = Arrays.asList(borrowerUuid, borrowerUsername);
@@ -249,7 +246,6 @@ public class BookRequests extends AppCompatActivity {
 
                     //DB stuff for notification here.
 
-                    Log.e("Notification UUID", n.getUuid());
                     Log.e("Notification type", n.getType());
                     Log.e("Notification timestamp", n.getTimestamp());
                     Log.e("Notification owner", n.getOwner().toString());
