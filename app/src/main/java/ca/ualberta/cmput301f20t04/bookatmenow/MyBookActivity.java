@@ -190,10 +190,12 @@ public class MyBookActivity extends AppCompatActivity {
                     break;
 
                 case VIEW_PENDING_REQUESTS:
-                    if(data.getStringExtra(ProgramTags.PASSED_BORROWER) != null) {
-                        statusButtons.check(R.id.myBook_accepted_radiobutton);
+                    Bundle extras = data.getExtras();
+                    if (extras != null) {
+                        if (extras.containsKey(ProgramTags.PASSED_BORROWER)) {
+                            statusButtons.check(R.id.myBook_accepted_radiobutton);
+                        }
                     }
-
             }
         } else if (resultCode == RESULT_CANCELED) {
             selectedStatusButton = statusButtons.findViewById(statusButtons.getCheckedRadioButtonId());

@@ -52,7 +52,7 @@ public class BookRequests extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, intent);
         this.finish();
     }
 
@@ -175,13 +175,17 @@ public class BookRequests extends AppCompatActivity {
                     List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
                     n.setBook(bookInfo);
 
-                    //DB stuff for notification here.
-
-                    Log.e("Notification type", n.getType());
-                    Log.e("Notification timestamp", n.getTimestamp());
-                    Log.e("Notification receiver", n.getReceiveUUID());
-                    Log.e("Notification sender", n.getSender().toString());
-                    Log.e("Notification book", n.getBook().toString());
+                    db.addNotification(n, new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            Log.d(ProgramTags.DB_MESSAGE, "Reject notification was added to database!");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(ProgramTags.DB_MESSAGE, "Reject notification could not be added to database!");
+                        }
+                    });
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -242,13 +246,18 @@ public class BookRequests extends AppCompatActivity {
                     List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
                     n.setBook(bookInfo);
 
-                    //DB stuff for notification here.
+                    db.addNotification(n, new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            Log.d(ProgramTags.DB_MESSAGE, "Accept notification was added to database!");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(ProgramTags.DB_MESSAGE, "Accept notification could not be added to database!");
+                        }
+                    });
 
-                    Log.e("Notification type", n.getType());
-                    Log.e("Notification timestamp", n.getTimestamp());
-                    Log.e("Notification receiver", n.getReceiveUUID());
-                    Log.e("Notification sender", n.getSender().toString());
-                    Log.e("Notification book", n.getBook().toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

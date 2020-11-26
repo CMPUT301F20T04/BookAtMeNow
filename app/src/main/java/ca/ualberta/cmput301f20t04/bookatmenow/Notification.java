@@ -25,13 +25,12 @@ public class Notification {
     public Notification(String receiveUUID, List<String> sender, String type, List<String> book, String timestamp) {
         this.receiveUUID = receiveUUID;
         this.sender = sender;
-        this.type = type;
         for (NotificationType t : NotificationType.values()) {
             if (t.name().equals(type)) {
                 this.type = type;
             }
         }
-        if(this.type != null) {
+        if(this.type == null) {
             Log.e(ProgramTags.NOTIFICATION_ERROR, String.format("%s is not a valid notification type.", type));
         }
         this.book = book;
@@ -69,7 +68,7 @@ public class Notification {
                 this.type = type;
             }
         }
-        if(this.type != null) {
+        if(this.type == null) {
             Log.e(ProgramTags.NOTIFICATION_ERROR, String.format("%s is not a valid notification type.", type));
         }
     }

@@ -280,14 +280,17 @@ public class ABookActivity extends AppCompatActivity {
                     List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
                     n.setBook(bookInfo);
 
-                    //DB stuff for notification here.
-
-                    Log.e("Notification type", n.getType());
-                    Log.e("Notification timestamp", n.getTimestamp());
-                    Log.e("Notification receiver", n.getReceiveUUID());
-                    Log.e("Notification sender", n.getSender().toString());
-                    Log.e("Notification book", n.getBook().toString());
-
+                    db.addNotification(n, new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            Log.d(ProgramTags.DB_MESSAGE, "Request notification was added to database!");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(ProgramTags.DB_MESSAGE, "Request notification could not be added to database!");
+                        }
+                    });
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -381,13 +384,17 @@ public class ABookActivity extends AppCompatActivity {
                     List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
                     n.setBook(bookInfo);
 
-                    //DB stuff for notification here.
-
-                    Log.e("Notification type", n.getType());
-                    Log.e("Notification timestamp", n.getTimestamp());
-                    Log.e("Notification receiver", n.getReceiveUUID());
-                    Log.e("Notification sender", n.getSender().toString());
-                    Log.e("Notification book", n.getBook().toString());
+                    db.addNotification(n, new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            Log.d(ProgramTags.DB_MESSAGE, "Return notification was added to database!");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(ProgramTags.DB_MESSAGE, "Return notification could not be added to database!");
+                        }
+                    });
 
                 } catch (Exception e) {
                     e.printStackTrace();
