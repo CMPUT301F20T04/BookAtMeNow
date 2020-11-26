@@ -133,7 +133,8 @@ public class BookRequests extends AppCompatActivity {
 
     /**
      * Removes a request in the local book object and then re-adds that book to the db with the
-     * modified requests list.
+     * modified requests list. Also creates a notification for the rejected user and adds it to the
+     * db.
      * @param position position in the user linked list of the request being removed.
      */
     public void removeRequest(int position) {
@@ -166,6 +167,25 @@ public class BookRequests extends AppCompatActivity {
                             Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
                         }
                     });
+
+                    Notification n = new Notification();
+                    n.setUuid(book.getOwner().get(0));
+                    n.setType(ProgramTags.NOTIFICATION_REJECT);
+                    n.setOwner(book.getOwner());
+                    List<String> borrower = Arrays.asList(requestUuid, requestUsername);
+                    n.setBorrower(borrower);
+                    List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
+                    n.setBook(bookInfo);
+
+                    //DB stuff for notification here.
+
+                    Log.e("Notification UUID", n.getUuid());
+                    Log.e("Notification type", n.getType());
+                    Log.e("Notification timestamp", n.getTimestamp());
+                    Log.e("Notification owner", n.getOwner().toString());
+                    Log.e("Notification borrower", n.getBorrower().toString());
+                    Log.e("Notification book", n.getBook().toString());
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -181,7 +201,8 @@ public class BookRequests extends AppCompatActivity {
     /**
      * Accepts a book request by a user.  Clears all other book requests and makes the accepted
      * user the borrower of the book.   Updates the books status to "accepted" and adds the
-     * handover location.   Then re-adds the book to the db to update it.
+     * handover location.   Then re-adds the book to the db to update it.  Also creates a notification
+     * for the accepted user and adds it to the db.
      * @param position position in the user linked list of the user whose request is accepted.
      */
     public void acceptRequest(int position) {
@@ -216,6 +237,24 @@ public class BookRequests extends AppCompatActivity {
                             Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
                         }
                     });
+
+                    Notification n = new Notification();
+                    n.setUuid(book.getOwner().get(0));
+                    n.setType(ProgramTags.NOTIFICATION_APPROVE);
+                    n.setOwner(book.getOwner());
+                    List<String> borrower = Arrays.asList(borrowerUuid, borrowerUsername);
+                    n.setBorrower(borrower);
+                    List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
+                    n.setBook(bookInfo);
+
+                    //DB stuff for notification here.
+
+                    Log.e("Notification UUID", n.getUuid());
+                    Log.e("Notification type", n.getType());
+                    Log.e("Notification timestamp", n.getTimestamp());
+                    Log.e("Notification owner", n.getOwner().toString());
+                    Log.e("Notification borrower", n.getBorrower().toString());
+                    Log.e("Notification book", n.getBook().toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

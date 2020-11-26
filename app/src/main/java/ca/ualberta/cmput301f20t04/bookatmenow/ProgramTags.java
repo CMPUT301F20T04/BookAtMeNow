@@ -12,6 +12,7 @@ public class ProgramTags {
     static final String LOCATION_PURPOSE = "LocationPurpose";
 
     static final String BOOK_ERROR = "BookError";
+    static final String NOTIFICATION_ERROR = "NotificationError";
 
     static final String BOOK_CHANGED = "BookChanged";
     static final String BOOK_DATA = "BookData";
@@ -36,6 +37,11 @@ public class ProgramTags {
 
     static final String TYPE_OWNER = "Owner";
     static final String TYPE_BORROWER = "Borrower";
+
+    static final String NOTIFICATION_REQUEST = "Request";
+    static final String NOTIFICATION_APPROVE = "Approve";
+    static final String NOTIFICATION_REJECT = "Reject";
+    static final String NOTIFICATION_RETURN = "Return";
 
     private ProgramTags() {}
 }

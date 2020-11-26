@@ -394,6 +394,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(MainActivity.this, ABookActivity.class);
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
                     i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                    i.putExtra(ProgramTags.PASSED_USERNAME, username);
                     startActivity(i);
                 }
             }
