@@ -724,7 +724,7 @@ public class DBHandler {
         if (notification.getReceiveUUID() != null) {
             notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_RECEIVER, notification.getReceiveUUID());
         } else {
-            throw new Error("Cannot notification without a receiver.");
+            throw new Error("Cannot create notification without a receiver.");
         }
 
         if (notification.getSender().get(0) != null && notification.getSender().get(1) != null) {
@@ -742,7 +742,7 @@ public class DBHandler {
         if (notification.getType() != null) {
             notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_TYPE, notification.getType());
         } else {
-            throw new Error("Cannot add an unclassified notification, must set type.");
+            throw new Error("Cannot create an unclassified notification, must set type.");
         }
 
         if (notification.getTimestamp() != null) {
@@ -792,6 +792,7 @@ public class DBHandler {
                         notificationList.add(convertToNotification(doc));
                     }
                 }
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s notifications.", notificationList.size()));
                 return notificationList;
             }
         })
