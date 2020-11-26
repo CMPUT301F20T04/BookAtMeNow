@@ -1,5 +1,10 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class Notification {
@@ -12,21 +17,32 @@ public class Notification {
 
     private String uuid;
     private List<String> owner;
-    private NotificationType type;
+    private String type;
     private List<String> book;
     private List<String> borrower;
     private String timestamp;
 
-    public Notification(String uuid, List<String> owner, NotificationType type, List<String> book, List<String> borrower, String timestamp) {
+    public Notification(String uuid, List<String> owner, String type, List<String> book, List<String> borrower, String timestamp) {
         this.uuid = uuid;
         this.owner = owner;
         this.type = type;
+        for (NotificationType t : NotificationType.values()) {
+            if (t.name().equals(type)) {
+                this.type = type;
+            }
+        }
+        if(this.type != null) {
+            Log.e(ProgramTags.NOTIFICATION_ERROR, String.format("%s is not a valid notification type.", type));
+        }
         this.book = book;
         this.borrower = borrower;
         this.timestamp = timestamp;
     }
 
-    public Notification() {}
+    public Notification() {
+        Date currentTime = Calendar.getInstance().getTime();
+        this.timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm").format(currentTime);
+    }
 
     public String getUuid() {
         return uuid;
@@ -44,12 +60,19 @@ public class Notification {
         this.owner = owner;
     }
 
-    public NotificationType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(NotificationType type) {
-        this.type = type;
+    public void setType(String type) {
+        for (NotificationType t : NotificationType.values()) {
+            if (t.name().equals(type)) {
+                this.type = type;
+            }
+        }
+        if(this.type != null) {
+            Log.e(ProgramTags.NOTIFICATION_ERROR, String.format("%s is not a valid notification type.", type));
+        }
     }
 
     public List<String> getBook() {
