@@ -109,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // keyboard hiding (adapted from https://stackoverflow.com/a/17789187)
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         View view = getCurrentFocus();
@@ -149,9 +148,10 @@ public class MainActivity extends AppCompatActivity {
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                            @Override
                            public void onSuccess(List<Book> books) {
-                               filteredBooks.clear();
-                               filteredBooks.addAll(books);
-                               allBooksAdapter.sort(sortOption);
+//                               filteredBooks.clear();
+//                               filteredBooks.addAll(books);
+//                               allBooksAdapter.sort(sortOption);
+                               setViewMode(BookAdapter.ViewMode.ALL, books);
                                Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
                                setUi(filteredBooks);
                            }
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             break;
                                         default:
-                                            setViewMode(BookAdapter.ViewMode.ALL_FILTERED, books);
+                                            setViewMode(BookAdapter.ViewMode.ALL, books);
                                             break;
                                     }
                                 }
@@ -439,11 +439,7 @@ public class MainActivity extends AppCompatActivity {
     public void filterUpdate() {
         final BookAdapter.ViewMode mode;
         if (currentView == MainActivityViews.ALL_BOOKS) {
-            if (filterTerms.size() > 0) {
-                mode = BookAdapter.ViewMode.ALL_FILTERED;
-            } else {
-                mode = BookAdapter.ViewMode.ALL;
-            }
+            mode = BookAdapter.ViewMode.ALL;
         } else {
             if (filterTerms.size() > 0) {
                 mode = BookAdapter.ViewMode.OWNED_FILTERED;
@@ -483,11 +479,7 @@ public class MainActivity extends AppCompatActivity {
                                     setViewMode(BookAdapter.ViewMode.OWNED, books);
                                 }
                             } else {
-                                if (filterTerms.size() > 0) {
-                                    setViewMode(BookAdapter.ViewMode.ALL_FILTERED, books);
-                                } else {
-                                    setViewMode(BookAdapter.ViewMode.ALL, books);
-                                }
+                                setViewMode(BookAdapter.ViewMode.ALL, books);
                                 disableButtons();
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
