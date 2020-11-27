@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, UserNotifications.class);
                 i.putExtra(ProgramTags.PASSED_UUID, uuid);
                 i.putExtra(ProgramTags.PASSED_USERNAME, username);
-                startActivity(i);
+                startActivityForResult(i, 10);
             }
         });
 
