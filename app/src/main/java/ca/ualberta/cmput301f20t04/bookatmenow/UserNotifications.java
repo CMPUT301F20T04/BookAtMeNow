@@ -40,6 +40,8 @@ public class UserNotifications extends AppCompatActivity implements Notification
     String uuid;
     String username;
     final private static int GOTO_REQUESTS = 0;
+    final private static int GOTO_ABOOK = 1;
+    final private static int GOTO_MYBOOK = 2;
 
     List<Notification> notifications;
     NotificationAdapter notificationAdapter;
@@ -199,23 +201,28 @@ public class UserNotifications extends AppCompatActivity implements Notification
                 i.putExtra(ProgramTags.PASSED_ISBN, n.getBook().get(0));
                 i.putExtra(ProgramTags.PASSED_UUID, uuid);
                 i.putExtra(ProgramTags.PASSED_USERNAME, username);
-                startActivity(i);
+                startActivityForResult(i, GOTO_ABOOK);
                 break;
 
             case ProgramTags.NOTIFICATION_RETURN:
                 i = new Intent(UserNotifications.this, MyBookActivity.class);
                 i.putExtra(ProgramTags.PASSED_ISBN, n.getBook().get(0));
-                startActivity(i);
+                startActivityForResult(i, GOTO_MYBOOK);
                 break;
         }
     }
 
+    /**
+     * When returning from another activity to the UserNotifications activity, reload the notifications
+     * in case there have been changes.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == GOTO_REQUESTS) {
             retrieveNotifications();
-        }
     }
 }
 
