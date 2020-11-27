@@ -34,6 +34,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     final private static int VIEW_NOTIFICATIONS = 10;
+    final private static int VIEW_ABOOK = 11;
 
     private FloatingActionButton addBookButton;
     private FloatingActionButton editProfileButton;
@@ -409,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
                     i.putExtra(ProgramTags.PASSED_UUID, uuid);
                     i.putExtra(ProgramTags.PASSED_USERNAME, username);
-                    startActivity(i);
+                    startActivityForResult(i, VIEW_ABOOK);
                 }
             }
         });
