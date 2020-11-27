@@ -33,6 +33,8 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
 
+    final private static int VIEW_NOTIFICATIONS = 10;
+
     private FloatingActionButton addBookButton;
     private FloatingActionButton editProfileButton;
     private FloatingActionButton viewInboxButton;
@@ -188,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, UserNotifications.class);
                 i.putExtra(ProgramTags.PASSED_UUID, uuid);
                 i.putExtra(ProgramTags.PASSED_USERNAME, username);
-                startActivityForResult(i, 10);
+                startActivityForResult(i, VIEW_NOTIFICATIONS);
             }
         });
 
