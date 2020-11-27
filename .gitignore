@@ -6,7 +6,6 @@
 
 # Any .json keys
 *.json
-!app/google-services.json
 
 # BlueJ files
 *.ctxt
@@ -16,7 +15,6 @@
 
 # Package Files #
 *.jar
-!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
