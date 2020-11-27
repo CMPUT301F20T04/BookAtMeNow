@@ -302,14 +302,19 @@ public class BookRequests extends AppCompatActivity {
         startActivityForResult(i, REQUEST_LOCATION);
     }
 
+    /**
+     * Gets the list of notifications for the current user and then loops through them.   If there
+     * are any request notifications for the current user that he has just dealt with, delete those
+     * notifications.
+     * @param uuid uuid of the current user.
+     * @param isbn isbn of the book that the notification pertains to.
+     */
     private void removeNotification(final String uuid, final String isbn) {
         final String type = ProgramTags.NOTIFICATION_REQUEST;
-        Log.e("Josh Error", String.format("%s %s %s", uuid, type, isbn));
         db.getNotifications(uuid, new OnSuccessListener<List<Notification>>() {
             @Override
             public void onSuccess(List<Notification> notificationList) {
                 for(final Notification n : notificationList) {
-                    Log.e("Josh Error", String.format("%s %s %s", n.getReceiveUUID(), n.getType(), n.getBook().get(0)));
                     if(n.getType().equals(type) && n.getBook().get(0).equals(isbn)) {
                         db.removeNotification(n.getSelfUUID(), new OnSuccessListener<Boolean>() {
                             @Override
