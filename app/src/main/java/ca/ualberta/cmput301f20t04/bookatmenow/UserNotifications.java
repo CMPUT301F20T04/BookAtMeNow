@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,6 +39,7 @@ public class UserNotifications extends AppCompatActivity implements Notification
 
     String uuid;
     String username;
+    final private static int GOTO_REQUESTS = 0;
 
     List<Notification> notifications;
     NotificationAdapter notificationAdapter;
@@ -66,27 +68,10 @@ public class UserNotifications extends AppCompatActivity implements Notification
         notificationAdapter = new NotificationAdapter(UserNotifications.this, notifications, this);
         rView.setAdapter(notificationAdapter);
 
-        //Get users notifications from the db and sort by timestamp.
-        db.getNotifications(uuid, new OnSuccessListener<List<Notification>>() {
-            @Override
-            public void onSuccess(List<Notification> notificationList) {
-                Log.e(ProgramTags.DB_ERROR, "Got notifications");
-                notifications.addAll(notificationList);
-                notificationAdapter.notifyDataSetChanged();
-                notificationAdapter.sortNotifications();
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(ProgramTags.DB_ERROR, String.format("Could not retrieve notifications for %s", uuid));
-            }
-        });
+        //Get users notifications from the db.
+        retrieveNotifications();
 
         // If there are no notifications, show the no notifications message.
-        if(notificationAdapter.getItemCount() == 0) {
-            noNotifications.setVisibility(View.VISIBLE);
-        }
-
 
         ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             private final Drawable trashIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_delete_24);
@@ -108,7 +93,7 @@ public class UserNotifications extends AppCompatActivity implements Notification
                 int position = viewHolder.getAdapterPosition();
                 notificationAdapter.removeNotification(position);
 
-                // If there are no notifications, show the no notifications message.
+                // If there are no notifications left, show the no notifications message.
                 if(notificationAdapter.getItemCount() == 0) {
                     noNotifications.setVisibility(View.VISIBLE);
                 }
@@ -167,6 +152,30 @@ public class UserNotifications extends AppCompatActivity implements Notification
     }
 
 
+
+    private void retrieveNotifications() {
+        noNotifications.setVisibility(View.INVISIBLE);
+        db.getNotifications(uuid, new OnSuccessListener<List<Notification>>() {
+            @Override
+            public void onSuccess(List<Notification> notificationList) {
+                notifications.clear();
+                notifications.addAll(notificationList);
+                notificationAdapter.notifyDataSetChanged();
+                notificationAdapter.sortNotifications();
+                if(notificationAdapter.getItemCount() == 0) {
+                    noNotifications.setVisibility(View.VISIBLE);
+                }
+
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(ProgramTags.DB_ERROR, String.format("Could not retrieve notifications for %s", uuid));
+            }
+        });
+    }
+
+
     /**
      * On a notification being clicked, check the notification type and launch the relevant activity.
      * @param n notification object relevant to the position in the notification list that was clicked.
@@ -180,7 +189,7 @@ public class UserNotifications extends AppCompatActivity implements Notification
             case ProgramTags.NOTIFICATION_REQUEST:
                 i = new Intent(UserNotifications.this, BookRequests.class);
                 i.putExtra(ProgramTags.PASSED_ISBN, n.getBook().get(0));
-                startActivity(i);
+                startActivityForResult(i, GOTO_REQUESTS);
                 break;
 
             case ProgramTags.NOTIFICATION_REJECT:
@@ -201,6 +210,12 @@ public class UserNotifications extends AppCompatActivity implements Notification
         }
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == GOTO_REQUESTS) {
+            retrieveNotifications();
+        }
+    }
 }
 

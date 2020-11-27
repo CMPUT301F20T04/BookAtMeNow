@@ -427,4 +427,10 @@ public class ABookActivity extends AppCompatActivity {
             handleBorrow();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        this.finish();
+    }
 }

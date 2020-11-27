@@ -156,6 +156,8 @@ public class BookRequests extends AppCompatActivity {
                     book.setStatus(ProgramTags.STATUS_AVAILABLE);
                 }
 
+                final String ownerUuid = book.getOwner().get(0);
+
                 try {
                     db.addBook(book, new OnSuccessListener<Boolean>() {
                         @Override
@@ -186,6 +188,8 @@ public class BookRequests extends AppCompatActivity {
                             Log.e(ProgramTags.DB_MESSAGE, "Reject notification could not be added to database!");
                         }
                     });
+
+                    removeNotification(ownerUuid, isbn);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -226,6 +230,8 @@ public class BookRequests extends AppCompatActivity {
                 book.setLocation(location);
                 book.clearRequests();
 
+                final String ownerUuid = book.getOwner().get(0);
+
                 try {
                     db.addBook(book, new OnSuccessListener<Boolean>() {
                         @Override
@@ -257,6 +263,8 @@ public class BookRequests extends AppCompatActivity {
                             Log.e(ProgramTags.DB_MESSAGE, "Accept notification could not be added to database!");
                         }
                     });
+
+                    removeNotification(ownerUuid, isbn);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -292,6 +300,37 @@ public class BookRequests extends AppCompatActivity {
         i.putExtra(ProgramTags.LOCATION_MESSAGE, "SelectHandover");
         i.putExtra(ProgramTags.PASSED_BOOKNAME, bookName);
         startActivityForResult(i, REQUEST_LOCATION);
+    }
+
+    private void removeNotification(final String uuid, final String isbn) {
+        final String type = ProgramTags.NOTIFICATION_REQUEST;
+        Log.e("Josh Error", String.format("%s %s %s", uuid, type, isbn));
+        db.getNotifications(uuid, new OnSuccessListener<List<Notification>>() {
+            @Override
+            public void onSuccess(List<Notification> notificationList) {
+                for(final Notification n : notificationList) {
+                    Log.e("Josh Error", String.format("%s %s %s", n.getReceiveUUID(), n.getType(), n.getBook().get(0)));
+                    if(n.getType().equals(type) && n.getBook().get(0).equals(isbn)) {
+                        db.removeNotification(n.getSelfUUID(), new OnSuccessListener<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                Log.d(ProgramTags.DB_MESSAGE, String.format("Notification %s has been removed.", n.getReceiveUUID()));
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(ProgramTags.DB_ERROR, String.format("Notification %s could not be removed.", n.getReceiveUUID()));
+                            }
+                        });
+                    }
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(ProgramTags.DB_ERROR, String.format("Could not retrieve notifications for %s", uuid));
+            }
+        });
     }
 
     @Override
