@@ -99,16 +99,6 @@ public class MyBookActivity extends AppCompatActivity {
     private StorageReference getImageRef;
 
     private final long FILE_SIZE = 5120*5120;
-/**
-    private EditText title;
-    private EditText author;
-    private EditText isbn;
-    private Button deleteButton;
-    private Button submitButton;
-    private int REQUEST_SCAN_ISBN = 2;
-    private String stringIsbn;
-    private Boolean isbnTaken;
-**/
 
     @Override
     public void onBackPressed() {
