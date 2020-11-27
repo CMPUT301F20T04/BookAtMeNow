@@ -6,6 +6,12 @@
 
 # Any .json keys
 *.json
+!/home/runner/work/BookAtMeNow/BookAtMeNow/app/google-services.json
+!/home/runner/work/BookAtMeNow/BookAtMeNow/app/src/nullnull/google-services.json
+!/home/runner/work/BookAtMeNow/BookAtMeNow/app/src/debug/google-services.json
+!/home/runner/work/BookAtMeNow/BookAtMeNow/app/src/nullnullDebug/google-services.json
+!/home/runner/work/BookAtMeNow/BookAtMeNow/app/src/nullnull/debug/google-services.json
+!/home/runner/work/BookAtMeNow/BookAtMeNow/app/src/debug/nullnull/google-services.json
 
 # BlueJ files
 *.ctxt
