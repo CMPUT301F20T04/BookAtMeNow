@@ -41,10 +41,6 @@ public class BookAdapter extends ArrayAdapter<Book> {
          */
         ALL,
         /**
-         * Display all {@link Book}s in the system Filtered by Status
-         */
-        ALL_FILTERED,
-        /**
          * Display the {@link Book}s owned by the {@link User} with a given UUID
          */
         OWNED,
@@ -171,11 +167,10 @@ public class BookAdapter extends ArrayAdapter<Book> {
                     }
                 }
                 return false;
-            case ALL_FILTERED:
-                return (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)
-                        || book.getStatus().equals(FireStoreMapping.BOOK_STATUS_REQUESTED));
             default:
-                return true;
+                return (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)
+                        || book.getStatus().equals(FireStoreMapping.BOOK_STATUS_REQUESTED)
+                || book.getOwner().get(0).equals(uuid));
         }
     }
 

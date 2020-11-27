@@ -71,45 +71,6 @@
         app:layout_constraintStart_toEndOf="@+id/myBook_isbn_edittext"
         app:layout_constraintTop_toTopOf="@+id/myBook_isbn_edittext" />
 
-    <RadioGroup
-        android:id="@+id/myBook_status_radiogroup"
-        android:layout_width="124dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_isbn_edittext">
-
-        <RadioButton
-            android:id="@+id/myBook_available_radiobutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/book_status_available"
-            android:textColor="@color/textColorPrimary" />
-
-        <RadioButton
-            android:id="@+id/myBook_accepted_radiobutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/book_status_accepted"
-            android:textColor="@color/textColorPrimary" />
-
-        <RadioButton
-            android:id="@+id/myBook_borrowed_radiobutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/book_status_borrowed"
-            android:textColor="@color/textColorPrimary" />
-
-        <RadioButton
-            android:id="@+id/myBook_unavailable_radiobutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/myBook_unavailable_radiobutton"
-            android:textColor="@color/textColorPrimary" />
-    </RadioGroup>
-
 
     <ImageView
         android:id="@+id/myBook_imageview"
@@ -127,13 +88,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:textSize="12sp"
+        android:layout_marginTop="160dp"
         android:minHeight="0dp"
         android:onClick="takePicture"
         android:text="@string/action_take_picture"
+        android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_status_radiogroup" />
+        app:layout_constraintTop_toBottomOf="@+id/myBook_isbn_edittext" />
 
     <Button
         android:id="@+id/myBook_remove_picture_button"
@@ -227,5 +188,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/myBook_save_change_button"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/myBook_set_status"
+        android:layout_width="112dp"
+        android:layout_height="39dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_take_picture_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myBook_isbn_edittext"
+        tools:text="unavailable" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

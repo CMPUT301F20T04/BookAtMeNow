@@ -65,8 +65,7 @@ public class MyBookActivity extends AppCompatActivity {
     private Button takeImageButton;
     private Button locationButton;
     private Button receiveReturnButton;
-    private RadioGroup statusButtons;
-    private RadioButton selectedStatusButton;
+    private Button setStatusButton;
     private EditText titleEditText;
     private EditText authorEditText;
     private EditText isbnEditText;
@@ -114,7 +113,7 @@ public class MyBookActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
-        finish();
+        this.finish();
     }
 
     public void takePicture(View view){
@@ -188,16 +187,7 @@ public class MyBookActivity extends AppCompatActivity {
                 case CHECK_ISBN_SCAN:
                     receiveBook();
                     break;
-
-                case VIEW_PENDING_REQUESTS:
-                    if(data.getStringExtra(ProgramTags.PASSED_BORROWER) != null) {
-                        statusButtons.check(R.id.myBook_accepted_radiobutton);
-                    }
-
             }
-        } else if (resultCode == RESULT_CANCELED) {
-            selectedStatusButton = statusButtons.findViewById(statusButtons.getCheckedRadioButtonId());
-            selectedStatusButton.setChecked(false);
         }
     }
 
@@ -278,8 +268,7 @@ public class MyBookActivity extends AppCompatActivity {
     private boolean checkFields() {
         return (!(titleEditText.getText().length() < 1) &&
                 !(authorEditText.getText().length() < 1) &&
-                (isbnEditText.getText().length() == 13) &&
-                !(statusButtons.getCheckedRadioButtonId() == -1));
+                (isbnEditText.getText().length() == 13));
     }
 
     private void toggleAllFields(int mode) {
@@ -287,14 +276,14 @@ public class MyBookActivity extends AppCompatActivity {
             if (mode == 0) {
                 scanButton.setEnabled(false);
                 saveChangesButton.setEnabled(false);
-                statusButtons.setEnabled(false);
+                setStatusButton.setEnabled(false);
                 takeImageButton.setEnabled(false);
                 titleEditText.setEnabled(false);
                 authorEditText.setEnabled(false);
                 isbnEditText.setEnabled(false);
             } else if (mode == 1) {
                 saveChangesButton.setEnabled(false);
-                statusButtons.setEnabled(false);
+                setStatusButton.setEnabled(false);
                 removeButton.setEnabled(false);
                 pendingRequestButton.setEnabled(false);
                 takeImageButton.setEnabled(false);
@@ -305,14 +294,14 @@ public class MyBookActivity extends AppCompatActivity {
             if (mode == 0) {
                 scanButton.setEnabled(true);
                 saveChangesButton.setEnabled(true);
-                statusButtons.setEnabled(true);
+                setStatusButton.setEnabled(true);
                 takeImageButton.setEnabled(true);
                 titleEditText.setEnabled(true);
                 authorEditText.setEnabled(true);
                 isbnEditText.setEnabled(true);
             } else if (mode == 1) {
                 saveChangesButton.setEnabled(true);
-                statusButtons.setEnabled(true);
+                setStatusButton.setEnabled(true);
                 removeButton.setEnabled(true);
                 pendingRequestButton.setEnabled(true);
                 takeImageButton.setEnabled(true);
@@ -338,7 +327,7 @@ public class MyBookActivity extends AppCompatActivity {
 
         scanButton = findViewById(R.id.myBook_scan_button);
         saveChangesButton = findViewById(R.id.myBook_save_change_button);
-        statusButtons = findViewById(R.id.myBook_status_radiogroup);
+        setStatusButton = findViewById(R.id.myBook_set_status);
         removeButton = findViewById(R.id.myBook_remove_button);
         pendingRequestButton = findViewById(R.id.myBook_pending_request_button);
         takeImageButton = findViewById(R.id.myBook_take_picture_button);
@@ -393,9 +382,7 @@ public class MyBookActivity extends AppCompatActivity {
                         currentBorrower.setText(borrowerString);
                     }
 
-
                     currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
-
 
                     getImageRef = storageReference.child(currentBookImage);//try to get image
 
@@ -429,21 +416,16 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    String status = book.getStatus();
-                    switch (status) {
+                    switch (book.getStatus()) {
                         case FireStoreMapping.BOOK_STATUS_AVAILABLE:
-                            statusButtons.check(R.id.myBook_available_radiobutton);
-                            break;
-                        case FireStoreMapping.BOOK_STATUS_ACCEPTED:
-                            statusButtons.check(R.id.myBook_accepted_radiobutton);
-                            break;
-                        case FireStoreMapping.BOOK_STATUS_BORROWED:
-                            statusButtons.check(R.id.myBook_borrowed_radiobutton);
+                            setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
                             break;
                         case FireStoreMapping.BOOK_STATUS_UNAVAILABLE:
-                            statusButtons.check(R.id.myBook_unavailable_radiobutton);
+                            setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
                             break;
                         default:
+                            setStatusButton.setVisibility(View.INVISIBLE);
+                            setStatusButton.setEnabled(false);
                     }
 
                     // If the remove button is pressed, check that the user wants to delete the book,
@@ -509,24 +491,17 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    setStatusButton.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                            selectedStatusButton = radioGroup.findViewById(i);
-                            if (selectedStatusButton.isChecked()) {
-                                String status = selectedStatusButton.getText().toString();
-                                Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", book.getStatus()));
-                                if (status.equals("Accepted")) {
-                                    Intent intent = new Intent(MyBookActivity.this, BookRequests.class);
-                                    intent.putExtra("ISBN", initIsbn);
-                                    startActivityForResult(intent, 1);
-                                } else if (status.equals("Borrowed")) {
-                                    Intent intent = new Intent(MyBookActivity.this, ScanBook.class);
-                                    intent.putExtra("ISBN", initIsbn);
-                                    startActivityForResult(intent, 2);
-                                } else {
-                                    book.setStatus(status);
-                                }
+                        public void onClick(View view) {
+                            if (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)) {
+                                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                                book.setStatus(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                                Toast.makeText(context, "Book is now unavailable.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                                book.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                                Toast.makeText(context, "Book is now available.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -713,23 +688,26 @@ public class MyBookActivity extends AppCompatActivity {
         } else {//adding a new book
             final String uuid = main.getStringExtra(ProgramTags.PASSED_UUID);
             final String username = main.getStringExtra(ProgramTags.PASSED_USERNAME);
-            Log.e("Josh error", String.format("Username is %s", username));
             final Book newBook = new Book();
+            newBook.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
 
             pendingRequestButton.setVisibility(View.INVISIBLE);
             removeButton.setVisibility(View.INVISIBLE);
             currentBorrower.setVisibility(View.INVISIBLE);
+            setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
 
-            statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            setStatusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                    selectedStatusButton = radioGroup.findViewById(i);
-                    if (selectedStatusButton.isChecked()) {
-                        String status = selectedStatusButton.getText().toString();
-                        newBook.setStatus(status);
-                        Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", newBook.getStatus()));
+                public void onClick(View view) {
+                    if (newBook.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)) {
+                        setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                        newBook.setStatus(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                        Toast.makeText(context, "Book is now unavailable.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                        newBook.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                        Toast.makeText(context, "Book is now available.", Toast.LENGTH_SHORT).show();
                     }
-
                 }
             });
 

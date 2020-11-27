@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "273444697860",
+    "firebase_url": "https://cmput201f20t04.firebaseio.com",
+    "project_id": "cmput201f20t04",
+    "storage_bucket": "cmput201f20t04.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273444697860:android:7e6c70f33d235586370251",
+        "android_client_info": {
+          "package_name": "ca.ualberta.cmput301f20t04.bookatmenow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "273444697860-seuso49l5p55lvt81pcjlfpigqibs4n4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA291NoEkejFkb76Fm1x4rusTnO0OTHZ2w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "273444697860-seuso49l5p55lvt81pcjlfpigqibs4n4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
