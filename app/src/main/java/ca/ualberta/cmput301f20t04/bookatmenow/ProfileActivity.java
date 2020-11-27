@@ -11,6 +11,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,16 +54,6 @@ public class ProfileActivity extends AppCompatActivity {
     List<Address> addresses;
 
     /**
-     * https://www.geeksforgeeks.org/check-email-address-valid-not-java/
-     */
-    static final Pattern EMAIL_REGEX  = Pattern.compile(
-            "^[\\w+&*-]+" +
-                    "(?:\\.[\\w+&*-]+)*" +
-                    "@(?:[\\p{Alnum}-]+\\.)+" +
-                    "[a-zA-Z]{2,7}$"
-    );
-
-    /**
      * Check email address format.
      * @param email
      * @return true if email is valid, false if it is not
@@ -70,7 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
     public static boolean validEmail(String email) {
         if (email == null)
             return false;
-        return EMAIL_REGEX.matcher(email).matches();
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     /**
