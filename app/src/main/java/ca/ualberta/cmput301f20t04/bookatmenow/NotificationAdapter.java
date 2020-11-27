@@ -129,7 +129,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, sName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 messageString.setSpan(new StyleSpan(Typeface.ITALIC), sName.length() +
                         sentenceFiller.length(), sName.length() + sentenceFiller.length() +
-                        bTitle.length() -1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        bTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), sName.length() +
+                        sentenceFiller.length(), sName.length() + sentenceFiller.length() +
+                        bTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 break;
 
             case "Approve":
@@ -137,7 +140,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 sentenceEnd = " was accepted.";
                 messageString = new SpannableString(sentenceStart + bTitle + sentenceEnd);
                 messageString.setSpan(new StyleSpan(Typeface.ITALIC), sentenceStart.length() - 1,
-                        sentenceStart.length() + bTitle.length() -1 , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        sentenceStart.length() + bTitle.length() , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), sentenceStart.length() - 1,
+                        sentenceStart.length() + bTitle.length() , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 break;
 
             case "Reject":
@@ -145,7 +150,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 sentenceEnd = " was rejected.";
                 messageString = new SpannableString(sentenceStart + bTitle + sentenceEnd);
                 messageString.setSpan(new StyleSpan(Typeface.ITALIC), sentenceStart.length() - 1,
-                        sentenceStart.length() + bTitle.length() -1 , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        sentenceStart.length() + bTitle.length() , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), sentenceStart.length() - 1,
+                        sentenceStart.length() + bTitle.length() , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 break;
 
             case "Return":
@@ -154,7 +161,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, sName.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 messageString.setSpan(new StyleSpan(Typeface.ITALIC), sName.length() +
                         sentenceFiller.length(), sName.length() + sentenceFiller.length() +
-                        bTitle.length() -1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        bTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageString.setSpan(new StyleSpan(Typeface.BOLD), sName.length() +
+                        sentenceFiller.length(), sName.length() + sentenceFiller.length() +
+                        bTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 break;
 
