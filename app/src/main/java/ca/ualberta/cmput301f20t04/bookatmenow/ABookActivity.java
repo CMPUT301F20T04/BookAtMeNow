@@ -336,6 +336,8 @@ public class ABookActivity extends AppCompatActivity {
                             Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
                         }
                     });
+                    removeNotification(uuid, book.getIsbn());
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -344,6 +346,42 @@ public class ABookActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Gets the list of notifications for the current user and then loops through them.   If there
+     * are any notifications that the current users request for this book has been approved, delete
+     * those as they are not necessary anymore.
+     * @param uuid uuid of the current user.
+     * @param isbn isbn of the book that the notification pertains to.
+     */
+    private void removeNotification(final String uuid, final String isbn) {
+        final String type = ProgramTags.NOTIFICATION_APPROVE;
+        db.getNotifications(uuid, new OnSuccessListener<List<Notification>>() {
+            @Override
+            public void onSuccess(List<Notification> notificationList) {
+                for(final Notification n : notificationList) {
+                    if(n.getType().equals(type) && n.getBook().get(0).equals(isbn)) {
+                        db.removeNotification(n.getSelfUUID(), new OnSuccessListener<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                Log.d(ProgramTags.DB_MESSAGE, String.format("Notification %s has been removed.", n.getReceiveUUID()));
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(ProgramTags.DB_ERROR, String.format("Notification %s could not be removed.", n.getReceiveUUID()));
+                            }
+                        });
+                    }
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(ProgramTags.DB_ERROR, String.format("Could not retrieve notifications for %s", uuid));
             }
         });
     }
