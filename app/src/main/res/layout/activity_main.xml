@@ -119,9 +119,11 @@
             android:focusable="true"
             app:backgroundTint="#4527A0"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/floating_add"
+            app:layout_constraintHorizontal_bias="0.744"
+            app:layout_constraintStart_toEndOf="@+id/floating_filter"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@drawable/ic_baseline_person_48" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -136,8 +138,6 @@
             app:backgroundTint="@color/confirm"
             app:layout_constraintBottom_toBottomOf="@+id/floating_edit_profile"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/floating_edit_profile"
             app:layout_constraintTop_toTopOf="@+id/floating_edit_profile"
             app:srcCompat="@drawable/ic_baseline_add_48" />
 
@@ -152,11 +152,21 @@
             android:focusable="true"
             app:backgroundTint="@color/mid_way"
             app:layout_constraintBottom_toBottomOf="@+id/floating_edit_profile"
-            app:layout_constraintEnd_toStartOf="@+id/floating_edit_profile"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/floating_edit_profile"
             app:srcCompat="@drawable/ic_baseline_filter_list_24" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floating_view_inbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginLeft="48dp"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/floating_filter"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/sym_action_email" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

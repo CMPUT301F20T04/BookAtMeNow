@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addBookButton;
     private FloatingActionButton editProfileButton;
+    private FloatingActionButton viewInboxButton;
 
     private ImageButton sortButton;
     private Button searchButton;
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
     private void setUi(final ArrayList<Book> filteredBooks) {
         // menu buttons
         editProfileButton = findViewById(R.id.floating_edit_profile);
+        viewInboxButton = findViewById(R.id.floating_view_inbox);
         searchButton = findViewById(R.id.search_btn);
         searchEditText = findViewById(R.id.search_bar);
 
@@ -179,6 +181,16 @@ public class MainActivity extends AppCompatActivity {
         filterTabs = findViewById(R.id.filterTabs);
 
         sortButton = findViewById(R.id.sort);
+
+        viewInboxButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, UserNotifications.class);
+                i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                i.putExtra(ProgramTags.PASSED_USERNAME, username);
+                startActivity(i);
+            }
+        });
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
