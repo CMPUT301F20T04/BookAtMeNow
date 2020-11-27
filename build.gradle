@@ -30,4 +30,6 @@ task clean(type: Delete) {
 //    description = "$ ./gradlew runOnGitHub # runs on GitHub Action" //3
 //}
 
-gradle wrapper
+task wrapper(type: Wrapper) {
+   gradleVersion = '4.1.1'
+}
