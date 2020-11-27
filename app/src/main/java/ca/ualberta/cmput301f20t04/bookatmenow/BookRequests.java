@@ -304,7 +304,7 @@ public class BookRequests extends AppCompatActivity {
 
     /**
      * Gets the list of notifications for the current user and then loops through them.   If there
-     * are any request notifications for the current user that he has just dealt with, delete those
+     * are any request notifications for the current user that they have just dealt with, delete those
      * notifications.
      * @param uuid uuid of the current user.
      * @param isbn isbn of the book that the notification pertains to.
