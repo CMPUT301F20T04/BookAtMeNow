@@ -1,0 +1,38 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+# .github/workflows/build.yml
+# GitHub Actions documentation
+# => https://docs.github.com/en/actions
+name: Build
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v1
+
+      - name: JDK Setup
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      # Building
+      - name: Build the app
+        run: ./gradlew build
+
+      # Linting
+      - name: Run linter
+        run: ./gradlew lint
+
+      # Testing
+      - name: Run tests
+        run: ./gradlew test
