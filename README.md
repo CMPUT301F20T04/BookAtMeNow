@@ -9,6 +9,6 @@ Book At Me Now is an android application that allows users to maintain a persona
 
 
 
-
 ***
+Made with Android Studio 4.1.1
 Launcher icon made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
