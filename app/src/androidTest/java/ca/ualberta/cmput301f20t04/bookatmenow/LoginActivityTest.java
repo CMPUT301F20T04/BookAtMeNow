@@ -52,6 +52,7 @@ public class LoginActivityTest {
         solo.enterText((EditText) solo.getView(R.id.login_user), "CustomUsername");
         solo.enterText((EditText) solo.getView(R.id.login_pw), "password");
         solo.clickOnButton("Login");
+        solo.waitForActivity("MainActivity");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         FloatingActionButton profile = (FloatingActionButton) solo.getView(R.id.floating_edit_profile);
         solo.clickOnView(profile);
