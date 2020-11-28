@@ -174,12 +174,14 @@ public class DBHandler {
         String phone = data.getString(FireStoreMapping.USER_FIELDS_PHONE);
         String email = data.getString(FireStoreMapping.USER_FIELDS_EMAIL);
         String address = data.getString(FireStoreMapping.USER_FIELDS_ADDRESS);
+        String password = data.getString(FireStoreMapping.USER_FIELDS_PASSWORD);
 
         finalUser.setUserID(data.getId());
         finalUser.setUsername(username);
         finalUser.setPhone(phone);
         finalUser.setEmail(email);
         finalUser.setAddress(address);
+        finalUser.setPassword(password);
 
         return finalUser;
     }
@@ -220,6 +222,7 @@ public class DBHandler {
 
                             if (!userToAdd.getPassword().equals(user.getPassword()) && userToAdd.getPassword().trim().length() > 0) {
                                 userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
+                                Log.d(ProgramTags.DB_MESSAGE, "User password changed.");
                             } else {
                                 userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, user.getPassword());
                                 Log.d(ProgramTags.DB_MESSAGE, "User password not changed.");
