@@ -74,13 +74,16 @@
 
     <ImageView
         android:id="@+id/myBook_imageview"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myBook_scan_button" />
+        app:layout_constraintTop_toBottomOf="@+id/myBook_scan_button"
+        app:layout_constraintBottom_toTopOf="@+id/myBook_pending_request_button"
+        app:layout_constraintStart_toEndOf="@+id/myBook_remove_picture_button"/>
 
     <Button
         android:id="@+id/myBook_take_picture_button"
