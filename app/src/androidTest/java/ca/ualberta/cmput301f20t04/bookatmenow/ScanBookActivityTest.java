@@ -1,6 +1,7 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import android.app.Activity;
+import android.widget.Button;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -44,6 +45,10 @@ public class ScanBookActivityTest {
      */
     @Test
     public void launchScannerTest() {
+        solo.assertCurrentActivity("Scan Book", ScanBook.class);
+        Button useIsbn = (Button) solo.getView(R.id.scanbook_done_button);
+        // No ISBN scanned, so will stay on activity.
+        solo.clickOnView(useIsbn);
         solo.assertCurrentActivity("Scan Book", ScanBook.class);
     }
 
