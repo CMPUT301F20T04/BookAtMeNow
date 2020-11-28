@@ -495,6 +495,10 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             } else {
                                 setViewMode(BookAdapter.ViewMode.ALL, books);
+                                //Select the all books tab.
+                                TabLayout.Tab tab = filterTabs.getTabAt(0);
+                                assert tab != null;
+                                tab.select();
                                 disableButtons();
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
