@@ -63,7 +63,6 @@ public class ProfileActivityTest {
 
     /**
      * Checks filling all user fields.
-     * Will fail if user already exists in db.
      */
     @Test
     public void fullUser() {
@@ -72,11 +71,9 @@ public class ProfileActivityTest {
         solo.enterText((EditText) solo.getView(R.id.password), "janedoe");
         solo.enterText((EditText) solo.getView(R.id.password_confirm), "janedoe");
         solo.enterText((EditText) solo.getView(R.id.phone), "7801234567");
-        solo.enterText((EditText) solo.getView(R.id.email), "me@mymail.com");
-        solo.enterText((EditText) solo.getView(R.id.address), "my address");
-        solo.clickOnButton("Save");
-        solo.waitForActivity("LoginActivity");
-        solo.assertCurrentActivity("Wrong Activity", LoginActivity.class);
+        solo.enterText((EditText) solo.getView(R.id.email), "jane@gmail.com");
+        solo.enterText((EditText) solo.getView(R.id.address), "91210 Beverly Hills");
+        solo.clickOnButton("Cancel");
     }
 
     /**
@@ -89,10 +86,8 @@ public class ProfileActivityTest {
         solo.enterText((EditText) solo.getView(R.id.username), "Jane Doe");
         solo.enterText((EditText) solo.getView(R.id.password), "janedoe");
         solo.enterText((EditText) solo.getView(R.id.password_confirm), "janedoe");
-        solo.enterText((EditText) solo.getView(R.id.email), "me@mymail.com");
-        solo.clickOnButton("Save");
-        solo.waitForActivity("LoginActivity");
-        solo.assertCurrentActivity("Wrong Activity", LoginActivity.class);
+        solo.enterText((EditText) solo.getView(R.id.email), "jane@gmail.com");
+        solo.clickOnButton("Cancel");
     }
 
     /**
