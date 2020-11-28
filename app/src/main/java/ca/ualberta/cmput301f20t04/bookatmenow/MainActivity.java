@@ -361,22 +361,24 @@ public class MainActivity extends AppCompatActivity {
                        break;
 
                     case REQUESTED:
-                        db.userRequests(
-                                uuid,
-                                new OnSuccessListener<List<Book>>() {
-                                    @Override
-                                    public void onSuccess(List<Book> books) {
-                                        filterTerms.clear();
-                                        setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                        if (uuid != null) {
+                            db.userRequests(
+                                    uuid,
+                                    new OnSuccessListener<List<Book>>() {
+                                        @Override
+                                        public void onSuccess(List<Book> books) {
+                                            filterTerms.clear();
+                                            setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                                        }
+                                    },
+                                    new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
+                                        }
                                     }
-                                },
-                                new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                        );
+                            );
+                        }
                 }
             }
 
