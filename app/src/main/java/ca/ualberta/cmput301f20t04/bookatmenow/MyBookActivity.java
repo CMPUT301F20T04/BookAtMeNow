@@ -69,6 +69,7 @@ public class MyBookActivity extends AppCompatActivity {
     private Button removeButton;
     private Button pendingRequestButton;
     private Button takeImageButton;
+    private Button removeImageButton;
     private Button locationButton;
     private Button receiveReturnButton;
     private Button setStatusButton;
@@ -376,6 +377,7 @@ public class MyBookActivity extends AppCompatActivity {
                 saveChangesButton.setEnabled(false);
                 setStatusButton.setEnabled(false);
                 takeImageButton.setEnabled(false);
+                removeImageButton.setEnabled(false);
                 titleEditText.setEnabled(false);
                 authorEditText.setEnabled(false);
                 isbnEditText.setEnabled(false);
@@ -385,6 +387,7 @@ public class MyBookActivity extends AppCompatActivity {
                 removeButton.setEnabled(false);
                 pendingRequestButton.setEnabled(false);
                 takeImageButton.setEnabled(false);
+                removeImageButton.setEnabled(false);
                 titleEditText.setEnabled(false);
                 authorEditText.setEnabled(false);
             }
@@ -394,6 +397,7 @@ public class MyBookActivity extends AppCompatActivity {
                 saveChangesButton.setEnabled(true);
                 setStatusButton.setEnabled(true);
                 takeImageButton.setEnabled(true);
+                removeImageButton.setEnabled(true);
                 titleEditText.setEnabled(true);
                 authorEditText.setEnabled(true);
                 isbnEditText.setEnabled(true);
@@ -403,6 +407,7 @@ public class MyBookActivity extends AppCompatActivity {
                 removeButton.setEnabled(true);
                 pendingRequestButton.setEnabled(true);
                 takeImageButton.setEnabled(true);
+                removeImageButton.setEnabled(true);
                 titleEditText.setEnabled(true);
                 authorEditText.setEnabled(true);
             }
@@ -429,6 +434,7 @@ public class MyBookActivity extends AppCompatActivity {
         removeButton = findViewById(R.id.myBook_remove_button);
         pendingRequestButton = findViewById(R.id.myBook_pending_request_button);
         takeImageButton = findViewById(R.id.myBook_take_picture_button);
+        removeImageButton = findViewById(R.id.myBook_remove_picture_button);
         locationButton= findViewById(R.id.myBook_location_button);
         receiveReturnButton= findViewById(R.id.myBook_receive_button);
 
@@ -648,12 +654,13 @@ public class MyBookActivity extends AppCompatActivity {
                                 currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
                                 final StorageReference riversRef = storageReference.child(currentBookImage);
 
+                                // Disable buttons
+                                toggleAllFields(1);
+
                                 UploadTask uploadTask = riversRef.putBytes(compressImage(file));//uploading a file
                                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {//image uploaded. Now update db
-
-                                        toggleAllFields(1);
 
                                         if (checkFields()) {
                                             book.setTitle(titleEditText.getText().toString().trim());
@@ -841,12 +848,14 @@ public class MyBookActivity extends AppCompatActivity {
                         currentBookImage = String.valueOf("images/" + isbnEditText.getText().toString().trim() + ".jpg");
                         final StorageReference riversRef = storageReference.child(currentBookImage);
 
+                        // Disable buttons
+                        toggleAllFields(0);
+
                         UploadTask uploadTask = riversRef.putBytes(compressImage(file));//uploading a file
                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 // Get a URL to the uploaded content
-                                toggleAllFields(0);
                                 if (checkFields()) {
 
                                     newBook.setTitle(titleEditText.getText().toString().trim());
