@@ -44,7 +44,10 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -101,7 +104,7 @@ public class MyBookActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private StorageReference getImageRef;
 
-    private final long FILE_SIZE = 5120*5120;
+    private final long FILE_SIZE = 7000000;
 
     @Override
     public void onBackPressed() {
@@ -163,7 +166,9 @@ public class MyBookActivity extends AppCompatActivity {
             switch (requestCode) {
                 case REQUEST_IMAGE_CAPTURE: // if user took photo, set it in imageview
                     ImageView myImg = (ImageView) findViewById(R.id.myBook_imageview); //need to redefine it before changing it
-                    Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inSampleSize = 3;
+                    Bitmap myBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath(), options);
                     myImg.setImageBitmap(myBitmap);
                     myImg.setRotation(90);
                     pictureTaken = true;
@@ -489,7 +494,9 @@ public class MyBookActivity extends AppCompatActivity {
                                 public void onSuccess(byte[] bytes) {
                                     Log.i("AppInfo", "SUCCEED");
                                     ImageView myImg = (ImageView) findViewById(R.id.myBook_imageview); //need to redefine it before changing it
-                                    Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    BitmapFactory.Options options = new BitmapFactory.Options();
+                                    options.inSampleSize = 3;
+                                    Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
                                     myImg.setImageBitmap(myBitmap);
                                     myImg.setRotation(90);
                                 }
@@ -641,7 +648,7 @@ public class MyBookActivity extends AppCompatActivity {
                                 currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
                                 final StorageReference riversRef = storageReference.child(currentBookImage);
 
-                                UploadTask uploadTask = riversRef.putFile(file);//uploading a file
+                                UploadTask uploadTask = riversRef.putBytes(compressImage(file));//uploading a file
                                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {//image uploaded. Now update db
@@ -834,7 +841,7 @@ public class MyBookActivity extends AppCompatActivity {
                         currentBookImage = String.valueOf("images/" + isbnEditText.getText().toString().trim() + ".jpg");
                         final StorageReference riversRef = storageReference.child(currentBookImage);
 
-                        UploadTask uploadTask = riversRef.putFile(file);//uploading a file
+                        UploadTask uploadTask = riversRef.putBytes(compressImage(file));//uploading a file
                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -953,5 +960,24 @@ public class MyBookActivity extends AppCompatActivity {
             });
 
         }
+    }
+
+
+    /**
+     * Compresses an image for easier and quicker upload to firebase.
+     * @param file uniform resource identifier for the image file being compressed.
+     * @return byte array of the compressed image.
+     */
+    public byte[] compressImage(Uri file) {
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream oArray = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 25, oArray);
+
+        return oArray.toByteArray();
     }
 }
