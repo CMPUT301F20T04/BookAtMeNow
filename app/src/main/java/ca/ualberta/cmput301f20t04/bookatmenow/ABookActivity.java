@@ -256,6 +256,15 @@ public class ABookActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Book book) {
                 book.addRequest(uuid);
+
+                // Update the status textview to "requested"
+                String status = "Status: ";
+                String bookStatus = book.getStatus();
+                SpannableString statusString = new SpannableString(status + bookStatus);
+                statusString.setSpan(new StyleSpan(Typeface.BOLD), 0, status.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                aStatus.setText(statusString);
+
+
                 try {
                     db.addBook(book, new OnSuccessListener<Boolean>() {
                         @Override
