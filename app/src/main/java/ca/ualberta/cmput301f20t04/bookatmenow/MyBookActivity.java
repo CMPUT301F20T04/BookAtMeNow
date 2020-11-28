@@ -1,6 +1,7 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -11,10 +12,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -65,8 +68,7 @@ public class MyBookActivity extends AppCompatActivity {
     private Button takeImageButton;
     private Button locationButton;
     private Button receiveReturnButton;
-    private RadioGroup statusButtons;
-    private RadioButton selectedStatusButton;
+    private Button setStatusButton;
     private EditText titleEditText;
     private EditText authorEditText;
     private EditText isbnEditText;
@@ -100,21 +102,11 @@ public class MyBookActivity extends AppCompatActivity {
     private StorageReference getImageRef;
 
     private final long FILE_SIZE = 5120*5120;
-/**
-    private EditText title;
-    private EditText author;
-    private EditText isbn;
-    private Button deleteButton;
-    private Button submitButton;
-    private int REQUEST_SCAN_ISBN = 2;
-    private String stringIsbn;
-    private Boolean isbnTaken;
-**/
 
     @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
-        finish();
+        this.finish();
     }
 
     public void takePicture(View view){
@@ -190,14 +182,19 @@ public class MyBookActivity extends AppCompatActivity {
                     break;
 
                 case VIEW_PENDING_REQUESTS:
-                    if(data.getStringExtra(ProgramTags.PASSED_BORROWER) != null) {
-                        statusButtons.check(R.id.myBook_accepted_radiobutton);
-                    }
+                    db.getBook(initIsbn, new OnSuccessListener<Book>() {
+                        @Override
+                        public void onSuccess(Book book) {
+                            statusButtonSetup(book.getStatus());
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
 
             }
-        } else if (resultCode == RESULT_CANCELED) {
-            selectedStatusButton = statusButtons.findViewById(statusButtons.getCheckedRadioButtonId());
-            selectedStatusButton.setChecked(false);
         }
     }
 
@@ -210,6 +207,7 @@ public class MyBookActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Book book) {
                 List<String> emptyList = Collections.singletonList("");
+                final String ownerUuid = book.getOwner().get(0);
                 book.setBorrower(emptyList);
                 book.setReturning(false);
                 book.setLocation(emptyList);
@@ -232,6 +230,10 @@ public class MyBookActivity extends AppCompatActivity {
                             Log.d(ProgramTags.DB_ERROR, "Received book could not be re-added to database!");
                         }
                     });
+
+                    removeNotification(ownerUuid, book.getIsbn());
+                    statusButtonSetup(book.getStatus());
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -240,6 +242,42 @@ public class MyBookActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Gets the list of notifications for the current user and then loops through them.   If there
+     * are any notifications that the current book is being returned, delete those as they are
+     * not necessary anymore.
+     * @param uuid uuid of the current user.
+     * @param isbn isbn of the book that the notification pertains to.
+     */
+    private void removeNotification(final String uuid, final String isbn) {
+        final String type = ProgramTags.NOTIFICATION_RETURN;
+        db.getNotifications(uuid, new OnSuccessListener<List<Notification>>() {
+            @Override
+            public void onSuccess(List<Notification> notificationList) {
+                for(final Notification n : notificationList) {
+                    if(n.getType().equals(type) && n.getBook().get(0).equals(isbn)) {
+                        db.removeNotification(n.getSelfUUID(), new OnSuccessListener<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                Log.d(ProgramTags.DB_MESSAGE, String.format("Notification %s has been removed.", n.getReceiveUUID()));
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(ProgramTags.DB_ERROR, String.format("Notification %s could not be removed.", n.getReceiveUUID()));
+                            }
+                        });
+                    }
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(ProgramTags.DB_ERROR, String.format("Could not retrieve notifications for %s", uuid));
             }
         });
     }
@@ -275,11 +313,55 @@ public class MyBookActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Set the text of the status button and its background tint based on the books current status.
+     * @param status status of the book being viewed.
+     */
+    private void statusButtonSetup(String status) {
+        //Setting padding around the button stops text from being cut off.
+        setStatusButton.setPadding(1,1,1,1);
+        switch (status) {
+            case FireStoreMapping.BOOK_STATUS_AVAILABLE:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.confirm)));
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_UNAVAILABLE:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(null);
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_REQUESTED:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_REQUESTED);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.mid_way)));
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_ACCEPTED:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_ACCEPTED);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.deny)));
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_BORROWED:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_BORROWED);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.deny)));
+                }
+                break;
+
+            default:
+                setStatusButton.setVisibility(View.INVISIBLE);
+                setStatusButton.setEnabled(false);
+        }
+    }
+
     private boolean checkFields() {
         return (!(titleEditText.getText().length() < 1) &&
                 !(authorEditText.getText().length() < 1) &&
-                (isbnEditText.getText().length() == 13) &&
-                !(statusButtons.getCheckedRadioButtonId() == -1));
+                (isbnEditText.getText().length() == 13));
     }
 
     private void toggleAllFields(int mode) {
@@ -287,14 +369,14 @@ public class MyBookActivity extends AppCompatActivity {
             if (mode == 0) {
                 scanButton.setEnabled(false);
                 saveChangesButton.setEnabled(false);
-                statusButtons.setEnabled(false);
+                setStatusButton.setEnabled(false);
                 takeImageButton.setEnabled(false);
                 titleEditText.setEnabled(false);
                 authorEditText.setEnabled(false);
                 isbnEditText.setEnabled(false);
             } else if (mode == 1) {
                 saveChangesButton.setEnabled(false);
-                statusButtons.setEnabled(false);
+                setStatusButton.setEnabled(false);
                 removeButton.setEnabled(false);
                 pendingRequestButton.setEnabled(false);
                 takeImageButton.setEnabled(false);
@@ -305,14 +387,14 @@ public class MyBookActivity extends AppCompatActivity {
             if (mode == 0) {
                 scanButton.setEnabled(true);
                 saveChangesButton.setEnabled(true);
-                statusButtons.setEnabled(true);
+                setStatusButton.setEnabled(true);
                 takeImageButton.setEnabled(true);
                 titleEditText.setEnabled(true);
                 authorEditText.setEnabled(true);
                 isbnEditText.setEnabled(true);
             } else if (mode == 1) {
                 saveChangesButton.setEnabled(true);
-                statusButtons.setEnabled(true);
+                setStatusButton.setEnabled(true);
                 removeButton.setEnabled(true);
                 pendingRequestButton.setEnabled(true);
                 takeImageButton.setEnabled(true);
@@ -338,7 +420,7 @@ public class MyBookActivity extends AppCompatActivity {
 
         scanButton = findViewById(R.id.myBook_scan_button);
         saveChangesButton = findViewById(R.id.myBook_save_change_button);
-        statusButtons = findViewById(R.id.myBook_status_radiogroup);
+        setStatusButton = findViewById(R.id.myBook_set_status);
         removeButton = findViewById(R.id.myBook_remove_button);
         pendingRequestButton = findViewById(R.id.myBook_pending_request_button);
         takeImageButton = findViewById(R.id.myBook_take_picture_button);
@@ -393,9 +475,7 @@ public class MyBookActivity extends AppCompatActivity {
                         currentBorrower.setText(borrowerString);
                     }
 
-
                     currentBookImage = String.valueOf("images/" + book.getIsbn() + ".jpg");
-
 
                     getImageRef = storageReference.child(currentBookImage);//try to get image
 
@@ -429,22 +509,7 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    String status = book.getStatus();
-                    switch (status) {
-                        case FireStoreMapping.BOOK_STATUS_AVAILABLE:
-                            statusButtons.check(R.id.myBook_available_radiobutton);
-                            break;
-                        case FireStoreMapping.BOOK_STATUS_ACCEPTED:
-                            statusButtons.check(R.id.myBook_accepted_radiobutton);
-                            break;
-                        case FireStoreMapping.BOOK_STATUS_BORROWED:
-                            statusButtons.check(R.id.myBook_borrowed_radiobutton);
-                            break;
-                        case FireStoreMapping.BOOK_STATUS_UNAVAILABLE:
-                            statusButtons.check(R.id.myBook_unavailable_radiobutton);
-                            break;
-                        default:
-                    }
+                    statusButtonSetup(book.getStatus());
 
                     // If the remove button is pressed, check that the user wants to delete the book,
                     // and then remove the book and any images associated with it.
@@ -509,24 +574,27 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    setStatusButton.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                            selectedStatusButton = radioGroup.findViewById(i);
-                            if (selectedStatusButton.isChecked()) {
-                                String status = selectedStatusButton.getText().toString();
-                                Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", book.getStatus()));
-                                if (status.equals("Accepted")) {
-                                    Intent intent = new Intent(MyBookActivity.this, BookRequests.class);
-                                    intent.putExtra("ISBN", initIsbn);
-                                    startActivityForResult(intent, 1);
-                                } else if (status.equals("Borrowed")) {
-                                    Intent intent = new Intent(MyBookActivity.this, ScanBook.class);
-                                    intent.putExtra("ISBN", initIsbn);
-                                    startActivityForResult(intent, 2);
-                                } else {
-                                    book.setStatus(status);
+                        public void onClick(View view) {
+                            if (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)) {
+                                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                                book.setStatus(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+
+                                if (Build.VERSION.SDK_INT >= 21) {
+                                    setStatusButton.setBackgroundTintList(null);
                                 }
+
+                                Toast.makeText(context, "Book is now unavailable.", Toast.LENGTH_SHORT).show();
+                            } else if (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_UNAVAILABLE)) {
+
+                                if (Build.VERSION.SDK_INT >= 21) {
+                                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.confirm)));
+                                }
+
+                                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                                book.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                                Toast.makeText(context, "Book is now available.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -713,23 +781,36 @@ public class MyBookActivity extends AppCompatActivity {
         } else {//adding a new book
             final String uuid = main.getStringExtra(ProgramTags.PASSED_UUID);
             final String username = main.getStringExtra(ProgramTags.PASSED_USERNAME);
-            Log.e("Josh error", String.format("Username is %s", username));
             final Book newBook = new Book();
+            newBook.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
 
             pendingRequestButton.setVisibility(View.INVISIBLE);
             removeButton.setVisibility(View.INVISIBLE);
             currentBorrower.setVisibility(View.INVISIBLE);
+            setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
 
-            statusButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            setStatusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                    selectedStatusButton = radioGroup.findViewById(i);
-                    if (selectedStatusButton.isChecked()) {
-                        String status = selectedStatusButton.getText().toString();
-                        newBook.setStatus(status);
-                        Log.d(ProgramTags.BOOK_DATA, String.format("Book status set to %s", newBook.getStatus()));
-                    }
+                public void onClick(View view) {
+                    if (newBook.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)) {
+                        setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                        newBook.setStatus(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
 
+                        if(Build.VERSION.SDK_INT >= 21) {
+                            setStatusButton.setBackgroundTintList(null);
+                        }
+
+                        Toast.makeText(context, "Book is now unavailable.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                        newBook.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+
+                        if(Build.VERSION.SDK_INT >= 21) {
+                            setStatusButton.setBackgroundTintList(null);
+                        }
+
+                        Toast.makeText(context, "Book is now available.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 

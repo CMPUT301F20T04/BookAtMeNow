@@ -174,12 +174,14 @@ public class DBHandler {
         String phone = data.getString(FireStoreMapping.USER_FIELDS_PHONE);
         String email = data.getString(FireStoreMapping.USER_FIELDS_EMAIL);
         String address = data.getString(FireStoreMapping.USER_FIELDS_ADDRESS);
+        String password = data.getString(FireStoreMapping.USER_FIELDS_PASSWORD);
 
         finalUser.setUserID(data.getId());
         finalUser.setUsername(username);
         finalUser.setPhone(phone);
         finalUser.setEmail(email);
         finalUser.setAddress(address);
+        finalUser.setPassword(password);
 
         return finalUser;
     }
@@ -220,6 +222,7 @@ public class DBHandler {
 
                             if (!userToAdd.getPassword().equals(user.getPassword()) && userToAdd.getPassword().trim().length() > 0) {
                                 userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, userToAdd.getPassword());
+                                Log.d(ProgramTags.DB_MESSAGE, "User password changed.");
                             } else {
                                 userData.put(FireStoreMapping.USER_FIELDS_PASSWORD, user.getPassword());
                                 Log.d(ProgramTags.DB_MESSAGE, "User password not changed.");
@@ -432,7 +435,7 @@ public class DBHandler {
             bookData.put(FireStoreMapping.BOOK_FIELDS_BORROWER, new ArrayList<String>());
         }
 
-        if(bookToAdd.getOwner() != null) {
+        if(bookToAdd.getOwner().get(0) != null && bookToAdd.getOwner().get(1) != null) {
             bookData.put(FireStoreMapping.BOOK_FIELDS_OWNER, bookToAdd.getOwner());
         } else {
             throw new Exception("Cannot add free-floating book. Assign to existing user.");
@@ -689,6 +692,136 @@ public class DBHandler {
 
                 Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s users.", users.size()));
                 return users;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    private Notification convertToNotification(DocumentSnapshot doc) {
+        Notification notification = new Notification(
+                doc.getString(FireStoreMapping.NOTIFICATION_FIELDS_RECEIVER),
+                (List<String>) doc.get(FireStoreMapping.NOTIFICATION_FIELDS_SENDER),
+                doc.getString(FireStoreMapping.NOTIFICATION_FIELDS_TYPE),
+                (List<String>) doc.get(FireStoreMapping.NOTIFICATION_FIELDS_BOOK),
+                doc.getString(FireStoreMapping.NOTIFICATION_FIELDS_TIMESTAMP)
+        );
+        notification.setSelfUUID(doc.getId());
+
+        return notification;
+    }
+
+    /**
+     * Stores an existing notification in the database; creates UUID for notification identification
+     * @param notification
+     *      Notification object to store
+     * @param successListener
+     *      Listener for DB success
+     * @param failureListener
+     *      Listener for DB failure
+     */
+    public void addNotification(Notification notification, OnSuccessListener<String> successListener, OnFailureListener failureListener) {
+        final String uuid = String.valueOf(UUID.randomUUID());
+        HashMap<String, Object> notificationToAdd = new HashMap<>();
+
+        if (notification.getReceiveUUID() != null) {
+            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_RECEIVER, notification.getReceiveUUID());
+        } else {
+            throw new Error("Cannot create notification without a receiver.");
+        }
+
+        if (notification.getSender().get(0) != null && notification.getSender().get(1) != null) {
+            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_SENDER, notification.getSender());
+        } else {
+            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_SENDER, new ArrayList<>());
+        }
+
+        if (notification.getBook().get(0) != null && notification.getBook().get(1) != null) {
+            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_BOOK, notification.getBook());
+        } else {
+            throw new Error("Cannot create an empty notification.");
+        }
+
+        if (notification.getType() != null) {
+            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_TYPE, notification.getType());
+        } else {
+            throw new Error("Cannot create an unclassified notification, must set type.");
+        }
+
+        if (notification.getTimestamp() != null) {
+            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_TIMESTAMP, notification.getTimestamp());
+        } else {
+            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_TIMESTAMP, "");
+        }
+
+        Task<Void> addNotification = db
+                .collection(FireStoreMapping.COLLECTIONS_NOTIFICATION)
+                .document(uuid)
+                .set(notificationToAdd);
+
+        addNotification.continueWith(new Continuation<Void, String>() {
+            @Override
+            public String then(@NonNull Task<Void> task) throws Exception {
+                return uuid;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Getter to retrieve notifications from DB
+     * @param uuid
+     *      UUID of the user meant to receive the notification
+     * @param successListener
+     *      Listener to handle success
+     * @param failureListener
+     *      Listener to handle failure
+     */
+    public void getNotifications(String uuid, OnSuccessListener<List<Notification>> successListener, OnFailureListener failureListener) {
+        Task<QuerySnapshot> getTask = db
+                .collection(FireStoreMapping.COLLECTIONS_NOTIFICATION)
+                .whereEqualTo(FireStoreMapping.NOTIFICATION_FIELDS_RECEIVER, uuid)
+                .get();
+
+        getTask.continueWith(new Continuation<QuerySnapshot, List<Notification>>() {
+            @Override
+            public List<Notification> then(@NonNull Task<QuerySnapshot> task) throws Exception {
+                List<DocumentSnapshot> getResults = task.getResult().getDocuments();
+                List<Notification> notificationList = new ArrayList<>();
+
+                for (DocumentSnapshot doc: getResults) {
+                    if (doc.exists()) {
+                        notificationList.add(convertToNotification(doc));
+                    }
+                }
+                Log.d(ProgramTags.DB_MESSAGE, String.format("Retrieved %s notifications.", notificationList.size()));
+                return notificationList;
+            }
+        })
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Notification removal method. Deletes a notification from the DB based on its UUID
+     * @param uuid
+     *      UUID of notification
+     * @param successListener
+     *      Listener to handle success
+     * @param failureListener
+     *      Listener to handle failure
+     */
+    public void removeNotification(String uuid, OnSuccessListener<Boolean> successListener, OnFailureListener failureListener) {
+        Task<Void> removeTask = db
+                .collection(FireStoreMapping.COLLECTIONS_NOTIFICATION)
+                .document(uuid)
+                .delete();
+
+        removeTask.continueWith(new Continuation<Void, Boolean>() {
+            @Override
+            public Boolean then(@NonNull Task<Void> task) throws Exception {
+                return true;
             }
         })
                 .addOnSuccessListener(successListener)

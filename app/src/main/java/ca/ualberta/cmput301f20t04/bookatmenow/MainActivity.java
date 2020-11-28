@@ -33,8 +33,12 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
 
+    final private static int VIEW_NOTIFICATIONS = 10;
+    final private static int VIEW_ABOOK = 11;
+
     private FloatingActionButton addBookButton;
     private FloatingActionButton editProfileButton;
+    private FloatingActionButton viewInboxButton;
 
     private ImageButton sortButton;
     private Button searchButton;
@@ -109,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // keyboard hiding (adapted from https://stackoverflow.com/a/17789187)
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         View view = getCurrentFocus();
@@ -149,9 +152,10 @@ public class MainActivity extends AppCompatActivity {
         db.getAllBooks(new OnSuccessListener<List<Book>>() {
                            @Override
                            public void onSuccess(List<Book> books) {
-                               filteredBooks.clear();
-                               filteredBooks.addAll(books);
-                               allBooksAdapter.sort(sortOption);
+//                               filteredBooks.clear();
+//                               filteredBooks.addAll(books);
+//                               allBooksAdapter.sort(sortOption);
+                               setViewMode(BookAdapter.ViewMode.ALL, books);
                                Log.d(ProgramTags.DB_ALL_FOUND, "All books in database successfully found");
                                setUi(filteredBooks);
                            }
@@ -164,9 +168,14 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Set the user interface according to which tab is selected.
+     * @param filteredBooks
+     */
     private void setUi(final ArrayList<Book> filteredBooks) {
         // menu buttons
         editProfileButton = findViewById(R.id.floating_edit_profile);
+        viewInboxButton = findViewById(R.id.floating_view_inbox);
         searchButton = findViewById(R.id.search_btn);
         searchEditText = findViewById(R.id.search_bar);
 
@@ -175,6 +184,16 @@ public class MainActivity extends AppCompatActivity {
         filterTabs = findViewById(R.id.filterTabs);
 
         sortButton = findViewById(R.id.sort);
+
+        viewInboxButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, UserNotifications.class);
+                i.putExtra(ProgramTags.PASSED_UUID, uuid);
+                i.putExtra(ProgramTags.PASSED_USERNAME, username);
+                startActivityForResult(i, VIEW_NOTIFICATIONS);
+            }
+        });
 
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             break;
                                         default:
-                                            setViewMode(BookAdapter.ViewMode.ALL_FILTERED, books);
+                                            setViewMode(BookAdapter.ViewMode.ALL, books);
                                             break;
                                     }
                                 }
@@ -375,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
         bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
-                Log.d(ProgramTags.TEST_TAG, uuid);
+                Log.d(ProgramTags.TEST_TAG, "List Adapter");
                 if (filteredBooks.get(pos).getOwner().get(0).equals(uuid)) {
                     Intent i = new Intent(MainActivity.this, MyBookActivity.class);
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
@@ -390,7 +409,8 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(MainActivity.this, ABookActivity.class);
                     i.putExtra(ProgramTags.PASSED_ISBN, filteredBooks.get(pos).getIsbn());
                     i.putExtra(ProgramTags.PASSED_UUID, uuid);
-                    startActivity(i);
+                    i.putExtra(ProgramTags.PASSED_USERNAME, username);
+                    startActivityForResult(i, VIEW_ABOOK);
                 }
             }
         });
@@ -434,11 +454,7 @@ public class MainActivity extends AppCompatActivity {
     public void filterUpdate() {
         final BookAdapter.ViewMode mode;
         if (currentView == MainActivityViews.ALL_BOOKS) {
-            if (filterTerms.size() > 0) {
-                mode = BookAdapter.ViewMode.ALL_FILTERED;
-            } else {
-                mode = BookAdapter.ViewMode.ALL;
-            }
+            mode = BookAdapter.ViewMode.ALL;
         } else {
             if (filterTerms.size() > 0) {
                 mode = BookAdapter.ViewMode.OWNED_FILTERED;
@@ -477,13 +493,12 @@ public class MainActivity extends AppCompatActivity {
                                 } else {
                                     setViewMode(BookAdapter.ViewMode.OWNED, books);
                                 }
+                            } else if (currentView.equals(MainActivityViews.BORROWED)) {
+                                setViewMode(BookAdapter.ViewMode.BORROWED, books);
+                            } else if (currentView.equals(MainActivityViews.REQUESTED)) {
+                                setViewMode(BookAdapter.ViewMode.REQUESTED, books);
                             } else {
-                                if (filterTerms.size() > 0) {
-                                    setViewMode(BookAdapter.ViewMode.ALL_FILTERED, books);
-                                } else {
-                                    setViewMode(BookAdapter.ViewMode.ALL, books);
-                                }
-                                disableButtons();
+                                setViewMode(BookAdapter.ViewMode.ALL, books);
                             }
                             Log.d(ProgramTags.GENERAL_SUCCESS, "Book list updated.");
                         } catch (Exception e) {

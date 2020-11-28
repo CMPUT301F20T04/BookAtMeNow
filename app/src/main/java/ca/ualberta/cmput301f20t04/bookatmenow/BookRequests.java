@@ -52,7 +52,7 @@ public class BookRequests extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, intent);
         this.finish();
     }
 
@@ -133,7 +133,8 @@ public class BookRequests extends AppCompatActivity {
 
     /**
      * Removes a request in the local book object and then re-adds that book to the db with the
-     * modified requests list.
+     * modified requests list. Also creates a notification for the rejected user and adds it to the
+     * db.
      * @param position position in the user linked list of the request being removed.
      */
     public void removeRequest(int position) {
@@ -155,6 +156,8 @@ public class BookRequests extends AppCompatActivity {
                     book.setStatus(ProgramTags.STATUS_AVAILABLE);
                 }
 
+                final String ownerUuid = book.getOwner().get(0);
+
                 try {
                     db.addBook(book, new OnSuccessListener<Boolean>() {
                         @Override
@@ -166,6 +169,28 @@ public class BookRequests extends AppCompatActivity {
                             Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
                         }
                     });
+
+                    Notification n = new Notification();
+                    n.setType(ProgramTags.NOTIFICATION_REJECT);
+                    n.setReceiveUUID(requestUuid);
+                    n.setSender(book.getOwner());
+                    List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
+                    n.setBook(bookInfo);
+
+                    db.addNotification(n, new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            Log.d(ProgramTags.DB_MESSAGE, "Reject notification was added to database!");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(ProgramTags.DB_MESSAGE, "Reject notification could not be added to database!");
+                        }
+                    });
+
+                    removeNotification(ownerUuid, isbn);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -181,7 +206,8 @@ public class BookRequests extends AppCompatActivity {
     /**
      * Accepts a book request by a user.  Clears all other book requests and makes the accepted
      * user the borrower of the book.   Updates the books status to "accepted" and adds the
-     * handover location.   Then re-adds the book to the db to update it.
+     * handover location.   Then re-adds the book to the db to update it.  Also creates a notification
+     * for the accepted user and adds it to the db.
      * @param position position in the user linked list of the user whose request is accepted.
      */
     public void acceptRequest(int position) {
@@ -204,6 +230,8 @@ public class BookRequests extends AppCompatActivity {
                 book.setLocation(location);
                 book.clearRequests();
 
+                final String ownerUuid = book.getOwner().get(0);
+
                 try {
                     db.addBook(book, new OnSuccessListener<Boolean>() {
                         @Override
@@ -216,6 +244,28 @@ public class BookRequests extends AppCompatActivity {
                             Log.d(ProgramTags.DB_ERROR, "Requested book could not be re-added to database!");
                         }
                     });
+
+                    Notification n = new Notification();
+                    n.setType(ProgramTags.NOTIFICATION_APPROVE);
+                    n.setReceiveUUID(borrowerUuid);
+                    n.setSender(book.getOwner());
+                    List<String> bookInfo = Arrays.asList(book.getIsbn(), book.getTitle());
+                    n.setBook(bookInfo);
+
+                    db.addNotification(n, new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            Log.d(ProgramTags.DB_MESSAGE, "Accept notification was added to database!");
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(ProgramTags.DB_MESSAGE, "Accept notification could not be added to database!");
+                        }
+                    });
+
+                    removeNotification(ownerUuid, isbn);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -250,6 +300,42 @@ public class BookRequests extends AppCompatActivity {
         i.putExtra(ProgramTags.LOCATION_MESSAGE, "SelectHandover");
         i.putExtra(ProgramTags.PASSED_BOOKNAME, bookName);
         startActivityForResult(i, REQUEST_LOCATION);
+    }
+
+    /**
+     * Gets the list of notifications for the current user and then loops through them.   If there
+     * are any request notifications that the current book is being requested, delete those as they are
+     * not necessary anymore.
+     * @param uuid uuid of the current user.
+     * @param isbn isbn of the book that the notification pertains to.
+     */
+    private void removeNotification(final String uuid, final String isbn) {
+        final String type = ProgramTags.NOTIFICATION_REQUEST;
+        db.getNotifications(uuid, new OnSuccessListener<List<Notification>>() {
+            @Override
+            public void onSuccess(List<Notification> notificationList) {
+                for(final Notification n : notificationList) {
+                    if(n.getType().equals(type) && n.getBook().get(0).equals(isbn)) {
+                        db.removeNotification(n.getSelfUUID(), new OnSuccessListener<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                Log.d(ProgramTags.DB_MESSAGE, String.format("Notification %s has been removed.", n.getReceiveUUID()));
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(ProgramTags.DB_ERROR, String.format("Notification %s could not be removed.", n.getReceiveUUID()));
+                            }
+                        });
+                    }
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(ProgramTags.DB_ERROR, String.format("Could not retrieve notifications for %s", uuid));
+            }
+        });
     }
 
     @Override

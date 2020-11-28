@@ -6,6 +6,7 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public class ScanBook extends AppCompatActivity {
     private TextView scanMessage;
     private TextView isbnText;
 
+    Context context;
     Intent main;
 
     private DBHandler db;
@@ -86,7 +88,9 @@ public class ScanBook extends AppCompatActivity {
         isbnText = findViewById(R.id.scanbook_isbn);
         scanMessage = findViewById(R.id.scanbook_message);
         scanMessage.setVisibility(View.INVISIBLE);
+        cameraView.setVisibility(View.INVISIBLE);
         main = getIntent();
+        context = this;
 
 
         if(main.getStringExtra(ProgramTags.SCAN_MESSAGE) != null) {
@@ -111,7 +115,7 @@ public class ScanBook extends AppCompatActivity {
 
         }
 
-        initialize();
+        checkPermissions();
     }
 
     @Override
@@ -133,19 +137,17 @@ public class ScanBook extends AppCompatActivity {
                 .setAutoFocusEnabled(true)
                 .build();
 
+        cameraView.setVisibility(View.VISIBLE);
+
         //Get camera permissions and add callback to the SurfaceHolder of the camera preview.
         cameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
                 try {
-                    if (ActivityCompat.checkSelfPermission(ScanBook.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        cameraSource.start(cameraView.getHolder());
-                    } else {
-                        ActivityCompat.requestPermissions(ScanBook.this, new
-                                String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_ACCESS_CAMERA);
-                    }
-                } catch (IOException e) {
+                    cameraSource.start(cameraView.getHolder());
+                } catch (SecurityException | IOException e) {
                     e.printStackTrace();
+                    Log.e(ProgramTags.GENERAL_ERROR, "Camera permissions error.");
                 }
             }
 
@@ -180,6 +182,47 @@ public class ScanBook extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    /**
+     * Check the camera permissions.   If permission has been granted.  Call initialize() to set up
+     * and start the camera.
+     */
+    private void checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(ScanBook.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            initialize();
+        } else {
+            ActivityCompat.requestPermissions(ScanBook.this, new
+                    String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_ACCESS_CAMERA);
+        }
+    }
+
+    /**
+     * If permissions to the camera has been granted call initialize() and re-initialize the camera
+     * source.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode == PERMISSIONS_REQUEST_ACCESS_CAMERA) {
+            if (ActivityCompat.checkSelfPermission(ScanBook.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                initialize();
+                try {
+                    cameraSource.start(cameraView.getHolder());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                Toast.makeText(context, "Camera Permission denied", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_CANCELED);
+                this.finish();
+            }
+
+        }
+
     }
 
 }
