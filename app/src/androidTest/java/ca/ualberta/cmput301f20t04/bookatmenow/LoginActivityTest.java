@@ -49,8 +49,8 @@ public class LoginActivityTest {
     @Test
     public void successfulLoginLogoutTest() {
         solo.assertCurrentActivity("Wrong activity", LoginActivity.class);
-        solo.enterText((EditText) solo.getView(R.id.login_user), "CustomUsername");
-        solo.enterText((EditText) solo.getView(R.id.login_pw), "password");
+        solo.enterText((EditText) solo.getView(R.id.login_user), "Steve");
+        solo.enterText((EditText) solo.getView(R.id.login_pw), "steve01");
         solo.clickOnButton("Login");
         solo.waitForActivity("MainActivity");
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
