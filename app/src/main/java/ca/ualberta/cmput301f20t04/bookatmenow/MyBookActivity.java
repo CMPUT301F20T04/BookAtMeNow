@@ -157,6 +157,7 @@ public class MyBookActivity extends AppCompatActivity {
     }
 
     public void removeImage(View view){
+        Toast.makeText(context, "Image removed. Save to make change permanent.", Toast.LENGTH_LONG).show();
         removeImage = true;
     }
 
