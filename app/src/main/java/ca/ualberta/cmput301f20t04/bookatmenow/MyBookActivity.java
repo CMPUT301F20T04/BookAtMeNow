@@ -1,6 +1,7 @@
 package ca.ualberta.cmput301f20t04.bookatmenow;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -11,10 +12,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -177,6 +180,20 @@ public class MyBookActivity extends AppCompatActivity {
                 case CHECK_ISBN_SCAN:
                     receiveBook();
                     break;
+
+                case VIEW_PENDING_REQUESTS:
+                    db.getBook(initIsbn, new OnSuccessListener<Book>() {
+                        @Override
+                        public void onSuccess(Book book) {
+                            statusButtonSetup(book.getStatus());
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+
             }
         }
     }
@@ -215,6 +232,7 @@ public class MyBookActivity extends AppCompatActivity {
                     });
 
                     removeNotification(ownerUuid, book.getIsbn());
+                    statusButtonSetup(book.getStatus());
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -292,6 +310,51 @@ public class MyBookActivity extends AppCompatActivity {
             takePicture(null);
         } else{
             new Exception("grantResult returned incorrect value");
+        }
+    }
+
+    /**
+     * Set the text of the status button and its background tint based on the books current status.
+     * @param status status of the book being viewed.
+     */
+    private void statusButtonSetup(String status) {
+        //Setting padding around the button stops text from being cut off.
+        setStatusButton.setPadding(1,1,1,1);
+        switch (status) {
+            case FireStoreMapping.BOOK_STATUS_AVAILABLE:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.confirm)));
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_UNAVAILABLE:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(null);
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_REQUESTED:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_REQUESTED);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.mid_way)));
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_ACCEPTED:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_ACCEPTED);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.deny)));
+                }
+                break;
+            case FireStoreMapping.BOOK_STATUS_BORROWED:
+                setStatusButton.setText(FireStoreMapping.BOOK_STATUS_BORROWED);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.deny)));
+                }
+                break;
+
+            default:
+                setStatusButton.setVisibility(View.INVISIBLE);
+                setStatusButton.setEnabled(false);
         }
     }
 
@@ -446,17 +509,7 @@ public class MyBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    switch (book.getStatus()) {
-                        case FireStoreMapping.BOOK_STATUS_AVAILABLE:
-                            setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
-                            break;
-                        case FireStoreMapping.BOOK_STATUS_UNAVAILABLE:
-                            setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
-                            break;
-                        default:
-                            setStatusButton.setVisibility(View.INVISIBLE);
-                            setStatusButton.setEnabled(false);
-                    }
+                    statusButtonSetup(book.getStatus());
 
                     // If the remove button is pressed, check that the user wants to delete the book,
                     // and then remove the book and any images associated with it.
@@ -527,8 +580,18 @@ public class MyBookActivity extends AppCompatActivity {
                             if (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)) {
                                 setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
                                 book.setStatus(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+
+                                if (Build.VERSION.SDK_INT >= 21) {
+                                    setStatusButton.setBackgroundTintList(null);
+                                }
+
                                 Toast.makeText(context, "Book is now unavailable.", Toast.LENGTH_SHORT).show();
-                            } else {
+                            } else if (book.getStatus().equals(FireStoreMapping.BOOK_STATUS_UNAVAILABLE)) {
+
+                                if (Build.VERSION.SDK_INT >= 21) {
+                                    setStatusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.confirm)));
+                                }
+
                                 setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
                                 book.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
                                 Toast.makeText(context, "Book is now available.", Toast.LENGTH_SHORT).show();
@@ -732,10 +795,20 @@ public class MyBookActivity extends AppCompatActivity {
                     if (newBook.getStatus().equals(FireStoreMapping.BOOK_STATUS_AVAILABLE)) {
                         setStatusButton.setText(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
                         newBook.setStatus(FireStoreMapping.BOOK_STATUS_UNAVAILABLE);
+
+                        if(Build.VERSION.SDK_INT >= 21) {
+                            setStatusButton.setBackgroundTintList(null);
+                        }
+
                         Toast.makeText(context, "Book is now unavailable.", Toast.LENGTH_SHORT).show();
                     } else {
                         setStatusButton.setText(FireStoreMapping.BOOK_STATUS_AVAILABLE);
                         newBook.setStatus(FireStoreMapping.BOOK_STATUS_AVAILABLE);
+
+                        if(Build.VERSION.SDK_INT >= 21) {
+                            setStatusButton.setBackgroundTintList(null);
+                        }
+
                         Toast.makeText(context, "Book is now available.", Toast.LENGTH_SHORT).show();
                     }
                 }
