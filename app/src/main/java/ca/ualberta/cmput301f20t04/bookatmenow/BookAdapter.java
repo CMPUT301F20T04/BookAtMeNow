@@ -200,6 +200,14 @@ public class BookAdapter extends ArrayAdapter<Book> {
         return convertView;
     }
 
+    /**
+     * A helper method for setting the fields of a book.
+     *
+     * @param convertedView
+     *      the view of the row to set in the {@link android.widget.ListView}
+     * @param book
+     *      the {@link Book} to display in the row
+     */
     private void setFields(View convertedView, Book book) {
         TextView title = convertedView.findViewById(R.id.title_text);
         TextView author = convertedView.findViewById(R.id.author_text);
@@ -218,6 +226,15 @@ public class BookAdapter extends ArrayAdapter<Book> {
         }
     }
 
+    /**
+     * A helper method for setting a book's status in the {@link android.widget.ListView},
+     * including its corresponding colour.
+     *
+     * @param statusView
+     *      the {@link TextView} where the book's status should be displayed
+     * @param book
+     *      the {@link Book} to display in the row
+     */
     private void setStatus(TextView statusView, Book book) {
         int colour;
         String bookStatus = book.getStatus();
@@ -283,11 +300,23 @@ public class BookAdapter extends ArrayAdapter<Book> {
      */
     public static class CompareBookBy implements Comparator<Book> {
 
+        /**
+         * An enum representing the three attributes that a list of {@link Book}s can be sorted by.
+         */
         public enum SortOption {
             TITLE,
             AUTHOR,
             ISBN;
 
+            /**
+             * A helper method to convert {@link SortOption} to an integer value for use in a
+             * spinner.
+             *
+             * @return
+             *      the representation of this {@link SortOption} as an integer
+             *
+             * @see SortDialog
+             */
             public int toInt() {
                 switch (this) {
                     default:
