@@ -744,7 +744,7 @@ public class DBHandler {
         if (notification.getSender().get(0) != null && notification.getSender().get(1) != null) {
             notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_SENDER, notification.getSender());
         } else {
-            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_SENDER, new ArrayList<>());
+            throw new Error("Cannot create notification without a sender.");
         }
 
         if (notification.getBook().get(0) != null && notification.getBook().get(1) != null) {
