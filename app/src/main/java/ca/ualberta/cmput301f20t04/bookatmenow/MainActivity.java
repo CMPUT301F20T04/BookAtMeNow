@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
     List<String> filterTerms;
 
+    /**
+     * An enum representing the tabs in MainActivity.
+     */
     private enum MainActivityViews{
         ALL_BOOKS,
         MY_BOOKS,
@@ -67,12 +70,14 @@ public class MainActivity extends AppCompatActivity {
         REQUESTED;
 
         /**
-         * Allow this enum to be used like a C enum.
+         * Allow this enum to be converted from an integer for {@link this#filterTabs}.
          *
          * @param i
          *      The equivalent integer to the MainActivityView
          * @return
          *      The corresponding enum value
+         *
+         * @see TabLayout
          */
         public static MainActivityViews fromInt(int i) {
             switch (i) {
@@ -88,6 +93,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        /**
+         * Allow this enum to be converted to an integer for {@link this#filterTabs}.
+         *
+         * @return
+         *      a representation of the current tab as an integer
+         *
+         * @see TabLayout
+         */
         public int toInt() {
             switch (this) {
                 default:
@@ -169,8 +182,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Set the user interface according to which tab is selected.
+     * A helper method to set the user interface according to which tab is selected.
+     *
      * @param filteredBooks
+     *      the list of books retrieved from a {@link DBHandler}
      */
     private void setUi(final ArrayList<Book> filteredBooks) {
         // menu buttons
@@ -361,22 +376,24 @@ public class MainActivity extends AppCompatActivity {
                        break;
 
                     case REQUESTED:
-                        db.userRequests(
-                                uuid,
-                                new OnSuccessListener<List<Book>>() {
-                                    @Override
-                                    public void onSuccess(List<Book> books) {
-                                        filterTerms.clear();
-                                        setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                        if (uuid != null) {
+                            db.userRequests(
+                                    uuid,
+                                    new OnSuccessListener<List<Book>>() {
+                                        @Override
+                                        public void onSuccess(List<Book> books) {
+                                            filterTerms.clear();
+                                            setViewMode(BookAdapter.ViewMode.REQUESTED, books);
+                                        }
+                                    },
+                                    new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            e.printStackTrace();
+                                        }
                                     }
-                                },
-                                new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                        );
+                            );
+                        }
                 }
             }
 
@@ -436,9 +453,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * A helper method for setting the visibility of a list of {@link Book}s in the current tab,
+     * for the current user
      *
      * @param viewMode
+     *      the {@link BookAdapter.ViewMode} of the books
      * @param allBooks
+     *      the list of {@link Book}s
      */
     private void setViewMode(BookAdapter.ViewMode viewMode, List<Book> allBooks) {
         filteredBooks.clear();
@@ -451,6 +472,9 @@ public class MainActivity extends AppCompatActivity {
         allBooksAdapter.sort(sortOption);
     }
 
+    /**
+     * A helper method to update the book list in accordance with the current filter.
+     */
     public void filterUpdate() {
         final BookAdapter.ViewMode mode;
         if (currentView == MainActivityViews.ALL_BOOKS) {

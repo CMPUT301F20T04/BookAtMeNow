@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:layout_marginTop="2dp"
-                android:text="Message"
+                android:text="Could not generate notification message."
                 android:textColor="@color/textColorSecondary"
                 android:textSize="14dp" />
         </LinearLayout>

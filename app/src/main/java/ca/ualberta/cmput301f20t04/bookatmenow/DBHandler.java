@@ -565,11 +565,15 @@ public class DBHandler {
                 .addOnFailureListener(failureListener);
     }
 
-    //Possible all search and filter candidate, may be generalised for all cases of multi-book retrieval
-    //Assumes type is set to null or of [ProgramTags.TYPE_OWNER, ProgramTags.TYPE_BORROWER]
-    //Assumes uuid is set to null or legal UUID
-    //Assumes terms is non-empty, because what?
-    //Assumes filter to be of empty or filled with terms, use only legal status values defined in FireStoreMapping
+    /**
+     * Searching method, returns an array of books based on an array of terms; searching code references the Description field on the database
+     * @param terms
+     *      List<String> containing words the user wants to search by
+     * @param successListener
+     *      Listener to handle successful retrieval
+     * @param failureListener
+     *      Listener to handle unsuccessful retrueval
+     */
     public void searchBooks(List<String> terms, OnSuccessListener<List<Book>> successListener, OnFailureListener failureListener) {
         for (String i: terms) {
             // Clean up terms
@@ -698,6 +702,13 @@ public class DBHandler {
                 .addOnFailureListener(failureListener);
     }
 
+    /**
+     * Conversion handler for notifications. Creates a proper book object based on data from the databse
+     * @param doc
+     *      DocumentSnapshot of book data
+     * @return
+     *      Returns completed book object
+     */
     private Notification convertToNotification(DocumentSnapshot doc) {
         Notification notification = new Notification(
                 doc.getString(FireStoreMapping.NOTIFICATION_FIELDS_RECEIVER),
@@ -733,7 +744,7 @@ public class DBHandler {
         if (notification.getSender().get(0) != null && notification.getSender().get(1) != null) {
             notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_SENDER, notification.getSender());
         } else {
-            notificationToAdd.put(FireStoreMapping.NOTIFICATION_FIELDS_SENDER, new ArrayList<>());
+            throw new Error("Cannot create notification without a sender.");
         }
 
         if (notification.getBook().get(0) != null && notification.getBook().get(1) != null) {

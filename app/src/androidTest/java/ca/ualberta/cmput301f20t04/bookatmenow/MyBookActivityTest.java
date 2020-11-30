@@ -3,7 +3,6 @@ package ca.ualberta.cmput301f20t04.bookatmenow;
 import android.app.Activity;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -14,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class MyBookActivityTest {
     private Solo solo;
@@ -65,8 +65,8 @@ public class MyBookActivityTest {
         solo.enterText((EditText) solo.getView(R.id.myBook_title_edittext), "Harry Potter and the Philosopher's Stone");
         solo.enterText((EditText) solo.getView(R.id.myBook_author_edittext), "J.K. Rowling");
         solo.enterText((EditText) solo.getView(R.id.myBook_isbn_edittext), "9780439554930");
-        RadioButton available = (RadioButton) solo.getView(R.id.myBook_available_radiobutton);
-        solo.clickOnView(available);
+        Button available = (Button) solo.getView(R.id.myBook_set_status);
+        assertEquals(available.getText(), "Available");
         solo.clickOnButton("Save");
     }
 

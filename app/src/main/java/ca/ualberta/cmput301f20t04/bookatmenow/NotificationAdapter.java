@@ -42,12 +42,17 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        Notification n = notifications.get(position);
-        if(holder instanceof MyViewHolder){
-            ((MyViewHolder)holder).timestamp.setText(n.getTimestamp());
-            ((MyViewHolder)holder).message.setText(messageBuilder(n.getType(), n.getSender().get(1),
-                    n.getBook().get(1)));
+        try {
+            Notification n = notifications.get(position);
+            if(holder instanceof MyViewHolder){
+                ((MyViewHolder)holder).timestamp.setText(n.getTimestamp());
+                ((MyViewHolder)holder).message.setText(messageBuilder(n.getType(), n.getSender().get(1),
+                        n.getBook().get(1)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
 
     }
 
